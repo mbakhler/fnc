@@ -1,0 +1,557 @@
+﻿<script type="text/html" id="qb-online">
+	<!-- MAIN LIST VIEW -->
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="color:#337ab7;font-weight:bold;">Manage QuickBooks Connections</span></div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-xs-4"><input type="text" class="form-control input-sm" placeholder="Search..." data-bind="textInput: fnc.setupQb.searchQbAuthenticationFilter" /></div>
+			</div>
+		</div>
+		<table class="cm-table table table-condensed table-striped">
+			<thead style="display:block;">
+				<tr style="background-color:#f5f5f5;">
+					<th style="width:25%">Location</th>
+
+					<th style="width:10%">Connected Date</th>
+					<th style="width:10%">Expiration Date</th>
+					<th style="width:15%">Initiated/Connected By</th>
+
+					<th style="width:25%">QuickBooks Company</th>
+
+					<th style="width:15%;"></th>
+					<th class="col-w-scroll-17"></th>
+				</tr>
+			</thead>
+			<tbody id="tblCmLocationListBody" style="display:block; overflow-y:scroll;" data-bind="">
+				<!-- ko foreach: fnc.setupQb.filteredCmLocations -->
+				<tr class="cm-hover">
+					<!-- attr: {title: ko.toJSON($data, null, 2)} -->
+					<td style="width:25%"><div style="line-height:32px;height:32px;overflow:hidden;text-overflow:ellipsis;" data-bind="text: OrgName, attr: {title: OrgName}"></div></td>
+					<td style="width:10%"><span style="line-height:32px;" data-bind="text: ConnectedDate"></span></td>
+					<td style="width:10%"><span style="line-height:32px;" data-bind="text: Expiration"></span></td>
+					<td style="width:15%"><span style="line-height:32px;" data-bind="text: ConnectionBy"></span></td>
+
+					<td style="width:25%"><div style="line-height:32px;height:32px;overflow:hidden;text-overflow:ellipsis;" data-bind="text: ConnectedCompName"></div></td>
+
+					<td style="width:15%;">
+						<button class="btn btn-xs btn-success" style="width:32px;padding:0px;font-weight:bold;float:right;margin-left:3px;/*border:solid 2px lightgray;*/" data-bind="click: doMapping, enable: isViewMappingButtonEnable()">
+							<span class="glyphicon glyphicon-cog" style="line-height:28px;font-size:1.4em;" data-bind=""></span>
+						</button>
+						<button class="btn btn-xs" style="width:90px;padding:0px;color:green;font-weight:bold;float:right;" data-bind="click: doAction, enable: isConnectButtonEnable()">
+							<img style="height:30px;float:left;" src="img/qb/C2QB_white_btn_med_default.png" data-bind="visible: Status == -1" />
+							<div style="background-color:Crimson;" data-bind="visible: Status == 2"><span style="line-height:30px;color:white;" data-bind="text: 'Disconnect'"></span></div>
+							<div data-bind="visible: Status == 0 || Status == 1"><span style="height:30px;line-height:28px;color:green;font-weight:bold;padding-left:4px;float:left;" class="glyphicon glyphicon-hourglass"></span><span style="line-height:30px;" data-bind="text: 'In Progress'"></span></div>
+							<div style="background-color:orange;" data-bind="visible: Status == 3"><span style="line-height:30px;color:white;" data-bind="text: 'Reconnect'"></span></div>
+						</button>
+					</td>
+				</tr>
+				<!-- /ko -->
+				<tr>
+					<td colspan="6" style="width:10000px;">&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- /MAIN LIST VIEW -->
+
+	<!-- ************* -->
+	<!-- MODAL DIALOGS -->
+	<!-- ************* -->
+
+	<!-- QB MAPPING -->
+	<div class="modal draggable fade cm-modal-fullscreen" id="modQbMapping" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false" data-bind="">
+		<div class="modal-dialog" style="min-width:1100px;" data-bind="with: fnc.setupQb.selectedCmLocation">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel"><span data-bind="text: 'QuickBooks Mapping (' + OrgName + ')'"></span></h4>
+				</div>
+				<div class="modal-body">
+					<!-- Nav tabs -->
+					<ul class="nav nav-pills" role="tablist">
+						<li role="presentation" class="active"><a href="#cmLocationList" aria-controls="cmLocationList" role="tab" data-toggle="pill" onclick="fnc.setupQb.clickMappingTab(this);">Locations</a></li>
+
+						<li role="presentation"><a href="#cmVendorList" aria-controls="cmVendorList" role="tab" data-toggle="pill" onclick="fnc.setupQb.clickMappingTab(this);">Vendors</a></li>
+						<li role="presentation"><a href="#cmGLAcctList" aria-controls="cmGLAcctList" role="tab" data-toggle="pill" onclick="fnc.setupQb.clickMappingTab(this);">GL Accounts</a></li>
+
+						<li role="presentation"><a href="#cmClassList" aria-controls="cmClassList" role="tab" data-toggle="pill" onclick="fnc.setupQb.clickMappingTab(this);">Classes</a></li>
+
+					
+					</ul>
+					<!-- /Nav tabs -->
+					<!-- Tab panes -->
+					<div class="tab-content">
+						<!-- QB LOCATIONS -->
+						<div role="tabpanel" class="tab-pane active" id="cmLocationList">
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="panel panel-default" style="margin-bottom:0;">
+										<div class="panel-body">
+											<input type="text" class="form-control input-sm" style="width:200px;" placeholder="Search..." data-bind="textInput: fnc.setupQb.groupItemSearchFilter">
+											<table class="cm-table table table-condensed table-striped" style="margin-bottom:0;margin-top:15px;">
+												<thead style="display:block;">
+													<tr style="background-color:#f5f5f5;">
+														<th style="width:50%;">Location</th>
+														<th style="width:40%;">QuickBooks Location</th>
+														<th style="width:10%;"></th>
+														<th class="col-w-scroll-17"></th>
+													</tr>
+												</thead>
+												<tbody id="tblQBLocationListBody" style="display:block;overflow-y:scroll;">
+													<!-- ko foreach: fnc.setupQb.filteredGroupItems -->
+													<tr class="cm-hover" data-bind="" style=" ">
+														<td style="width:50%;" data-bind="text: OrgName"></td>
+														<td style="width:40%;" data-bind="text: CustomOrgName()"></td>
+														<td style="width:10%;">
+
+															<!-- DROPDOWN -->
+															<div class="dropdown" style="background-image: none;">
+																<button class="btn btn-xs" id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right;" data-bind="click: toggleDropdown, css: {'btn-success': CustomOrgCode(), 'btn-danger': !CustomOrgCode()}, enable: fnc.setupQb.qboAllLocations().length > 0">
+																	<span class="glyphicon glyphicon-link" data-bind=""></span>
+																</button>
+
+
+																<div class="dropdown-menu dropdown-menu-right cm-qb-location-dropdown" style="right:10px;margin:5px 0 0;padding:0;width:400px;display:block;" aria-labelledby="dLabel" data-bind="visible: false">
+																	<!-- ko if:fnc.setupQb.qboAllLocations().length > 0 -->
+																	<table class="cm-table table table-condensed table-striped" style="margin-bottom:0;">
+																		<thead style="display:block;">
+																			<tr>
+																				<th style="width:20px;"></th>
+																				<th style="width:370px;">QuickBooks Locations</th>
+																				<th style="width:10px;"><button type="button" class="close" aria-label="Close" data-bind="click: closeDropdown"><span aria-hidden="true">×</span></button></th>
+																			</tr>
+																			<tr><th colspan="3" style=""><input type="text" class="form-control input-sm" style="width:200px;margin-left:20px;" placeholder="Search..." data-bind="textInput: qbLocationSearch" /></th></tr>
+																		</thead>
+																		<tfoot>
+																			<tr><td colspan="3" style="height:35px;"><button class="btn btn-xs" style="margin-top:5px;float:right;" data-bind="click: submitUpdate, enable: fnc.app.prvQboManageMappingEnable()	">Submit</button></td></tr>
+																		</tfoot>
+																		<tbody style="display:block;overflow-y:scroll; height:200px;">
+																			<!-- ko foreach: qbFilteredLocations -->
+																			<tr>
+																				<td style="width:20px;"><input type="checkbox" class="vend-checkbox" data-bind="checked: Selected" /></td>
+																				<td colspan="2" style="width:380px;" data-bind="text: Name"></td>
+																			</tr>
+																			<!-- /ko -->
+																			<tr><td colspan="3">&nbsp;</td></tr>
+																		</tbody>
+																	</table>
+																	<!-- /ko -->
+																</div>
+															</div>
+															<!-- /DROPDOWN -->
+
+															<button class="btn btn-xs btn-danger" style="float:right;margin-right:5px;" data-bind="click: removeFromGroup, enable: isRemoveFromGroupEnable()"><span class="glyphicon glyphicon-trash"></span></button>
+
+														</td>
+													</tr>
+													<!-- /ko -->
+													<tr>
+														<td colspan="3" style="width:10000px;">
+															&nbsp;
+															<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.qboSelectedLocation(), null, 2)"></pre>-->
+															<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.allGroupItems(), null, 2)"></pre>-->
+															<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.qboAllLocations(), null, 2)"></pre>-->
+														</td>
+													</tr>
+												</tbody>
+												<tbody style="display:block;">
+													<tr>
+														<td colspan="3" style="height:30px;line-height:30px;">
+															<!-- ko if: fnc.app.prvQboConnectEnable() -->
+															<select class="input-medium input-nopadding" style="width:400px;" data-bind="options: fnc.setupQb.notConnectedCmLocations, optionsText: 'OrgName', optionsValue: 'OrgId', value: fnc.setupQb.addToGroupOrgId, optionsCaption: 'Select ...' "></select>
+															<button class="btn btn-xs btn-warning" style="" data-bind="click: fnc.setupQb.addToGroup, enable: fnc.setupQb.addToGroupOrgId()"><span class="glyphicon glyphicon-plus" data-bind=""></span></button>
+															<!-- /ko -->
+															&nbsp;
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- /QB LOCATIONS -->
+						<!-- QB VENDORS -->
+						<div role="tabpanel" class="tab-pane" id="cmVendorList">
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="panel panel-default" style="margin-bottom:0;">
+										<div class="panel-body">
+											<div class="row">
+												<div class="col-xs-6" style="height:30px;line-height:30px;"><input type="text" class="form-control input-sm" style="width:200px;" placeholder="Search..." data-bind="textInput: fnc.setupQb.vendorSearchFilter"></div>
+												<div class="col-xs-6" style="text-align:right;"><button class="btn btn-sm btn-primary" data-bind="click: fnc.setupQb.showQBGroupLocations, enable: fnc.setupQb.allGroupItems().length > 1">Copy mappings from another location</button></div>
+											</div>
+
+											<table class="cm-table table table-condensed table-striped" style="margin-bottom:0;margin-top:15px;">
+												<thead style="display:block;">
+													<tr style="background-color:#f5f5f5;">
+														<th style="width:10%">Code</th>
+														<th style="width:20%">Company</th>
+														<th style="width:30%;">Address</th>
+														<th style="width:30%;">QuickBooks Vendor</th>
+														<th style="width:10%;"></th>
+														<th class="col-w-scroll-17"></th>
+													</tr>
+												</thead>
+												<tbody id="tblQBVendorListBody" style="display:block;overflow-y:scroll;">
+													<!-- ko foreach: fnc.setupQb.filteredActiveVendors -->
+													<tr class="cm-hover" data-bind="" style=" ">
+														<td style="width:10%" data-bind="text: Code">&nbsp;</td>
+														<td style="width:20%" data-bind="text: Company">&nbsp;</td>
+														<td style="width:30%" data-bind="text: Address">&nbsp;</td>
+														<td style="width:30%;border-left:solid 1px lightgray;" class="" data-bind="text: CustomVendCompany()">&nbsp;</td>
+														<td style="width:10%;" class="" data-bind="">
+															<!-- DROPDOWN -->
+															<div class="dropdown" style="background-image: none;">
+																<!--<span style="float:left;" data-bind="text: CustomVendCode()">debugger</span>-->
+																<button class="btn btn-xs" id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right;" data-bind="click: toggleDropdown, css: cssLinkStatus">
+																	<span class="glyphicon glyphicon-link" data-bind=""></span>
+																</button>
+																<div class="dropdown-menu dropdown-menu-right cm-qb-vendor-dropdown" style="right:10px;margin:5px 0 0;padding:0;width:400px;display:block;" aria-labelledby="dLabel" data-bind="visible: false, attr: {id: 'qbVendorsDropdown'+$index()}">
+																	<!-- ko if:fnc.setupQb.qboAllVendors().length > 0 -->
+
+																	<table class="cm-table table table-condensed table-striped" style="margin-bottom:0;">
+																		<thead style="display:block;">
+																			<tr>
+																				<th style="width:20px;"></th>
+																				<th style="width:370px;">QuickBooks Vendors</th>
+																				<th style="width:10px;"><button type="button" class="close" aria-label="Close" data-bind="click: closeDropdown"><span aria-hidden="true">×</span></button></th>
+																			</tr>
+																			<tr><th colspan="3" style=""><input type="text" class="form-control input-sm" style="width:200px;margin-left:20px;" placeholder="Search..." data-bind="textInput: qbVendorSearch" /></th></tr>
+																		</thead>
+																		<tfoot>
+																			<tr><td colspan="3" style="height:35px;"><button class="btn btn-xs" style="margin-top:5px;float:right;" data-bind="click: submitUpdate, enable: fnc.app.prvQboManageMappingEnable()">Submit</button></td></tr>
+																		</tfoot>
+																		<tbody style="display:block;overflow-y:scroll; height:200px;">
+																			<!-- ko foreach: qbFilteredVendors -->
+																			<tr>
+																				<td style="width:20px;"><input type="checkbox" class="vend-checkbox" data-bind="checked: Selected" /></td>
+																				<td colspan="2" style="width:380px;" data-bind="text: DisplayName"></td>
+																			</tr>
+																			<!-- /ko -->
+																			<tr><td colspan="3">&nbsp;</td></tr>
+																		</tbody>
+																	</table>
+																	<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.qboAllVendors()[0].ComputedName(), null, 2)"></pre>-->
+																	<!-- /ko -->
+																</div>
+															</div>
+															<!-- /DROPDOWN -->
+														</td>
+													</tr>
+													<!-- /ko -->
+													<tr>
+														<td colspan="5" style="width:10000px;">&nbsp;</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.selectedCmLocation(), null, 2)"></pre>-->
+							<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.qboSelectedVendor(), null, 2)"></pre>-->
+						</div>
+						<!-- /QB VENDORS -->
+						<!-- QB ACCOUNTS -->
+						<div role="tabpanel" class="tab-pane" id="cmGLAcctList">
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="panel panel-default" style="margin-bottom:0;">
+										<div class="panel-body">
+											<div class="row">
+												<div class="col-xs-6" style="height:30px;line-height:30px;"><input type="text" class="form-control input-sm" style="width:200px;" placeholder="Search..." data-bind="textInput: fnc.setupQb.glAcctSearchFilter"></div>
+												<div class="col-xs-6" style="text-align:right;"><button class="btn btn-sm btn-primary" data-bind="click: fnc.setupQb.showQBGroupLocations, enable: fnc.setupQb.allGroupItems().length > 1">Copy mappings from another location</button></div>
+											</div>
+
+											<table class="cm-table table table-condensed table-striped" style="margin-bottom:0;margin-top:15px;">
+												<thead style="display:block;">
+													<tr style="background-color:#f5f5f5;">
+														<th style="width:30%">GL Account Description</th>
+														<th style="width:20%">GL Account Number</th>
+														<th style="width:20%">Type</th>
+														<th style="width:20%">QuickBooks GL Account</th>
+														<th style="width:10%;"></th>
+														<th class="col-w-scroll-17"></th>
+													</tr>
+												</thead>
+												<tbody id="tblQBAccountListBody" style="display:block;overflow-y:scroll;">
+													<!-- ko foreach: fnc.setupQb.filteredGLAccounts -->
+													<tr class="cm-hover" data-bind="">
+														<td style="width:30%" data-bind="text: GLAccDescription()">&nbsp;</td>
+														<td style="width:20%" data-bind="text: GLAccNumber()">&nbsp;</td>
+														<td style="width:20%" data-bind="text: ClassText()">&nbsp;</td>
+														<td style="width:20%;border-left:solid 1px lightgray;" data-bind="text: CustomAccText()">&nbsp;</td>
+														<td style="width:10%;background-image: none;" data-bind="">
+															<!-- DROPDOWN -->
+															<div class="dropdown">
+																<button class="btn btn-xs" id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right;cursor:pointer;" data-bind="click: toggleDropdown, css: {'btn-success': CustomGLAccId(), 'btn-danger': !CustomGLAccId()}">
+																	<span class="glyphicon glyphicon-link" data-bind=""></span>
+																</button>
+
+
+																<div class="dropdown-menu dropdown-menu-right cm-qb-glaccount-dropdown" style="right:10px;margin:5px 0 0;padding:0;width:500px;display:block;" aria-labelledby="dLabel" data-bind="visible: false">
+																	<!-- ko if:fnc.setupQb.qboAllGLAccounts().length > 0 -->
+																	<div class="row" style="margin:0;"><div class="col-xs-12" style="background-color:lightgray;padding-right:5px;font-weight:bold;"><span style="float:left;">QuickBooks Accounts</span><span style="float:right;"><button type="button" class="close" aria-label="Close" data-bind="click: closeDropdown"><span aria-hidden="true">×</span></button></span></div></div>
+																	<table class="cm-table table table-condensed table-striped" style="margin-bottom:0;">
+																		<thead style="display:block;">
+																			<tr>
+																				<th style="width:20px;"></th>
+																				<th style="width:300px;">Account Description</th>
+																				<th style="width:180px;">Account No</th>
+																			</tr>
+																			<tr><th colspan="3" style=""><input type="text" class="form-control input-sm" style="width:200px;margin-left:20px;" placeholder="Search..." data-bind="textInput: qbAccountSearch" /></th></tr>
+																		</thead>
+																		<tfoot>
+																			<tr><td colspan="3" style="height:35px;"><button class="btn btn-xs" style="margin-top:5px;float:right;" data-bind="click: submitUpdate, enable: fnc.app.prvQboManageMappingEnable()">Submit</button></td></tr>
+																		</tfoot>
+																		<tbody style="display:block;overflow-y:scroll; height:200px;">
+																			<!-- ko foreach: qbFilteredAccounts -->
+																			<tr>
+																				<td style="width:20px;"><input type="checkbox" class="vend-checkbox" data-bind="checked: Selected" /></td>
+																				<td style="width:300px;" data-bind="text: AccountDescription"></td>
+																				<td style="width:180px;" data-bind="text: AccNum"></td>
+																			</tr>
+																			<!-- /ko -->
+																			<tr><td colspan="3">&nbsp;</td></tr>
+																		</tbody>
+																	</table>
+																	<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.qboAllGLAccounts(), null, 2)"></pre>-->
+																	<!-- /ko -->
+																</div>
+
+
+															</div>
+															<!-- /DROPDOWN -->
+														</td>
+													</tr>
+													<!-- /ko -->
+													<tr>
+														<td colspan="5" style="width:10000px;">&nbsp;</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.qboSelectedGLAccount(), null, 2)"></pre>-->
+							<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.allGLAccounts(), null, 2)"></pre>-->
+						</div>
+						<!-- /QB ACCOUNTS -->
+						<!-- QB CLASSES -->
+						<div role="tabpanel" class="tab-pane active" id="cmClassList">
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="panel panel-default" style="margin-bottom:0;">
+										<div class="panel-body">
+											<input type="text" class="form-control input-sm" style="width:200px;" placeholder="Search..." data-bind="">
+											<table class="cm-table table table-condensed table-striped" style="margin-bottom:0;margin-top:15px;">
+												<thead style="display:block;">
+													<tr style="background-color:#f5f5f5;">
+														<th style="width:50%;">Class</th>
+														<th style="width:40%;">QuickBooks Class</th>
+														<th style="width:10%;"></th>
+														<th class="col-w-scroll-17"></th>
+													</tr>
+												</thead>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- /QB CLASSES -->
+					</div>
+					<!-- /Tab panes -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /QB MAPPING -->
+	<!-- QB 'POPUP' -->
+	<div class="modal draggable fade" id="modQBPopup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content" style="">
+				<div class="modal-body" style="">
+					<p style="font-weight:bold;color:brown;">Intuit requires us to use pop-up windows which are disabled in your browser. To enable pop-up windows please do the following:</p>
+					<div style="display:block;max-height:200px;overflow-y:auto;">
+						<!-- ko if: browserName == 'IE'-->
+						<p>To turn Pop-up Blocker off</p>
+						<p>1.	In your browser select the Tools button, and then select Internet options.</p>
+						<p>2.	On the Privacy tab, under Pop-up Blocker, clear the Turn on Pop-up Blocker check box, and then select OK.</p>
+						<!-- /ko -->
+						<!-- ko if: browserName == 'Edge'-->
+						<p>To turn Pop-up Blocker off</p>
+						<p>1. Select the More actions (…) button and select Settings.</p>
+						<p>2. Scroll down the list to select View advanced settings and turn Block pop-ups to Off.</p>
+						<p></p>
+						<p></p>
+						<!-- /ko -->
+						<!-- ko if: browserName == 'Firefox'-->
+						<p>To turn Pop-up Blocker off</p>
+						<p>1.	In your browser at the top right corner click the menu button and choose Options.</p>
+						<p>2.	Select the Content panel.</p>
+						<p>3. In the Content panel below Pop-ups:</p>
+						<p style="padding-left:15px;">- Uncheck the box next to Block pop-up windows to disable the pop-up blocker altogether.</p>
+						<p style="padding-left:15px;">- A click on Exceptions… opens a dialog box with a list of sites that you want to allow to display pop-ups.</p>
+						<!-- /ko -->
+						<!-- ko if: browserName == 'Chrome'-->
+						<p>To turn Pop-up Blocker off</p>
+						<p>1.	In your browser at the top right corner, click More.</p>
+						<p>2.	Click Settings.</p>
+						<p>3.	At the bottom, click Show advanced settings.</p>
+						<p>4.	Under "Privacy," click Content settings.</p>
+						<p>5.	Under "Pop-ups," select an option:</p>
+						<p style="padding-left:15px;">•	Do not allow any site to show pop-ups (recommended)</p>
+						<p style="padding-left:15px;">•	Allow all sites to show pop-ups</p>
+						<br />
+						<p>Allow pop-ups from a site</p>
+						<p>1.	In your browser find a page that has pop-ups blocked for you.</p>
+						<p>2.	In the address bar, click Pop-ups blocked icon(x).</p>
+						<p>3.	Click the link for the pop-up window you'd like to see.</p>
+						<p>4.	To always see pop-ups for the site, select Always show pop-ups from [site]   done.</p>
+						<!-- /ko -->
+						<!-- ko if: browserName == 'Safari'-->
+						<p>To turn Pop-up Blocker off</p>
+						<p>1.	In your browser at the top right of the window, click on the settings icon.</p>
+						<p>2. In the drop-down menu, uncheck Block Pop-Up Windows.</p>
+						<!-- /ko -->
+						<!-- ko if: browserName == ''-->
+						<p>To turn Pop-up Blocker off please try Google with key words 'Pop-up Blocker' </p>
+						<!-- /ko -->
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /QB 'POPUP' -->
+	<!-- QB CONFIRM DISCONNECT -->
+	<div class="modal draggable fade" id="modConfirmQBDisconnect" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">CONFIRM QUICKBOOKS DISCONNECT</h4>
+				</div>
+				<div class="modal-body">
+					<!-- ko if: fnc.setupQb.selectedCmLocation() -->
+					<p>
+						You are about to disconnect&nbsp;
+						<!--<span style="color:brown;font-weight:bold;" data-bind="text: fnc.setupQb.selectedCmLocation().OrgName"></span>-->
+						<!-- ko foreach: fnc.setupQb.allGroupItems -->
+
+						<span style="color:brown;font-weight:bold;" data-bind="text: OrgName"></span><span data-bind="visible: fnc.setupQb.allGroupItems().length > ($index() + 1)">,</span>&nbsp;
+						<!-- /ko -->
+						&nbsp;from QuickBooks.
+					</p>
+					<p>If you disconnect, ChefMod will not be able to feed your accounting process with vital information, and you will have to enter it all manually in QuickBooks.</p>
+					<p>If you've done it in error, click Cancel, otherwise click Disconnect.</p>
+					<p>To reconnect click on <img height="30" width="87" src="img/qb/C2QB_white_btn_med_default.png" /> button and follow QuickBooks instructions.</p>
+					<!-- /ko -->
+					<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.allGroupItems(), null, 2)"></pre>-->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="click: fnc.setupQb.cancelDisconnectQB">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: fnc.setupQb.disconnectQB">Disconnect</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /QB CONFIRM DISCONNECT -->
+	<!-- QB CONFIRM CONNECT -->
+	<div class="modal draggable fade" id="modConfirmQBConnect" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">
+						<span>QUICKBOOKS CONNECT</span>
+						<!-- ko if: fnc.setupQb.selectedCmLocation() -->
+						&nbsp;(<span data-bind="text: fnc.setupQb.selectedCmLocation().OrgName"></span>)
+						<!-- /ko -->
+					</h4>
+				</div>
+				<div class="modal-body">
+					<!-- ko if: fnc.setupQb.selectedCmLocation() -->
+					<p>Select QuickBooks company to connect</p>
+					<select class="input-medium input-nopadding" style="width:auto;" data-bind="options: fnc.setupQb.distinctConnections, optionsText: function(it){return it.ConnectedCompName}, optionsValue: function(it){return it}, value: fnc.setupQb.selectedConnection, optionsCaption: 'Select company ...'"></select>
+					<!-- /ko -->
+					<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.selectedCmLocation(), null, 2)"></pre>-->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="click: fnc.setupQb.cancelConnectToQbCompany">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: fnc.setupQb.connectToQbCompany, enable: fnc.app.prvQboConnectEnable() && fnc.setupQb.selectedConnection() != null">Connect</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /QB CONFIRM CONNECT -->
+	<!-- QB Confirm Remove from Group -->
+	<div class="modal draggable fade" id="modConfirmRemoveFromGroup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">CONFIRM QUICKBOOKS DISCONNECT</h4>
+				</div>
+				<div class="modal-body">
+					<!-- ko if: fnc.setupQb.selectedForRemoveItem() -->
+					<p><span data-bind="text: fnc.setupQb.selectedForRemoveItem().OrgName"></span>&nbsp;will be disconnected from QuickBooks</p>
+					<!-- /ko -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="click: fnc.setupQb.cancelRemoveFromGroup">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: fnc.setupQb.doRemoveFromGroup">Remove</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /QB Confirm Remove from Group -->
+	<!-- QB Group Locations -->
+	<div class="modal draggable fade" id="modQBGroupLocations" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">
+						<span data-bind="visible: fnc.setupQb.mappingTab() == '#cmGLAcctList'">COPY GL ACCOUNTS MAPPING</span>
+						<span data-bind="visible: fnc.setupQb.mappingTab() == '#cmVendorList'">COPY VENDORS MAPPING</span>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<table style="width:100%;">
+						<!--<thead>
+							<tr>
+								<th></th>
+							</tr>
+						</thead>-->
+						<tbody data-bind="foreach: fnc.setupQb.allGroupItems">
+							<tr data-bind="visible: fnc.setupQb.copyToOrgId() != OrgId">
+								<td><input type="checkbox" class="" data-bind="checked: Selected"></td>
+								<td data-bind="text: OrgName"></td>
+							</tr>
+						</tbody>
+					</table>
+					<!-- ko if: fnc.setupQb.selectedCmLocation() -->
+					<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.selectedCmLocation(), null, 2)"></pre>-->
+					<!--<pre data-bind="text: ko.toJSON(fnc.setupQb.allGroupItems(), null, 2)"></pre>-->
+					<!-- /ko -->
+				</div>
+				<div class="modal-footer">
+					<!--<pre style="margin:0; padding:0; display:inline-block; float:left;" data-bind="text: ko.toJSON(fnc.setupQb.copyFromOrgId(), null, 2)"></pre>-->
+					<!--<pre style="margin:0; padding:0; display:inline-block; float:left;" data-bind="text: ko.toJSON(fnc.setupQb.copyToOrgId(), null, 2)"></pre>-->
+					<button type="button" class="btn btn-primary" data-bind="click: fnc.setupQb.cancelCopyMapping">Cancel</button>
+
+					<button type="button" class="btn btn-default" data-bind="click: fnc.setupQb.copyMapping">Copy</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /QB Group Locations -->
+
+</script>

@@ -1,0 +1,43 @@
+﻿<script type="text/html" id="fnc-start-date">
+	<!-- MAIN LIST VIEW -->
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="color:#337ab7;font-weight:bold;">Manage Start Date</span></div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-xs-4"><input type="text" class="form-control input-sm datepicker2" placeholder="Search..." data-bind="textInput: searchStartDayFilter" /></div>
+			</div>
+		</div>
+		<!-- Table -->
+		<table class="cm-table table table-condensed table-striped">
+			<thead style="display:block;">
+				<tr style="background-color:#f5f5f5;">
+					<th style="width:40%">Location</th>
+					<th style="width:30%;text-align:right;">Start Date</th>
+					<th style="width:30%"></th>
+				</tr>
+				<tr>
+					<td colspan="3" style="width:10000px;height:1px;"></td>
+				</tr>
+			</thead>
+			<tbody id="tblCmStartDateBody" data-bind="" style="display:block;overflow-y:scroll;margin-top:-2px;">
+				<!-- ko foreach: filteredOrgStartDate -->
+				<tr class="cm-hover">
+					<td data-bind="text: OrgName"></td>
+					<td style="text-align:right;" data-bind="text: StartDate">
+						<!--<input type="text" class="form-control input-sm jq-datepicker" style="height:18px;width:200px;" data-bind="value: StartDate, event: {blur: checkForUpdate}" />-->
+						<!--<input class="" style="height:100%;width:100%;margin:0;padding:0;border:0;opacity:0;" value="" data-bind="" />-->
+					</td>
+					<td>
+						<button class="gl-chart-action btn btn-xs btn-info" style="width:25px;float:left;" data-bind="click: showDatepicker, enable: fnc.app.prvSetupStartDateEnable()"><span class=" glyphicon glyphicon-calendar"></span></button>
+						<input type="text" class="start-date-input" style="float:left;width:1px;height:1px;border:0;opacity:0;" data-bind="textInput: StartDate, event: {change: updateOrgStartDate}" />
+					</td>
+				</tr>
+				<!-- /ko -->
+				<tr>
+					<td colspan="3" style="width:10000px;">&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- /MAIN LIST VIEW -->
+</script>

@@ -1,0 +1,180 @@
+﻿<script type="text/html" id="inv-items-assignments">
+	<!-- MAIN LIST VIEW -->
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="color:#337ab7;font-weight:bold;">Manage GL Assignments</span></div>
+		<div class="panel-body">
+			<!--<p>On this page you can assign Items for the selected GL Account.</p>-->
+			<div class="row">
+
+				<div class="col-xs-1" style="padding-right:0px;"><span style="float:right;font-weight:bold;">Chart</span></div>
+				<div class="col-xs-4">
+					<select class="input-medium input-nopadding" style="float:left;width:100%" data-bind="options: uniqueGLCharts, optionsText: function(it){return it.ChartName()}, optionsValue: 'ChartId', value: selectedChartId, optionsCaption: 'Select ...'"></select>
+				</div>
+
+				<div class="col-xs-6 col-xs-offset-1">
+					<input type="text" placeholder="Search existing items ..." style="width:100%" data-bind="textInput: searchGLAccountItemsFilter" />
+				</div>
+			</div>
+			<div class="row" style="margin-top:15px;">
+				<div class="col-xs-1" style="padding-right:0px;"><span style="float:right;font-weight:bold;">GL Account</span></div>
+				<div class="col-xs-4">
+					<select class="input-medium input-nopadding" style="float:left;width:100%" data-bind="options: allGLAccounts, optionsText: 'GLAccText', optionsValue: 'GLAccId', value: selectedGLAccId, optionsCaption: 'Select ...' "></select>
+				</div>
+
+
+				<div class="col-xs-6  col-xs-offset-1">
+					<input type="text" placeholder="Add a new item ..." style="width:100%;" data-bind="textInput: globalItemsSearchString, enable: fnc.app.prvSetupChartOfAcctsEnable() && selectedChartId() && selectedGLAccId()" />
+					<a data-toggle="dropdown"></a>
+					<div id="globalItemsSearchResult" class="dropdown-menu dropdown-menu-right" style="padding:0; right:13px; width:760px;" data-bind="visible: false">
+						<!--<p><pre data-bind="text: ko.toJSON(allGLAccountsItems(), null, 2)"></pre></p>-->
+						<div class="row" style="margin:0; display:block; overflow-x:hidden;">
+							<table class="cm-table table table-condensed table-bordered" style="margin:0;font-size:12px;">
+								<thead>
+									<tr>
+										<th class="col-w-b30-2">ITEM ID</th>
+										<th class="">ITEM</th>
+										<th class="col-w-b30-4">BRAND</th>
+										<th class="col-w-b30-6">GENERAL LEDGER</th>
+										<th class="col-w-b30-1"></th>
+										<th style="width:17px;padding:0;"><button type="button" class="close" aria-label="Close" style="margin-right:2px;" data-bind="click: closeGlobalItemsSearchDropdown"><span aria-hidden="true">x</span></button></th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div class="row" style="margin:0; display:block; max-height:400px;height:400px; overflow-y:scroll; overflow-x:hidden;">
+							<table class="cm-table table table-condensed " style="margin:0;font-size:12px;">
+								<tbody data-bind="foreach: allGLAccountsItems">
+									<tr onmouseover="showElements2(this);" onmouseout="hideElements2(this);" style="height:22px;" data-bind="">
+										<td class="col-w-b30-2" data-bind="text: ItemID"></td>
+										<td class="" data-bind="text: Description"></td>
+										<td class="col-w-b30-4" data-bind="text: Brand"></td>
+										<td class="col-w-b30-6" data-bind="visible: glArray.length == 1, text: glArray[0].glText()"></td>
+										<td class="col-w-b30-6" data-bind="visible: glArray.length > 1">
+											<button class="btn btn-xs btn-link" style="padding:0;" data-toggle="popover" data-placement="left" data-trigger="manual" data-html="true" title="GL Accounts" data-content="" data-bind="click: showGLArrayItems"><span style="text-decoration:underline;">MULTIPLE ACCOUNTS</span></button>
+										</td>
+										<td class="col-w-b30-1" data-bind="" style="vertical-align:middle;"><button class="btn btn-xs btn-warning btn-add-to-invoice" style="height:17px;width:17px;padding-left:2px; padding-top:0px; padding-right:0px; display:none;" data-bind="click: addItem2GLAcct"><span class="glyphicon glyphicon-plus"></span></button> </td>
+									</tr>
+									<!--<tr><td colspan="6"><p><pre data-bind="text: ko.toJSON($data, null, 2)"></pre></p></td></tr>-->
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Table -->
+		<table class="cm-table table table-condensed table-striped">
+			<thead>
+				<tr style="background-color:#f5f5f5;">
+					<th>Item ID</th>
+					<th>Item</th>
+					<th>Brand</th>
+					<th>UOM</th>
+					<th>Unit</th>
+					<th style="text-align:right;">Cost %</th>
+					<th style="text-align:right;">Action</th>
+					<!--<th></th>-->
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: filteredGLAccountItems2">
+				<tr class="cm-hover">
+					<td data-bind="text: ItemID"></td>
+					<td data-bind="text: Description"></td>
+					<td data-bind="text: decodeText(Brand)"></td>
+					<td data-bind="text: UOM"></td>
+					<td data-bind="text: Unit"></td>
+					<td style="text-align:right;" data-bind="text: Prcnt"></td>
+					<td style="text-align:right;">
+						<button class="btn btn-xs btn-danger" style="width: 25px;" data-bind="click: deleteItemFromGLAcct, enable: CanDelete() && fnc.app.prvSetupChartOfAcctsEnable()"><span class=" glyphicon glyphicon-trash"></span></button>
+						<button class="btn btn-xs btn-success" style="width: 25px;" data-bind="click: updateItem4GLAcct, enable: fnc.app.prvSetupChartOfAcctsEnable()"><span class=" glyphicon glyphicon-cog"></span></button>
+					</td>
+					<!--<td data-bind="text: CanDelete()"></td>-->
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="panel-footer">
+			<div data-bind="">
+				<span data-bind="text: filteredGLAccountItems2().length"></span>&nbsp;of&nbsp;<span data-bind="text: filteredGLAccountItems().length"></span>&nbsp;items
+				<button type="button" class="btn btn-xs btn-link" data-bind="click: showMoreGLAccountItems, visible: isMoreGLAccountItemsVisible()">More...</button>
+			</div>
+		</div>
+	</div>
+	<!-- /MAIN LIST VIEW -->
+
+	<!-- ************* -->
+	<!-- MODAL DIALOGS -->
+	<!-- ************* -->
+
+	<!-- Confirm Delete Item from GL Account -->
+	<div class="modal draggable fade" id="modConfirmDelItemFromGLAcct" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" id="myModalLabel">CONFIRM REMOVE</h4>
+				</div>
+				<div class="modal-body">
+					<!-- ko if: fnc.setupApp.selectedGLAcctItem() -->
+					<p>
+						<span style="color:brown;font-weight:bold;"><span data-bind="text: fnc.setupApp.selectedGLAcctItem().Description"></span>&nbsp;(<span data-bind="text: fnc.setupApp.selectedGLAcctItem().ItemID"></span>)</span>
+						will be removed from GL Account:
+						<span style="font-weight:bold;"><span data-bind="text: fnc.setupApp.selectedGLAcctItem().GLAccDescription"></span>(<span data-bind="text: fnc.setupApp.selectedGLAcctItem().GLAccNumber"></span>)</span>
+					</p>
+					<!-- /ko -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="click: cancelDeleteItemFromGLAccount">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: deleteItemFromGLAccount">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Confirm Delete Item from GL Account -->
+
+	<!-- Update(split) Item (%) -->
+	<div class="modal draggable fade" id="modUpdateSplitItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content" data-bind="">
+				<!-- ko if: fnc.setupApp.selectedGLAcctItem() != null -->
+				<div class="modal-header">
+					<h4 class="modal-title" id="myModalLabel" data-bind="text: fnc.setupApp.selectedGLAcctItem().Description + ' (' + fnc.setupApp.selectedGLAcctItem().ItemID + ')'"></h4>
+				</div>
+				<div class="modal-body">
+					<table class="cm-table table table-condensed table-hover">
+						<thead>
+							<tr>
+								<th style="width:100px;">GL NUMBER</th>
+								<th style="width:360px;">GL DESCRIPTION</th>
+								<th style="width:100px;text-align:right;">COST %</th>
+							</tr>
+						</thead>
+						<tbody data-bind="" style="">
+							<!-- ko foreach: fnc.setupApp.oneItemGLAccounts()-->
+							<tr>
+								<td data-bind="text: GLAccNumber"></td>
+								<td data-bind="text: GLAccDescription"></td>
+								<td><input type="text" style="box-shadow:none; width:100%; text-align:right; background-color:transparent;" onkeydown="/*numericOnly(event)*/" data-bind="textInput: Prcnt" /></td>
+								<!--<td contenteditable="true" style="text-align:right;" data-bind="text: Prcnt()"></td>-->
+							</tr>
+							<!-- /ko -->
+							<tr style="font-weight:bold;">
+								<td></td>
+								<td></td>
+								<td style="text-align:right;" data-bind="text: fnc.setupApp.oneItemGLAccountsTotal(), style: {color: fnc.setupApp.oneItemGLAccountsTotal() == 100 ? 'black' : 'red'}"></td>
+							</tr>
+						</tbody>
+
+					</table>
+				</div>
+				<!-- /ko -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="click: fnc.setupApp.cancelUpdateItem">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: fnc.setupApp.submitUpdateItem, enable: fnc.setupApp.oneItemGLAccountsTotal() == 100">Submit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Update(split) Item (%) -->
+
+</script>

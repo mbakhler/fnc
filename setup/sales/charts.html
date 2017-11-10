@@ -1,0 +1,78 @@
+﻿<script type="text/html" id="sales-charts">
+	<!-- MAIN LIST VIEW -->
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="color:#337ab7;font-weight:bold;">Manage Charts</span></div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-xs-4"><input type="text" class="form-control input-sm" placeholder="Search..." data-bind="textInput: searchSalesChartFilter" /></div>
+			</div>
+		</div>
+		<!-- Table -->
+		<table class="cm-table table table-condensed table-striped">
+			<thead style="display:block;">
+				<tr style="background-color:#f5f5f5;">
+					<th style="width:35%;">Location</th>
+					<th style="width:35%;">Chart Name</th>
+					<th style="width:8%;">Track Deposits</th>
+					<th style="width:8%;">Track Meal Period</th>
+					<th style="width:16%;">Action</th>
+				</tr>
+				<tr>
+					<td colspan="5" style="width:10000px;height:1px;"></td>
+				</tr>
+			</thead>
+			<tbody id="tblSalesCharts" data-bind="" style="display:block;overflow-y:scroll;margin-top:-2px;">
+				<!-- ko foreach: filteredSalesCharts -->
+				<tr class="cm-hover">
+					<td data-bind="text: OrgName"></td>
+					<td><input type="text" style="box-shadow:none; border: 0; background-color: transparent; width:100%;" data-bind="textInput: ChartName, event: {blur: updateChartName}, enable: fnc.app.prvSalesSetupChartsEnable()" /></td>
+					<td>
+						<div class="checkbox" style="margin:0;">
+							<label style="">
+								<input type="checkbox" style="" data-bind="checked: TrackDeposit, click: updateChartFlags, enable: fnc.app.prvSalesSetupChartsEnable()">
+							</label>
+						</div>
+					</td>
+					<td>
+						<div class="checkbox" style="margin:0;">
+							<label style="">
+								<input type="checkbox" style="" data-bind="checked: TrackMealPeriod, click: updateChartFlags, enable: fnc.app.prvSalesSetupChartsEnable()">
+							</label>
+						</div>
+					</td>
+					<td>
+						<button class="gl-chart-action btn btn-xs btn-warning" style="width:25px;float:left;" data-bind="click: createChart, visible: isCreateVisible(), enable: fnc.app.prvSalesSetupChartsEnable()"><span class=" glyphicon glyphicon-plus"></span></button>
+						<button class="gl-chart-action btn btn-xs btn-success" style="width:25px;float:left;" data-bind="click: manageChart, visible: isManageVisible(), enable: fnc.app.prvSalesSetupChartsEnable()"><span class=" glyphicon glyphicon-cog"></span></button>
+						<div class="" style="height:18px;margin-left:2px;float:left;" data-bind="css: {dropdown: $index() < 16, dropup: $index() > 15}">
+							<button class="btn btn-xs dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-bind="click: chooseChart, visible: isChooseVisible, enable: fnc.app.prvSalesSetupChartsEnable()">
+								Choose...
+								<span class="caret"></span>
+							</button>
+							<!-- ko if: Selected() -->
+							<table class="cm-table dropdown-menu dropdown-menu-right" style="height:200px; overflow-y:scroll;" aria-labelledby="dropdownMenu1">
+								<tbody data-bind="foreach: fnc.setupApp.uniqueSalesCharts">
+									<tr style="font-size:12px;">
+										<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px;"><span data-bind="text: ChartName"></span></td>
+										<td style="padding-left: 5px; padding-right: 5px;"><a href="#" onclick="event.preventDefault();" data-bind="click: useChart">Use</a>&nbsp;||&nbsp;<a href="#" onclick="event.preventDefault();" data-bind="click: copyChart">Copy</a></td>
+									</tr>
+								</tbody>
+							</table>
+							<!-- /ko -->
+						</div>
+					</td>
+				</tr>
+				<!-- /ko -->
+				<tr>
+					<td colspan="5" style="width:10000px;">&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- /MAIN LIST VIEW -->
+
+	<!-- ************* -->
+	<!-- MODAL DIALOGS -->
+	<!-- ************* -->
+
+
+</script>

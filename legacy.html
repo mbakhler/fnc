@@ -1,0 +1,565 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+	<script src="js/knockout-3.2.0.js"></script>
+</head>
+<body>
+	<div class="container-fluid" id="legacyApp" role="main" style="" data-bind="with: fnc.legacyListApp">
+		<div class="row">
+			<!-- Left Sidebar -->
+			<div class="col-xs-2" style="">
+				<div class="panel panel-default" style="border: 1px solid #337ab7; padding: 5px; border-radius: 5px;margin-bottom:0;">
+					<div class="panel-heading" style="padding:0px;"><h6 class="panel-title">Search <span style="font-size: 9px;color: #337ab7;font-weight: bold; cursor:help; text-decoration:underline;" title="Up to 1000 Vouchers are displayed. Refine Date Range and Location filter to narrow down your search.">(Up to 1000 records)</span></h6></div>
+					
+					<!-- Date Range Section -->
+					<div class="panel panel-default" style="margin-top:5px;margin-bottom:0px;">
+						<div class="panel-heading" style="padding:5px 20px;color:brown;">
+							<span style="margin-left:5px;font-weight:bolder;">Date Range</span>
+						</div>
+						<div class="radio" style="padding-top:5px; padding-left:10px; margin:0;">
+							<label>
+								<input type="radio" name="optionsDateType2" style="margin-top:2px;" value="0" data-bind="checked: fnc.app.filterRangeBaseOn" />
+								<span style="">Delivery Date</span>
+							</label>
+						</div>
+						<div class="radio" style="padding-left:10px; margin:0;">
+							<label>
+								<input type="radio" name="optionsDateType2" style="margin-top:2px;" value="1" data-bind="checked: fnc.app.filterRangeBaseOn" />
+								<span style="">Accepted Date</span>
+							</label>
+						</div>
+						<!--<div class="radio" style="padding-left:10px; margin:0;">
+							<label>
+								<input type="radio" name="optionsDateType2" style="margin-top:2px;" value="-1" data-bind="checked: fnc.app.filterRangeBaseOn" />
+								<span style="">Any</span>
+							</label>
+						</div>-->
+						<div class="controls" data-bind="style: {opacity: fnc.app.filterRangeBaseOn() != -1 ? 1 : 0.4}">
+							<div class="row" style="padding:5px 10px 0px 10px;" data-bind="">
+								<div class="col-xs-12">
+									<select class="input-medium input-nopadding" id="" style="margin-bottom: 0px; width: 100%;" data-bind="options: fnc.app.filterAvailableDateRanges, value: fnc.app.filterDateRange, valueUpdate: 1, enable: fnc.app.filterRangeBaseOn() != -1"></select>
+								</div>
+							</div>
+							<div class="row" style="padding:5px 10px 0px 10px;">
+								<div class="col-xs-3"><label class="control-label" for="dateFieldFrom">Starting:</label></div>
+								<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" id="dateFieldFrom" style="height:18px;" data-bind="value: fnc.app.filterDateFrom, enable: fnc.app.filterRangeBaseOn() != -1" /></div>
+							</div>
+							<div class="row" style="padding:5px 10px 5px 10px;">
+								<div class="col-xs-3"><label class="control-label" for="dateFieldTo">Ending:</label></div>
+								<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" id="dateFieldTo" style="height:18px;" data-bind="value: fnc.app.filterDateTo, enable: fnc.app.filterRangeBaseOn() != -1" /></div>
+							</div>
+						</div>
+					</div>
+					<!-- Date Range Section -->
+					
+					<!-- Location Section -->
+					<div class="panel panel-default" style="margin-top:5px;margin-bottom:0px;">
+						<div class="panel-heading" style="padding:0;color:brown;">
+							<div class="row" style="padding-bottom: 5px; padding-top:5px;">
+								<div class="col-xs-7" style="padding-right:0;">
+									<!-- ko if: !fnc.app.singleLocation()  -->
+									<div style="display:table-cell; width:25px;height:17px;float:left;">
+										<span class="glyphicon glyphicon-filter" aria-hidden="true" title="Clear filter" style="margin-left:10px; cursor:pointer;" data-bind="visible: fnc.app.clearLocationFilterVisible, click: clearLocationFilter"></span>&nbsp;
+									</div>
+									<span style="/*margin-left:5px;*/font-weight:bolder;">Location</span>
+									<div style="display:inline-block;padding-left:3px;">
+										<span id="selectedLocationsIcon" class="glyphicon glyphicon-unchecked" aria-hidden="true" title="Toggle selected" style="/*margin-left:5px;*/ cursor:pointer;" data-bind="visible: fnc.app.filterSelectedLocations().length, click: toggleSelectedLocations"></span>&nbsp;
+									</div>
+									<!-- /ko -->
+									<!-- ko if: fnc.app.singleLocation() -->
+									<span style="margin-left:25px;font-weight:bolder;">Location</span>
+									<!-- /ko -->
+								</div>
+								<div class="col-xs-5" style="padding-left:0px; padding-right:25px;">
+									<input type="text" placeholder="Find..." style="width:100%" data-bind="textinput: fnc.app.searchLocationsFilter, visible: !fnc.app.singleLocation()" />
+								</div>
+							</div>
+						</div>
+						<ul class="list-group" id="legacyListLocation" style="/*height:390px;*/overflow-y:auto;" data-bind="foreach: fnc.app.filteredLocations">
+							<li class="list-group-item" style="padding:0;" data-bind="visible: fnc.app.notSelectedLocationsHidden() ? Selected() : true">
+								<label style="margin:0;font-weight: normal;">
+									<!-- ko if: !fnc.app.singleLocation() -->
+									<input type="checkbox" style="margin-left:10px;" data-bind="checked: Selected" />
+									<span style="margin-left:5px;font-size:0.9em !important;" data-bind="text: LocationName"></span>
+									<!-- /ko -->
+									<!-- ko if: fnc.app.singleLocation()  -->
+									<span style="margin-left:30px;font-size:0.9em !important;" data-bind="text: LocationName"></span>
+									<!-- /ko -->
+								</label>
+							</li>
+						</ul>
+					</div>
+					<!-- /Location Section -->
+
+					<!-- Search button -->
+					<button class="btn btn-sm btn-block btn-primary" style="margin-top:5px;" data-bind="click: doLegacyLoad"><span>Search</span></button>
+					<!-- /Search button -->
+				</div>
+			</div>
+			<!-- /Left Sidebar -->
+			
+			<!-- PO Legacy List -->
+			<div class="col-xs-8" style="border: 1px solid #337ab7; padding: 5px; border-radius: 4px; ">
+				<!-- Search -->
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="input-group" style="width:400px;float:right;padding-top:5px;">
+							<input type="text" class="form-control" style="height:22px;" data-bind="textInput: poListSearchKeywords, event: {keypress: doSearchOnEnter}" />
+							<span class="input-group-btn" style="box-shadow:0 0px 5px #006dcc;">
+								<button class="btn btn-xs btn-default" type="button" style="border-radius:0;" data-bind="click: doLegacyLoad"><span class="glyphicon glyphicon-search"></span></button>
+							</span>
+						</div>
+					</div>
+				</div>
+				<!-- /Search -->
+				<div class="row">
+					<!-- Table -->
+					<div class="col-xs-12">
+						<table id="tblPOHead" class="cm-table table table-condensed" style="margin-bottom:0px;">
+							<thead style="">
+								<tr>
+									<th data-bind="with: listHeaders[0]" class="col-w-b30-6 text-overflow-ellipsis"><span id="legacy_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">COMPANY</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[1]" class="  text-overflow-ellipsis"><span id="legacy_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">LOCATION</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[2]" class="col-w-b30-3"><span id="legacy_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PO #</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[3]" class="col-w-b30-3"><span id="legacy_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">INVOICE #</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[4]" class="col-w-b30-3"><span id="legacy_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">DATE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[5]" class="col-w-b30-3" style="text-align:right;"><span id="legacy_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PO TOTAL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[6]" class="col-w-b30-3"><span id="legacy_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">ACCEPTED</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.activeSort().title"></span></th>
+									<th style="width:17px;"></th>
+								</tr>
+							</thead>
+						</table>
+						<div id="tblLegacyListBody" style="/*height: 515px;*/ overflow-y: scroll; border-left: solid 2px lightgrey; border-right: solid 2px lightgrey; border-bottom: solid 2px lightgrey;">
+							<table class="cm-table table table-condensed table-cmstripe" style="margin-bottom:0px; cursor:pointer; table-layout:fixed;">
+								<tbody data-bind="foreach: filteredItems">
+									<tr class="cm-hover">
+										<td class="col-w-b30-6 text-overflow-ellipsis" style="" data-bind="text: decodeText(Company)"></td>
+										<td class="text-overflow-ellipsis" data-bind="text: decodeText(Location)"></td>
+										<td class="col-w-b30-3" style=""><a data-bind="text: PONumber, click: onLinkClick"></a></td>
+										<td class="col-w-b30-3" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden;"><a data-bind="text: decodeText(InvoiceNumber), click: onLinkClick"></a></td>
+										<td class="col-w-b30-3" data-bind="text: format2Date(DeliveryDate)"></td>
+										<td class="col-w-b30-3" style="text-align: right;" data-bind="text: formatCurrency(POTotal)"></td>
+										<td class="col-w-b30-3" data-bind="text: format2Date(AcceptedDT)"></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<!-- /Table -->
+				</div>
+			</div>
+			<!-- PO Legacy List -->
+		
+			<!-- Right Sidebar -->
+			<div class="col-xs-2">
+				<div class="panel panel-default" style="border: 1px solid #337ab7; padding: 5px; border-radius: 5px;margin-bottom:0;">
+					<div class="panel-heading" style="padding:0px;"><h6 class="panel-title">Filter Result</h6></div>
+					<!-- Find in page -->
+					<div class="panel panel-default" style="margin-top:5px;margin-bottom:0;">
+						<div class="panel-heading" style="padding:5px;color:brown;">
+							<input type="search" class="form-control  input-sm" placeholder="Find in page" id="inpPOListSearch" style="height:20px; width:100%; margin:0;" data-bind="textinput: poListSearch" />
+						</div>
+					</div>
+					<!-- /Find in page -->
+
+					<!-- Vendor Section -->
+					<div class="panel panel-default" id="filterVendorOptions" style="margin-top:5px;margin-bottom:0;">
+						<div class="panel-heading" style="padding:0;color:brown;">
+							<div class="row" style="padding-bottom: 5px; padding-top:5px;">
+								<div class="col-xs-7" style="padding-right:0;">
+									<span style="font-weight:bolder;">Vendor</span>
+									<div style="display:table-cell; width:30px;float:left;">
+										<span class="glyphicon glyphicon-filter" aria-hidden="true" title="Clear filter" style="margin-left:10px; cursor:pointer;" data-bind="visible: clearVendorsFilterVisible, click: clearVendorsFilter"></span>&nbsp;
+									</div>
+								</div>
+								<div class="col-xs-5" style="padding-left:0px; padding-right:25px;">
+									<input type="text" placeholder="Find..." style="width:100%" data-bind="textinput: searchVendorsFilter" />
+								</div>
+							</div>
+						</div>
+						<ul class="list-group" id="legacyListVendor" data-bind="foreach: filteredVendors" style="/*height:386px;*/overflow-y:auto;">
+							<li class="list-group-item" style="padding:0;">
+								<label style="margin:0;font-weight: normal;">
+									<input type="checkbox" style="margin-left:10px;" data-bind="checked: Selected" />
+									<span style="margin-left:5px;font-size:0.9em !important;" data-bind="text: Company"></span>
+								</label>
+							</li>
+						</ul>
+					</div>
+					<!-- /Vendor Section -->
+				</div>
+			</div>
+			<!-- /Right Sidebar -->
+
+		</div>
+		
+		<!-- MODAL INVOICE W PO-->
+		<div class="modal fade" id="modShowInoiceWithPO" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" style="margin: 20px auto; width:1200px;">
+				<div class="modal-content" data-bind="with: PORequiredInvoice">
+					<!--<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">VOUCHER</h4>
+				</div>-->
+					<div class="modal-body" style="padding-bottom:0;">
+						<!-- Fixed Header -->
+						<div class="row">
+							<!-- Left Section -->
+							<div class="col-xs-4">
+								<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; padding: 5px; border-radius: 5px; height:85px; margin-bottom:0;">
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="row">
+												<div class="col-xs-3"><label>COMPANY:</label></div>
+												<div class="col-xs-9" style="padding-left:0;">
+													<h4 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; margin: 0;" data-bind="text: decodeText(companyName())"></h4>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-xs-3"><label>LOCATION:</label></div>
+												<div class="col-xs-9" style="padding-left:0;">
+													<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; margin-top:3px; margin-bottom: 0; font-weight:bold;" data-bind="text: decodeText(orgName())"></h6>
+												</div>
+											</div>
+											<!--<div class="row">
+											<div class="col-xs-2" style="padding-right:0;margin-top:2px;">
+												<span style="white-space:nowrap;">PO(s):&nbsp;</span>
+											</div>
+											<div class="col-xs-10">
+												<ul style="margin:0;padding:0;" data-bind="foreach: includedPOList">
+													<li style="display: inline;"><div class="cm-h-li-item" style=""><span data-bind="text: $data"></span>&nbsp;</div>&nbsp;</li>
+												</ul>
+											</div>
+										</div>-->
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Right Section -->
+							<div class="col-xs-8">
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-left: -15px;  padding: 5px; border-radius: 5px; height:85px; margin-bottom:0;">
+											<div class="row">
+												<div class="col-xs-4" style="padding-right:0;padding-left:25px;">
+													<div class="row">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">INVOICE#:</label></div>
+														<div class="col-xs-7"><input type="text" id="invoiceNumber" class="form-control input-sm validated-field" style="padding:0; height:22px;" readonly data-bind="value: invoiceNumber(), attr: {title: invoiceNumber}" /></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">INVOICE DATE:</label></div>
+														<div class="col-xs-7"><input type="text" id="invoiceDate" class="form-control input-sm validated-field jq-datepicker" style="padding:0; height:22px;" readonly data-bind="value: invoiceDate()" /></div>
+													</div>
+												</div>
+												<div class="col-xs-4">
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">GROSS:</label></div>
+														<div class="col-xs-6"><input type="text" id="invoiceGross" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;" readonly data-bind="value: grossAmount()" /></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">DISCOUNT:</label></div>
+														<div class="col-xs-6"><input type="text" id="invoiceDiscount" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;" readonly data-bind="value: discAmount()" /></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">NET:</label></div>
+														<div class="col-xs-6"><input type="text" class="form-control input-sm" style="padding:0; height:22px; text-align:right;" readonly data-bind="textInput: formatCurrency(netAmount())" /></div>
+													</div>
+												</div>
+												<div class="col-xs-4">
+													<div class="row">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">TAX:</label></div>
+														<div class="col-xs-6"><input type="text" id="invoiceTax" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;" readonly data-bind="value: tax()" /></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">FREIGHT:</label></div>
+														<div class="col-xs-6"><input type="text" id="invoiceFreight" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;" readonly data-bind="value: freight()" /></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">TOTAL:</label></div>
+														<div class="col-xs-6"><input type="text" class="form-control input-sm" style="padding:0; height:22px; text-align:right;" readonly data-bind="textInput: formatCurrency(total())" /></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- /Fixed Header -->
+						<!-- Status Bar -->
+						<div class="row" style="margin:0;">
+							<div class="col-xs-12" style="padding:0;">
+								<div class="pull-left" style="padding:2px;"><span class="cm-label">&nbsp;</span></div>
+								<div class="pull-right" style="padding:2px; color:#5cb85c;" data-bind="visible: showInoiceAccepted()"><span class="cm-label">Accepted By:</span><span class="cm-label" data-bind="text: invoiceAcceptedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceAcceptedDate()"></span><span class="glyphicon glyphicon-ok" style=""></span></div>
+							</div>
+						</div>
+						<!-- /Status Bar -->
+						<!-- Table -->
+						<!-- Caption/Header -->
+						<div class="row" id="recTableScroll" style="overflow:hidden; margin-left:0px; margin-right:0px; border-top: 2px solid lightgray;border-left: 2px solid lightgray;border-right: 2px solid lightgray;">
+							<div class="col-xs-12" style="padding-left:0;padding-right:0;">
+								<table id="tblRecHead" class="cm-table table table-condensed  " style="margin-bottom:0; width:1178px;">
+									<thead>
+										<!-- Caption -->
+										<tr>
+											<td colspan="3" style="padding:0;">
+												<div class="row">
+													<div class="col-xs-8" style="padding-right:0;">
+														<h4 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Items</h4>
+													</div>
+													<div class="col-xs-4" style="padding-left:0;">
+														<input type="text" id="recListFilter" class="form-control input-sm" placeholder="Invoice Item Search..." data-bind="textinput: listSearchFilter" />
+													</div>
+												</div>
+											</td>
+											<td colspan="4" style="padding:0;">
+												<div class="row">
+													<div class="col-xs-12">
+														<h4 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Ordered</h4>
+													</div>
+												</div>
+											</td>
+											<!-- @@@@@@@ -->
+											<td colspan="5" style="padding: 0;">
+												<div class="row">
+													<div class="col-xs-12">
+														<h4 style="margin-bottom: 0; margin-top: 0; margin-right:-20px; background-color:lightgrey;text-align:center;">Reconciled</h4>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<!-- Header -->
+										<tr>
+											<th class="col-w-b30-3" data-bind="with: listHeaders[0]"><span id="legacy_invoice" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">CODE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<th class="" data-bind="with: listHeaders[1]"><span id="legacy_invoice" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">ITEM</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<th class="col-w-b30-2" data-bind="with: listHeaders[3]"><span id="legacy_invoice" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">UNIT</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<!-- @@@@@@@ -->
+											<th class="col-w-b30-2" style="text-align:right; border-left: 2px solid red;" data-bind="with: listHeaders[4]"><span id="legacy_invoice" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">QTY</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<th class="col-w-b30-2" style="text-align:right;" data-bind="with: listHeaders[5]"><span id="legacy_invoice" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">UNITS</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<th class="col-w-b30-3" style="text-align:right;" data-bind="with: listHeaders[6]"><span id="legacy_invoice" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PRICE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<th class="col-w-b30-3" style="text-align:right;" data-bind="with: listHeaders[7]"><span id="legacy_invoice" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">TOTAL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<!-- @@@@@@@ -->
+											<th class="col-w-b30-3" style="border-left: 2px solid red;" data-bind="with: listHeaders[13]"><span id="legacy_invoice" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">STATUS</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<th class="col-w-b30-2" style="text-align:right;" data-bind="with: listHeaders[14]"><span id="legacy_invoice" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">UNITS</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<th class="col-w-b30-3" style="text-align:right;" data-bind="with: listHeaders[15]"><span id="legacy_invoice" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PAY PRICE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<!-- ko if: (browserName != "Chrome") -->
+											<th class="col-w-b30-3" style="text-align:right;" data-bind="with: listHeaders[16]"><span id="legacy_invoice" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">NET</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<!-- /ko -->
+											<!-- ko if: (browserName == "Chrome") -->
+											<th class="col-w-b30-3" style="text-align:right;padding-right:15px;" data-bind="with: listHeaders[16]"><span id="legacy_invoice" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">NET</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.PORequiredInvoice.activeSort().title"></span></th>
+											<!--<th class="col-w-scroll-17"></th>-->
+											<!-- /ko -->
+											<th class="col-w-scroll-17"></th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+						</div>
+						<!-- /Caption/Header -->
+						<!-- Body -->
+						<div class="row" id="tblReconcileItemListBody" style="height:370px; overflow-x:hidden; margin-bottom:4px; margin-left:0px; margin-right:0px; border-bottom: 2px solid lightgray;border-left: 2px solid lightgray;border-right: 2px solid lightgray;">
+							<div class="col-xs-12" style="padding-left:0;padding-right:0;">
+								<table class="cm-table table table-condensed table-striped" style="margin-bottom: 0px; width:1178px;">
+									<!-- Body -->
+									<tbody id="tblRecBody" data-bind="foreach: filteredItems" style="">
+										<tr class="cm-hover">
+											<td class="col-w-b30-3 not-editable" data-bind="text: Code"></td>
+											<td class="not-editable"><div style="max-width:280px;" data-bind="text: Item"></div></td>
+											<td class="col-w-b30-2 not-editable" data-bind="text: Unit"></td>
+											<!-- @@@@@@@ -->
+											<td class="col-w-b30-2 not-editable" style="border-left: 2px solid red;" data-bind=""><span style="float:right;" data-bind="text: formatInteger(Qty)"></span></td>
+											<td class="col-w-b30-2 not-editable" data-bind="">
+												<span style="float:right;" data-bind="text: formatInteger(Units)"></span>
+											</td>
+											<td class="col-w-b30-3 not-editable" data-bind=""><span style="float:right;" data-bind="text: formatCurrency(Price)"></span></td>
+											<td class="col-w-b30-3 not-editable" data-bind=""><span style="float:right;" data-bind="text: formatCurrency(Total)"></span></td>
+											<!-- @@@@@@@ -->
+											<td class="col-w-b30-3 not-editable" style="border-left: 2px solid red;" data-bind="">
+												<span style="float:left;" data-bind="text: Status"></span>
+											</td>
+											<td class="col-w-b30-2 not-editable" style="text-align:right;" data-bind="text: formatInteger(Units2()), event: {change: updateUnits2Cell}"></td>
+											<td class="col-w-b30-3 not-editable" style="text-align:right;" data-bind="text: formatCurrency(PayPrice()), event: {change: updatePayPriceCell}"></td>
+											 <!--* ko if: (browserName != "Chrome")--> 
+											<!--<td class="col-w-b30-3 not-editable" data-bind=""><span style="float:right;" data-bind="text: formatCurrency(Net)"></span></td>-->
+											<!--<td style="width:17px;"></td>-->
+											<!--* /ko -->
+											<!--* ko if: (browserName == "Chrome") -->
+											<td class="col-w-b30-3 not-editable" data-bind=""><span style="float:right;padding-right:10px;" data-bind="text: formatCurrency(Net)"></span></td>
+											<td style="width:17px;"></td>
+											<!--* /ko -->
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- /Body -->
+						<!-- /Table -->
+						<!--<pre data-bind="text: ko.toJSON(filteredItems, null, 2)"></pre>-->
+					</div>
+					<div class="modal-footer" style="text-align:center;">
+						<button type="button" class="btn btn-default" id="btnShowGLDistribution" data-container="body" data-toggle="popover" data-placement="top" data-trigger="manual" data-html="true;" title="GL Distribution" data-content="" data-bind="click: showGLDistribution">Show GL Distribution</button>
+						<button type="button" class="btn btn-primary" data-bind="click: closeInvoicelDialog">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- MODAL INVOICE WO PO-->
+		<div class="modal fade" id="modShowInoiceWithoutPO" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" style="margin: 20px auto; width:1200px;">
+				<div class="modal-content" data-bind="with: noPORequiredInvoice">
+					<!--<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">VOUCHER</h4>
+					</div>-->
+					<div class="modal-body">
+						<!-- Fixed Header -->
+						<div class="row" data-bind="">
+							<!-- Left Section -->
+							<div class="col-xs-4">
+								<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-bottom:0; padding: 5px; border-radius: 5px; height:85px;">
+									<div class="row">
+										<div class="col-xs-3" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:12px; margin-bottom:0px; float:right;">COMPANY:</label></div>
+										<div class="col-xs-9" style="height:39px;"><h4 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px; " data-bind="text: decodeText(companyName())"></h4></div>
+									</div>
+									<div class="row">
+										<div class="col-xs-3" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:9px; margin-bottom:0px; float:right;">LOCATION:</label></div>
+										<div class="col-xs-9" style="height:39px;"><h5 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px; font-weight:bold;" data-bind="text: decodeText(orgName())"></h5></div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Right Section-->
+							<div class="col-xs-8">
+								<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-bottom:0; padding: 5px; border-radius: 5px; height:85px;">
+									<div class="row">
+										<div class="col-xs-4">
+											<div class="row">
+												<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">INVOICE#:</label></div>
+												<div class="col-xs-7"><input type="text" id="invoiceNumber2" class="form-control input-sm validated-field" style="padding:0; height:22px;" readonly data-bind="value: invoiceNumber(), attr: {title: invoiceNumber}" /></div>
+											</div>
+											<div class="row" style="">
+												<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">INVOICE DATE:</label></div>
+												<div class="col-xs-7"><input type="text" id="invoiceDate2" class="form-control input-sm validated-field jq-datepicker" style="padding:0; height:22px;" readonly data-bind="value: invoiceDate()" /></div>
+											</div>
+										</div>
+										<div class="col-xs-4">
+											<div class="row" style="">
+												<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">GROSS:</label></div>
+												<div class="col-xs-7"><input type="text" id="invoiceGross2" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;" readonly data-bind="value: grossAmount" /></div>
+											</div>
+											<div class="row">
+												<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">DISCOUNT:</label></div>
+												<div class="col-xs-7"><input type="text" id="invoiceDiscount2" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;" readonly data-bind="value: discAmount" /></div>
+											</div>
+											<div class="row">
+												<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">NET:</label></div>
+												<div class="col-xs-7"><input type="text" class="form-control input-sm" style="padding:0; height:22px; text-align:right;" readonly data-bind="textInput: formatCurrency(netAmount())" /></div>
+											</div>
+										</div>
+										<div class="col-xs-4">
+											<div class="row" style="">
+												<div class="col-xs-4" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">TAX:</label></div>
+												<div class="col-xs-7"><input type="text" id="invoiceTax2" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;" readonly data-bind="value: tax" /></div>
+											</div>
+											<div class="row">
+												<div class="col-xs-4" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">FREIGHT:</label></div>
+												<div class="col-xs-7"><input type="text" id="invoiceFreight2" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;" readonly data-bind="value: freight" /></div>
+											</div>
+											<div class="row">
+												<div class="col-xs-4" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:5px; margin-bottom:0px; float:right;">TOTAL:</label></div>
+												<div class="col-xs-7"><input type="text" class="form-control input-sm" style="padding:0; height:22px; text-align:right;" readonly data-bind="textInput: formatCurrency(total())" /></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+						<!-- /Fixed Header -->
+
+						<!-- Status Bar -->
+						<div class="row" style="margin:0;">
+							<div class="col-xs-12" style="padding:0;">
+								<div class="pull-left" style="padding:2px;"><span class="cm-label">&nbsp;</span></div>
+								<div class="pull-right" style="padding:2px; color:#5cb85c;" data-bind="visible: showInoiceAccepted()"><span class="cm-label">Accepted By:</span><span class="cm-label" data-bind="text: invoiceAcceptedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceAcceptedDate()"></span><span class="glyphicon glyphicon-ok" style=""></span></div>
+							</div>
+						</div>
+						<!-- /Status Bar -->
+
+						<!-- Table -->
+						<!-- Caption/Header -->
+						<div class="row" id="recTableScroll" style="overflow: hidden;margin-left:0;margin-right:0;" data-bind="">
+							<table class="cm-table table table-condensed  table-bordered" style="margin-bottom:0;" data-bind="">
+								<thead>
+									<!-- Caption -->
+									<tr>
+										<td colspan="9" style="padding: 0;">
+											<div class="row">
+												<div class="col-xs-12">
+													<h4 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">&nbsp;</h4>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<!-- Header -->
+									<tr data-bind="">
+										<th data-bind="with: listHeaders[0]" class="col-w-b30-4"><span id="legacy_invoice2" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">GL ACCOUNT</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[1]" class=""><span id="legacy_invoice2" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">DESRIPTION</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[2]" style="text-align:right;" class="col-w-b30-4"><span id="legacy_invoice2" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">SUB TOTAL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[3]" style="text-align:right;" class="col-w-b30-4"><span id="legacy_invoice2" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">TAX</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[4]" style="text-align:right;" class="col-w-b30-4"><span id="legacy_invoice2" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">FREIGHT</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[5]" style="text-align:right;" class="col-w-b30-4"><span id="legacy_invoice2" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">DISCOUNT</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[6]" style="text-align:right;" class="col-w-b30-4"><span id="legacy_invoice2" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">TOTAL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.legacyListApp.noPORequiredInvoice.activeSort().title"></span></th>
+										<th style="width: 17px;"></th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<!-- /Caption/Header -->
+						<!-- Body -->
+						<div class="row" id="" style="overflow-y: scroll; margin-bottom:4px;margin-left:0;margin-right:0;" data-bind="">
+							<!-- Table -->
+							<table class="cm-table table table-condensed table-striped" style="margin-bottom: 0px; " data-bind="">
+								<!-- Body -->
+								<tbody id="tblAccountItems" data-bind="foreach: filteredItems">
+									<tr class="cm-hover" data-bind="visible: GLAccNumber != null">
+										<td class="col-w-b30-4" data-bind="text: GLAccNumber"></td>
+										<td data-bind="text: GLAccDescription"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(SubTotal)"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLTax)"></span></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLFreight)"></span></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLDiscount)"></span></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(Total)"></span></td>
+									</tr>
+								</tbody>
+								<tbody>
+									<tr style="font-weight:bolder;">
+										<td colspan="2" style="text-align:right;"><span>Sub Total:</span></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumSubTotal())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumTax())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumFreight())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumDiscount())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumTotal())"></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<!-- /Body -->
+						<!-- /Table -->
+
+						<!--<pre data-bind="text: ko.toJSON(filteredItems, null, 2)"></pre>-->
+					</div>
+					<div class="modal-footer" style="text-align:center;">
+						<button type="button" class="btn btn-primary" data-bind="click: closeInvoicelDialog">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /MODAL -->
+		<!--<pre data-bind="text: ko.toJSON($data, null, 2)"></pre>-->
+	</div>
+</body>
+</html>

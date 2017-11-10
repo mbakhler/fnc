@@ -1,0 +1,82 @@
+﻿<script type="text/html" id="inv-gl-accounts">
+	<!-- MAIN LIST VIEW -->
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="color:#337ab7;font-weight:bold;">Manage GL Accounts</span></div>
+		<div class="panel-body">
+			<!--<p>On this page you can create, edit or delete a GL Account for the selected Chart.</p>-->
+			<div class="row">
+				<div class="col-xs-4">
+					<span style="float:left;padding-right:10px;font-weight:bold;">Chart</span>
+					<select class="input-medium input-nopadding" style="float:left;width:auto;" data-bind="options: uniqueGLCharts, optionsText: function(it){return it.ChartName()}, optionsValue: 'ChartId', value: selectedChartId, optionsCaption: 'Select Chart ...'"></select>
+				</div>
+				<div class="col-xs-5 col-xs-offset-3">
+					<button class="btn btn-primary" style="float:right;" data-bind="click: addGLAccountsByCategory, enable: fnc.app.prvSetupChartOfAcctsEnable()">Create GL accounts based on system categories</button>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Table -->
+		<table class="cm-table table table-condensed table-striped">
+			<thead>
+				<tr style="background-color:#f5f5f5;">
+					<th>GL Account Description</th>
+					<th>GL Account Number</th>
+					<th>Type</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody id="tblGLAccounts" data-bind="foreach: allGLAccounts">
+				<tr class="cm-hover">
+					<td tabindex="1" data-bind="text: GLAccDescription, event: {change: updateGLAcctDescription}, css: {'cm-disabled-editable-td': !fnc.app.prvSetupChartOfAcctsEnable()}">&nbsp;</td>
+					<td tabindex="1" data-bind="text: GLAccNumber, event: {change: updateGLAcctNumber}, css: {'cm-disabled-editable-td': !fnc.app.prvSetupChartOfAcctsEnable()}">&nbsp;</td>
+					<td class="not-editable">
+						<select class="input-sm form-control" style="height:16px; width:120px; padding:0; border:0; background-color:transparent; box-shadow:none;" data-bind="options: fnc.setupApp.categoryClassList, optionsText: 'ClassDescription', optionsValue: 'CategoryClassId', value: $data.CategoryClassId, optionsCaption: 'Choose...', enable: fnc.app.prvSetupChartOfAcctsEnable()"></select>
+					</td>
+					<td class="not-editable">
+						<button class="btn btn-xs btn-danger" style="width: 25px;" data-bind="click: delGLAccount, enable: fnc.app.prvSetupChartOfAcctsEnable()"><span class=" glyphicon glyphicon-trash"></span></button>
+						<button class="btn btn-xs btn-success" style="width: 25px;" data-bind="click: manageGLAccount"><span class=" glyphicon glyphicon-cog"></span></button>
+
+					</td>
+				</tr>
+			</tbody>
+			<tbody style="background-color:#f5f5f5;">
+				<tr>
+					<td style="padding-top:10px !important;padding-bottom:10px !important"><input type="text" style="width:100%;" data-bind="textInput: newGLAcctDescription, enable: fnc.app.prvSetupChartOfAcctsEnable()" /></td>
+					<td style="padding-top:10px !important;"><input type="text" style="width:100%;" data-bind="textInput: newGLAcctNumber, enable: fnc.app.prvSetupChartOfAcctsEnable()" /></td>
+					<td style="padding-top:10px !important;"><select class="input-sm form-control" style="height:16px; width:120px; padding:0;border:0; box-shadow:none; background-color:transparent;" data-bind="options: fnc.setupApp.categoryClassList, optionsText: 'ClassDescription', optionsValue: 'CategoryClassId', value: newGLAcctCategoryClassId, optionsCaption: 'Choose...', enable: fnc.app.prvSetupChartOfAcctsEnable()"></select></td>
+					<td style="padding-top:8px !important;"><button class="btn btn-xs btn-warning" onclick="event.preventDefault();" style="width: 25px;" data-bind="click: addGLAccount, enable: isCreateGLAcctEnabled()"><span class=" glyphicon glyphicon-plus"></span></button></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!--<div class="panel-footer">Panel footer</div>-->
+	</div>
+	<!-- /MAIN LIST VIEW -->
+
+	<!-- ************* -->
+	<!-- MODAL DIALOGS -->
+	<!-- ************* -->
+	
+	<!-- Confirm Delete GL Account -->
+	<div class="modal draggable fade" id="modConfirmDelGLAcct" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" id="myModalLabel">CONFIRM DELETE</h4>
+				</div>
+				<div class="modal-body">
+					<!-- ko if: fnc.setupApp.selectedGLAccount() -->
+					<p>Please confirm deleting GL Account:&nbsp;<span style="color:brown;font-weight:bold;"><span data-bind="text: fnc.setupApp.selectedGLAccount().GLAccDescription()"></span>&nbsp;(<span data-bind="text: fnc.setupApp.selectedGLAccount().GLAccNumber()"></span>)</span></p>
+					<!-- /ko -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="click: cancelDeleteGLAccount">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: deleteGLAccount">Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Confirm Delete GL Account -->
+
+</script>

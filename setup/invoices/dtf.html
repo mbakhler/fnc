@@ -1,0 +1,174 @@
+﻿<script type="text/html" id="inv-discount-tax-freight">
+	<!-- MAIN LIST VIEW -->
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="color:#337ab7;font-weight:bold;">Manage Discount, Tax, and Freight</span></div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-xs-4"><input type="text" class="form-control input-sm datepicker2" placeholder="Search..." data-bind="textInput: searchDTFRulesFilter" /></div>
+			</div>
+			<!--<p><pre data-bind="text: ko.toJSON(selectedSetupId(), null, 2)"></pre></p>-->
+			<!--<p><pre data-bind="text: ko.toJSON(allOrgDTFRules(), null, 2)"></pre></p>-->
+		</div>
+		<!-- Table -->
+		<table class="cm-table table table-condensed table-striped">
+			<thead style="display:block;">
+				<tr style="background-color:#f5f5f5;">
+					<th style="">Location</th>
+					<th style="width: 300px;">Discount</th>
+					<th style="width: 300px;">Tax</th>
+					<th style="width: 300px;">Freight</th>
+					<th style="width: 30px;"></th>
+				</tr>
+				<tr>
+					<td colspan="5" style="width:10000px;height:1px;"></td>
+				</tr>
+			</thead>
+			<tbody id="tblCmDTFBody" data-bind="" style="display:block;overflow-y:scroll;margin-top:-2px;">
+				<!-- ko foreach: filteredOrgDTFRules -->
+				<tr class="cm-hover">
+					<td data-bind="text: OrgName"></td>
+					<td data-bind="text: DiscountCellText()"></td>
+					<td data-bind="text: TaxCellText()"></td>
+					<td data-bind="text: FreightCellText()"></td>
+					<td><button class="btn btn-xs btn-success" style="width:25px;float:left;" data-bind="click: showDTFManageDialog, enable: fnc.app.prvSetupDtfRulesEnable()"><span class=" glyphicon glyphicon-cog"></span></button></td>
+				</tr>
+				<!-- /ko -->
+				<tr>
+					<td colspan="5" style="width:10000px;height:1px;"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- /MAIN LIST VIEW -->
+
+	<!-- ************* -->
+	<!-- MODAL DIALOGS -->
+	<!-- ************* -->
+
+	<!-- Manage Org DTF Rules -->
+	<div class="modal draggable fade" id="modOrgDTFRules" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<!-- ko if: fnc.setupApp.selectedOrgDTFRules() -->
+				<div class="modal-header">
+					<h4 class="modal-title" id="myModalLabel" data-bind="text: fnc.setupApp.selectedOrgDTFRules().OrgName">DTF Rules</h4>
+				</div>
+
+				<div class="modal-body" data-bind="with: fnc.setupApp.selectedOrgDTFRules">
+
+					<!-- Discount -->
+					<div class="panel panel-default">
+						<div class="panel-heading" style="padding:5px 20px;color:brown;font-weight:bold;">Discount</div>
+						<div class="panel-body" style="padding:0px 15px;">
+							<div class="row">
+								<div class="col-xs-3">
+									<div class="radio" style="margin-bottom:0;margin-top:0;">
+										<label>
+											<input type="radio" name="discountOptions" value="1" data-bind="checked: DiscountRule2">
+											Distribute
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-3">
+									<div class="radio" style="margin-bottom:0;margin-top:0;">
+										<label>
+											<input type="radio" name="discountOptions" value="0" data-bind="checked: DiscountRule2, enable: fnc.setupApp.selectedOrgGLAccounts().length > 0">
+											GL Account
+										</label>
+									</div>
+								</div>
+								<div class="col-xs-9" data-bind="visible: fnc.setupApp.selectedOrgGLAccounts().length == 0">
+									<span>No GL Accounts are set</span>
+								</div>
+								<div class="col-xs-9" data-bind="visible: DiscountRule2() == '0'">
+									<select class="input-medium input-nopadding" style="height:16px; width:100%; padding:0; border:0; box-shadow:none; background-color:transparent;" data-bind="options: fnc.setupApp.selectedOrgGLAccounts, optionsText: function(it){return it.GLAccDescription()+' ('+it.GLAccNumber()+')'}, optionsCaption: 'Choose...', optionsValue: 'GLAccId', value: DiscountGLAccId"></select>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Tax -->
+					<div class="panel panel-default">
+						<div class="panel-heading" style="padding:5px 20px;color:brown;font-weight:bold;">Tax</div>
+						<div class="panel-body" style="padding:0px 15px;">
+							<div class="row">
+								<div class="col-xs-3">
+									<div class="radio" style="margin-bottom:0;margin-top:0;">
+										<label>
+											<input type="radio" name="taxOptions" value="1" data-bind="checked: TaxRule2">
+											Distribute
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-3">
+									<div class="radio" style="margin-bottom:0;margin-top:0;">
+										<label>
+											<input type="radio" name="taxOptions" value="0" data-bind="checked: TaxRule2, enable: fnc.setupApp.selectedOrgGLAccounts().length > 0">
+											GL Account
+										</label>
+									</div>
+								</div>
+								<div class="col-xs-9" data-bind="visible: fnc.setupApp.selectedOrgGLAccounts().length == 0">
+									<span>No GL Accounts are set</span>
+								</div>
+								<div class="col-xs-9" data-bind="visible: TaxRule2() == '0'">
+									<select class="input-medium input-nopadding" style="height:16px; width:100%; padding:0; border:0; box-shadow:none; background-color:transparent;" data-bind="options: fnc.setupApp.selectedOrgGLAccounts, optionsText: function(it){return it.GLAccDescription()+' ('+it.GLAccNumber()+')'}, optionsCaption: 'Choose...', optionsValue: function(it){return it.GLAccId}, value: TaxGLAccId"></select>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Freight -->
+					<div class="panel panel-default">
+						<div class="panel-heading" style="padding:5px 20px;color:brown;font-weight:bold;">Freight</div>
+						<div class="panel-body" style="padding:0px 15px;">
+							<div class="row">
+								<div class="col-xs-3">
+									<div class="radio" style="margin-bottom:0;margin-top:0;">
+										<label>
+											<input type="radio" name="freightOptions" value="1" data-bind="checked: FreightRule2">
+											Distribute
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-3">
+									<div class="radio" style="margin-bottom:0;margin-top:0;">
+										<label>
+											<input type="radio" name="freightOptions" value="0" data-bind="checked: FreightRule2, enable: fnc.setupApp.selectedOrgGLAccounts().length > 0">
+											GL Account
+										</label>
+									</div>
+								</div>
+								<div class="col-xs-9" data-bind="visible: fnc.setupApp.selectedOrgGLAccounts().length == 0">
+									<span>No GL Accounts are set</span>
+								</div>
+								<div class="col-xs-9" data-bind="visible: FreightRule2() == '0'">
+									<select class="input-medium input-nopadding" style="height:16px; width:100%; padding:0; border:0; box-shadow:none; background-color:transparent;" data-bind="options: fnc.setupApp.selectedOrgGLAccounts, optionsText: function(it){return it.GLAccDescription()+' ('+it.GLAccNumber()+')'}, optionsCaption: 'Choose...', optionsValue: function(it){return it.GLAccId}, value: FreightGLAccId"></select>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!--<pre data-bind="text: ko.toJSON(fnc.setupApp.selectedOrgDTFRules(), null, 2)"></pre>-->
+					<!--<pre data-bind="text: ko.toJSON(fnc.setupApp.selectedOrgGLAccounts().length, null, 2)"></pre>-->
+					<!--<pre data-bind="text: ko.toJSON(fnc.setupApp.selectedOrgGLAccounts()[0], null, 2)"></pre>-->
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="click: fnc.setupApp.cancelModifyDTFRules">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: fnc.setupApp.resetDefaultDTFRule">Set Default</button>
+					<button type="button" class="btn btn-default" data-bind="click: fnc.setupApp.submitModifyDTFRules, enable: fnc.setupApp.selectedOrgDTFRules().enableSubmitButton()">Submit</button>
+				</div>
+				<!-- /ko -->
+			</div>
+		</div>
+	</div>
+	<!-- /Manage Org DTF Rules -->
+
+</script>

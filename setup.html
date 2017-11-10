@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title></title>
+	<script src="js/knockout-3.2.0.js"></script>
+
+</head>
+<body>
+	<div class="container-fluid" id="stpApp" role="main" style="" data-bind="with: fnc.setupApp">
+
+		<div class="row">
+			<!-- Left Panel -->
+			<div class="col-xs-2" style="padding-top:5px;">
+				<!-- INVOICES -->
+				<div class="panel panel-default">
+					<div class="panel-heading" style="padding:5px 20px;color:brown;font-weight:bold;">Invoices</div>
+					<ul class="list-group">
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'manage-start-date-panel'}"><a class="setup-link" href="manage-start-date-panel" onclick="event.preventDefault();" data-bind="click: showSelectedPanel">Start Date</a></li>
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'manage-charts-panel'}"><a class="setup-link" href="manage-charts-panel" onclick="event.preventDefault();" data-bind="click: showSelectedPanel">Charts</a></li>
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'manage-gl-accts-panel'}, visible: !initialSetup()"><a class="setup-link" href="manage-gl-accts-panel" onclick="event.preventDefault();" data-bind="click: showSelectedPanel">GL Accounts</a></li>
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'manage-gl-assignment-panel'}, visible: !initialSetup()"><a class="setup-link" href="manage-gl-assignment-panel" onclick="event.preventDefault();" data-bind="click: showSelectedPanel">GL Items Assignments</a></li>
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'manage-dtf-panel'}, visible: !initialSetup()"><a class="setup-link" href="manage-dtf-panel" onclick="event.preventDefault();" data-bind="click: showSelectedPanel">Discount, Tax, and Freight</a></li>
+					</ul>
+				</div>
+				<!-- SALES -->
+				<div class="panel panel-default" style="">
+					<div class="panel-heading" style="padding:5px 20px;color:brown;font-weight:bold;">Sales</div>
+					<ul class="list-group">
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'sales-charts-panel'}"><a class="setup-link" href="sales-charts-panel" onclick="event.preventDefault();" data-bind="click: showSalesSelectedPanel">Charts</a></li>
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'sales-meal-period-panel'}"><a class="setup-link" href="sales-meal-period-panel" onclick="event.preventDefault();" data-bind="click: showSalesSelectedPanel">Meal Period</a></li>
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'sales-gl-accounts-panel'}"><a class="setup-link" href="sales-gl-accounts-panel" onclick="event.preventDefault();" data-bind="click: showSalesSelectedPanel">GL Accounts</a></li>
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'sales-deposits-panel'}"><a class="setup-link" href="sales-deposits-panel" onclick="event.preventDefault();" data-bind="click: showSalesSelectedPanel">Deposits</a></li>
+					</ul>
+				</div>
+				<!-- CONNECT SYSTEMS -->
+				<div class="panel panel-default" style="">
+					<div class="panel-heading" style="padding:5px 20px;color:brown;font-weight:bold;">Connect Systems</div>
+					<ul class="list-group">
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'qb-authentication-panel'}"><a class="setup-link" href="qb-authentication-panel" onclick="event.preventDefault();" data-bind="click: fnc.setupQb.showQbSelectedPanel">QuickBooks Online</a></li>
+					</ul>
+				</div>
+				<!-- GENERAL -->
+				<div class="panel panel-default">
+					<div class="panel-heading" style="padding:5px 20px;color:brown;font-weight:bold;">General</div>
+					<ul class="list-group">
+						<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'cm-costcenters-panel'}"><a class="setup-link" href="cm-costcenters-panel" onclick="event.preventDefault();" data-bind="click: fnc.setupCC.showCostCentersPanel">Classes</a></li>
+						<!--<li class="list-group-item" data-bind="css: {selectedMenu: selectedSetupId() == 'cm-test-panel'}"><a class="setup-link" href="cm-test-panel" onclick="event.preventDefault();" data-bind="click: cmTest.showSelectedPanel">Test</a></li>-->
+					</ul>
+				</div>
+			</div>
+			<!-- /Left Panel -->
+			<!-- Main Panel -->
+			<div class="col-xs-10" style="padding-top: 5px;">
+				<!-- START DATE PANEL -->
+				<div data-bind="template: { name: 'fnc-start-date', if: selectedSetupId() == 'manage-start-date-panel'}"></div>
+				<!-- /START DATE PANEL -->
+				<!-- CHART OF ACCOUNTS -->
+				<div data-bind="template: { name: 'inv-charts', if: selectedSetupId() == 'manage-charts-panel'}"></div>
+				<!-- /CHART OF ACCOUNTS -->
+				<!-- GL ACCOUNTS -->
+				<div data-bind="template: { name: 'inv-gl-accounts', if: selectedSetupId() == 'manage-gl-accts-panel'}"></div>
+				<!-- /GL ACCOUNTS -->
+				<!-- GL ASSIGNMENTS -->
+				<div data-bind="template: { name: 'inv-items-assignments', if: selectedSetupId() == 'manage-gl-assignment-panel'}"></div>
+				<!-- /GL ASSIGNMENTS -->
+				<!-- DTF PANEL -->
+				<div data-bind="template: { name: 'inv-discount-tax-freight', if: selectedSetupId() == 'manage-dtf-panel'}"></div>
+				<!-- /DTF PANEL -->
+				<!-- SALES CHARTS -->
+				<div data-bind="template: { name: 'sales-charts', if: selectedSetupId() == 'sales-charts-panel'}"></div>
+				<!-- /SALES CHARTS -->
+				<!-- SALES GL ACCOUNTS -->
+				<div data-bind="template: { name: 'sales-gl-accounts', if: selectedSetupId() == 'sales-gl-accounts-panel'}"></div>
+				<!-- /SALES GL ACCOUNTS -->
+				<!-- MEAL PERIOD -->
+				<div data-bind="template: { name: 'sales-meal-period', if: selectedSetupId() == 'sales-meal-period-panel'}"></div>
+				<!-- /MEAL PERIOD -->
+				<!-- SALES DEPOSITS -->
+				<div data-bind="template: { name: 'sales-deposits', if: selectedSetupId() == 'sales-deposits-panel'}"></div>
+				<!-- /SALES DEPOSITS -->
+				<!-- QUICKBOOKS AUTHENTICATION -->
+				<div data-bind="template: { name: 'qb-online', if: selectedSetupId() == 'qb-authentication-panel'}"></div>
+				<!-- /QUICKBOOKS AUTHENTICATION -->
+				<!-- COST CENTERS SETUP -->
+				<div data-bind="template: { name: 'gn-cost-centers', if: selectedSetupId() == 'cm-costcenters-panel'}"></div>
+				<!-- /COST CENTERS SETUP -->
+				<!-- CM TEST   -->
+				<!--<div data-bind="if: selectedSetupId() == 'cm-test-panel'">
+					<div id="fortune"></div> 
+				</div>-->
+				<!-- /CM TEST -->
+
+			</div>
+			<!-- /Main Panel -->
+
+		</div>
+
+		<!--<pre data-bind="text: ko.toJSON($data, null, 2)"></pre>-->
+		<!-- TEMPLATES -->
+		<div id="setupTemplates" style="display:none;"></div>
+		<!--<div cm-include-html="setup/invoices/start-date.html"></div>-->
+		
+		<!-- invoices -->
+		<!--<div cm-include-html="setup/invoices/charts.html"></div>-->
+		<!--<div cm-include-html="setup/invoices/dtf.html"></div>-->
+		<!--<div cm-include-html="setup/invoices/gl-accounts.html"></div>-->
+		<!--<div cm-include-html="setup/invoices/items-assignments.html"></div>-->
+
+		<!-- sales -->
+		<!--<div cm-include-html="setup/sales/charts.html"></div>-->
+		<!--<div cm-include-html="setup/sales/deposits.html"></div>-->
+		<!--<div cm-include-html="setup/sales/gl-accounts.html"></div>-->
+		<!--<div cm-include-html="setup/sales/meal-period.html"></div>-->
+
+		<!-- qbo -->
+		<!--<div cm-include-html="setup/connect/qb-online.html"></div>-->
+
+		<!-- cost centers -->
+		<!--<div cm-include-html="setup/general/cost-centers.html"></div>-->
+		<!-- /TEMPLATES -->
+	</div>
+</body>
+</html>

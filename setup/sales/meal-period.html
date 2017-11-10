@@ -1,0 +1,112 @@
+﻿<script type="text/html" id="sales-meal-period">
+
+	<!-- /MAIN LIST VIEW -->
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="color:#337ab7;font-weight:bold;">Manage Meal Period</span></div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-xs-4">
+					<span style="float:left;padding-right:10px;font-weight:bold;">Chart</span>
+					<!--<select class="input-medium input-nopadding" style="float:left;width:auto;" data-bind="options: uniqueSalesCharts, optionsText: function(it){return it.ChartName()}, optionsValue: 'ChartId', value: selectedSalesChartId, optionsCaption: 'Select Chart ...'"></select>-->
+					<select class="input-medium input-nopadding" style="float:left;width:auto;" data-bind="value: selectedSalesChartId">
+						<option value="0">Select Chart ... </option>
+						<!-- ko foreach: uniqueSalesCharts -->
+						<option data-bind="text: ChartName(), value: ChartId(), visible: TrackMealPeriod()"></option>
+						<!-- /ko -->
+					</select>
+				</div>
+				<div class="col-xs-4 col-xs-offset-4">
+					<button class="btn btn-xs btn-success" title="GL Accounts" style="width: 25px;float:right;margin-right:15px;" data-bind="click: showSalesGLAccounts, enable: enableShowSalesGLAccounts"><span class=" glyphicon glyphicon-cog"></span></button>
+				</div>
+			</div>
+
+		</div>
+		<table class="cm-table table table-condensed table-striped">
+			<thead>
+				<tr style="background-color:#f5f5f5;">
+					<th class="col-w-b30-1"></th>
+					<th class="col-w-b15-1">#</th>
+					<th class="col-w-b30-12">Description</th>
+					<th></th>
+					<th class="col-w-b30-2">Action</th>
+				</tr>
+			</thead>
+			<!-- ko if: fnc.app.prvSalesSetupChartsEnable() -->
+			<tbody id="tblSalesMealPeriods" data-bind="sortable: { data: salesMealPeriods, afterMove: $parent.reorgMealPeriods }" style="">
+				<tr>
+					<td>
+						<div class="btn-group">
+							<a class="btn btn-xs btn-info" title="Move"><i class="glyphicon glyphicon-align-justify" style="cursor:move"></i></a>
+						</div>
+					</td>
+					<td data-bind="text: DisplayOrder()"></td>
+					<td data-bind=""><input type="text" style="box-shadow:none; border: 0; background-color: transparent; width:100%;" data-bind="textInput: MealPeriodDescription, event: {blur: updateMealPeriodDescription}" /></td>
+					<td></td>
+					<td>
+						<button class="btn btn-xs btn-danger" style="width: 25px;" data-bind="click: showConfirmDeleteDialog, enable: Assigned == '0'"><span class=" glyphicon glyphicon-trash"></span></button>
+					</td>
+				</tr>
+			</tbody>
+			<!-- /ko -->
+			<!-- ko if: !fnc.app.prvSalesSetupChartsEnable() -->
+			<tbody id="tblSalesMealPeriods" data-bind="foreach: salesMealPeriods">
+				<tr>
+					<td>
+						<div class="btn-group">
+							<span>&nbsp;</span>
+						</div>
+					</td>
+					<td data-bind="text: DisplayOrder()"></td>
+					<td data-bind=""><input type="text" style="box-shadow:none; border: 0; background-color: transparent; width:100%;" disabled data-bind="textInput: MealPeriodDescription" /></td>
+					<td></td>
+					<td>
+						<button class="btn btn-xs btn-danger" style="width: 25px;" disabled><span class=" glyphicon glyphicon-trash"></span></button>
+					</td>
+				</tr>
+			</tbody>
+			<!-- /ko -->
+			<tbody style="background-color:#f5f5f5;">
+				<tr>
+					<td></td>
+					<td></td>
+					<td style="padding-top:10px !important;padding-bottom:10px !important">
+						<input maxlength="100" type="text" style="width:100%;" data-bind="textInput: newMealPeriodDescription, enable: fnc.app.prvSalesSetupChartsEnable()">
+					</td>
+					<td></td>
+					<td style="padding-top:8px !important;">
+						<button class="btn btn-xs btn-warning" onclick="event.preventDefault();" style="width: 25px;" data-bind="click: addMealPeriod, enable: enableAddMealPeriod() & fnc.app.prvSalesSetupChartsEnable()"><span class=" glyphicon glyphicon-plus"></span></button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- /MAIN LIST VIEW -->
+	
+	
+	<!-- ************* -->
+	<!-- MODAL DIALOGS -->
+	<!-- ************* -->
+
+	<!-- Confirm Delete Meal Period -->
+	<div class="modal draggable fade" id="modConfirmDelMealPeriod" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">CONFIRM DELETE</h4>
+				</div>
+				<div class="modal-body">
+					<!-- ko if: fnc.setupApp.selectedMealPeriod() -->
+					<p>Please confirm deleting Meal Period:&nbsp;<span style="color:brown;font-weight:bold;"><span data-bind="text: fnc.setupApp.selectedMealPeriod().MealPeriodDescription()"></span></span></p>
+					<!-- /ko -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="click: cancelDeleteSalesMealPeriod">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: deleteSalesMealPeriod">Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Confirm Delete Meal Period -->
+
+</script>

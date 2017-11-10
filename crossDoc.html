@@ -1,0 +1,1099 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title></title>
+	<script src="js/knockout-3.2.0.js"></script>
+</head>
+<body>
+	<div class="container-fluid" style="overflow-y:hidden;overflow-x:hidden;" id="crssDcApp" role="main" data-bind="with: fnc.crossDocApp,event:{dragover:function(data,event){event.preventDefault();},drop:function(data,event){event.preventDefault();}}">
+		<div class="panel panel-default" style="margin-bottom:0;">
+			<div class="panel-heading">
+				<span style="color:#337ab7;font-weight:bold;">
+					<a data-bind="click:openWindowed,style:{cursor:isWindowed()?'auto':'pointer'}">
+						<i>CrossDoc </i>
+						<span title="open in new window" class="glyphicon glyphicon-new-window" data-bind="visible:!isWindowed()"></span>
+					</a>
+				</span>
+			</div>
+			<div class="panel-body">
+				<div class="row">
+					<!--Filter Panel-->
+					<div class="col-xs-2" style="padding-left:0px;">
+						<div class="panel panel-default" style="border: 1px solid #337ab7; padding: 5px; border-radius: 5px;margin-bottom:0;">
+							<div class="panel-heading" style="padding:0px;"><h6 class="panel-title">Search <span style="font-size: 9px;color: #337ab7;font-weight: bold; cursor:help; text-decoration:underline;" title="Up to 1000 records are displayed. Refine Date Range and Location filter to narrow down your search.">(Up to 1000 records)</span></h6></div>
+							<!-- Date Range Section -->
+							<div class="panel panel-default" style="margin-top:5px;margin-bottom:0px;">
+								<div class="panel-heading" style="padding:5px 20px;color:brown;">
+									<span style="margin-left:5px;font-weight:bolder;">Date Range</span>
+								</div>
+								<div class="panel-body" style="padding-bottom: 10px;padding-top:0px;padding-left:0px;padding-right:0px;">
+									<div class="controls" data-bind="">
+										<div class="row" style="padding:5px 10px 0px 10px;" data-bind="">
+											<div class="col-xs-12">
+												<select class="input-medium input-nopadding" id="" style="margin-bottom: 0px; width: 100%;" data-bind="options: fnc.app.filterAvailableDateRanges, value: fnc.app.filterDateRange, valueUpdate: 1,event:{change:refreshInvoiceDocumentList}"></select>
+											</div>
+										</div>
+										<div class="row" style="padding:5px 10px 0px 10px;">
+											<div class="col-xs-3"><label class="control-label" for="dateFieldFrom">Starting:</label></div>
+											<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" id="dateFieldFrom" style="height:18px;" data-bind="value: fnc.app.filterDateFrom,event:{change:refreshInvoiceDocumentList}" /></div>
+										</div>
+										<div class="row" style="padding:5px 10px 5px 10px;">
+											<div class="col-xs-3"><label class="control-label" for="dateFieldTo">Ending:</label></div>
+											<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" id="dateFieldTo" style="height:18px;" data-bind="value: fnc.app.filterDateTo,event:{change:refreshInvoiceDocumentList}" /></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- /Date Range Section -->
+							<!-- Location Section -->
+							<div class="panel panel-default" style="margin-top:5px;margin-bottom:0px;">
+								<div class="panel-heading" style="padding:0;color:brown;">
+									<div class="row" style="padding-bottom: 5px; padding-top:5px;">
+										<div class="col-xs-7" style="padding-right:0;">
+											<!-- ko if: !fnc.app.singleLocation()  -->
+											<div style="display:table-cell; float:left;width:25px;height:17px;">
+												<span class="glyphicon glyphicon-filter" aria-hidden="true" title="Clear filter" style="margin-left:10px; cursor:pointer;" data-bind="visible: fnc.app.clearLocationFilterVisible, click: clearLocationFilter"></span>&nbsp;
+											</div>
+											<span style="/*margin-left:5px;*/font-weight:bolder;">Location</span>
+											<div style="display:inline-block;padding-left:3px;">
+												<span id="selectedLocationsIcon" class="glyphicon glyphicon-unchecked" aria-hidden="true" title="Toggle selected" style="/*margin-left:5px;*/ cursor:pointer;" data-bind="visible: fnc.app.filterSelectedLocations().length, click: toggleSelectedLocations"></span>&nbsp;
+											</div>
+											<!-- /ko -->
+											<!-- ko if: fnc.app.singleLocation() -->
+											<span style="margin-left:25px;font-weight:bolder;">Location</span>
+											<!-- /ko -->
+										</div>
+										<div class="col-xs-5" style="padding-left:0px; padding-right:25px;">
+											<input type="text" placeholder="Search..." style="width:100%" data-bind="textinput: fnc.app.searchLocationsFilter, visible: !fnc.app.singleLocation()" />
+										</div>
+									</div>
+								</div>
+								<ul class="list-group" id="crossDocListLocation" style="overflow-y:auto;" data-bind="foreach: fnc.app.filteredLocations">
+									<li class="list-group-item" style="padding:0;" data-bind="visible: fnc.app.notSelectedLocationsHidden() ? Selected() : true">
+										<label style="margin:0;font-weight: normal;">
+											<!-- ko if: !fnc.app.singleLocation() -->
+											<input type="checkbox" style="margin-left:10px;" data-bind="checked: Selected" />
+											<span style="margin-left:5px;font-size:0.9em !important;" data-bind="text: LocationName"></span>
+											<!-- /ko -->
+											<!-- ko if: fnc.app.singleLocation()  -->
+											<span style="margin-left:30px;font-size:0.9em !important;" data-bind="text: LocationName"></span>
+											<!-- /ko -->
+										</label>
+									</li>
+								</ul>
+							</div>
+							<!-- /Location Section -->
+						</div>
+					</div>
+					<!--/Filter Panel-->
+					<!--Table section-->
+					<div id="crossDocListTableSection" class="col-xs-10 panel panel-default" style="border: 1px solid #337ab7; padding: 5px; border-radius: 5px;margin-bottom:0;">
+						<div class="row">
+							<div class="col-xs-3" style="padding-bottom:10px;padding-top:5px;">
+								<input type="text" class="form-control input-sm" placeholder="Search..." data-bind="textinput:searchFilterKeyWords">
+							</div>
+							<div class="col-xs-3 col-xs-offset-6">
+								<!--<button class="btn btn-sm btn-primary" style="float:right;" data-bind="click:showCanvasEditor">
+							<span title="upload custom documents" class="glyphicon glyphicon-edit"></span>
+						</button>-->
+								<button class="btn btn-sm btn-primary" style="float:right;" data-bind="click:showUploads, css: {'cm-disabled-tab': !fnc.app.prvCrossDocUploadDocumentEnable()}">
+									<span title="upload custom documents" class="glyphicon glyphicon-plus"></span>
+								</button>
+								<button class="btn btn-sm btn-success" style="float:right;" data-bind="click:refreshInvoiceDocumentList">
+									<span class="glyphicon glyphicon-refresh"></span>
+								</button>
+							</div>
+						</div>
+						<div class="panel panel-default" style="margin-bottom:0px;">
+							<table id="tblCrossDocHead" class="cm-table table table-bordered table-condensed" style="margin-bottom:0px;border-right:1px solid #ddd;border-bottom:2px solid #ddd;" data-bind="style:{width:browserName=='Edge'?'calc(100% - 12px)':browserName=='Safari'?'100%':'calc(100% - 17px)'}">
+								<thead style="background:#f5f5f5;">
+									<tr class="row" style="font-size:0.79em;">
+										<th class="col-xs-1" style="width:13%;" data-bind="with: listHeaders[0]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" style="width:11.3%;" data-bind="with: listHeaders[1]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" style="width:6%;" data-bind="with: listHeaders[2]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" data-bind="with: listHeaders[3]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-2" style="width:15.066666%;" data-bind="with: listHeaders[4]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" data-bind="with: listHeaders[5]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" style="width:6.3%;padding-right:0px;text-align:center;" data-bind="with: listHeaders[6]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" style="width:6%;padding-right:0px;text-align:right;" data-bind="with: listHeaders[7]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" style="width:9.3333333333%;padding-right:0px;" data-bind="with: listHeaders[8]">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" data-bind="with: listHeaders[9]" style="width:8%;">
+											<span id="crossDoc_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: title, click: sortListItems"></span>
+											<span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: asc() && title==fnc.crossDocApp.activeSort().title"></span>
+											<span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !asc() && title==fnc.crossDocApp.activeSort().title"></span>
+										</th>
+										<th class="col-xs-1" data-bind="with: listHeaders[10]" style="text-align:center;border-top-right-radius:0px;">
+											<span data-bind="text: title"></span>
+										</th>
+									</tr>
+								</thead>
+							</table>
+							<div id="tblCrossDocListContainer" style="display:block;overflow-x:hidden;">
+								<!--table body-->
+								<div id="tblCrossDocListBody" style="overflow-y:scroll;" data-bind="event:{scroll:scrollHandle}">
+									<table class="cm-table table table-condensed table-bordered cm-table-stripe" style="margin-bottom:0px;table-layout:fixed;border-left:0px;">
+										<tbody data-bind="foreach:paginated">
+											<tr class="row cm-hover">
+												<td class="col-xs-1" style="width:13%;border-left:0px;">
+													<div style="white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" data-bind="text: company,attr:{title:company}"></div>
+												</td>
+												<td class="col-xs-1" style="width:11.3%;">
+													<div style="white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" data-bind="text: location,attr:{title:location}"></div>
+												</td>
+												<td class="col-xs-1" style="width:6%;">
+													<div style="white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" data-bind="text: POList,attr:{title:POList}"></div>
+												</td>
+												<td class="col-xs-1">
+													<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-bind="text: invoiceNum,attr:{title:invoiceNum}"></div>
+												</td>
+												<td class="col-xs-2" style="width:15.066666%;">
+													<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-bind="text: docName,attr:{title:docName}"></div>
+												</td>
+												<td class="col-xs-1">
+													<div style="white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" data-bind="text: typeName,attr:{title:typeName}"></div>
+												</td>
+												<td class="col-xs-1" style="width:6.3%;text-align:center;" data-bind="text:pageCount"></td>
+												<td class="col-xs-1" style="text-align:right;width:6%;">
+													<div style="white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" data-bind="text: '$'+Number(total).toFixed(2),attr:{title:'$'+Number(total).toFixed(2),}"></div>
+												</td>
+												<td class="col-xs-1" style="width:9.3333333333%;border-left:0px;" data-bind="text: uploadBy"></td>
+												<td class="col-xs-1" style="width:8%;">
+													<div style="overflow:hidden;text-overflow:ellipsis;" data-bind="text:uploadDT.toLocaleString(),attr:{title:uploadDT.toLocaleString()}"></div>
+												</td>
+												<td class="col-xs-1" style="text-align:center;border-right:0px; padding-right:0px;padding-left:0px;">
+													<div class="btn-group"style="margin-top:5px;">
+														<button class="btn btn-xs btn-danger" data-bind="click:fnc.crossDocApp.showRemoveCrossDoc, css: {'cm-disabled-tab': !fnc.app.prvCrossDocDeleteDocumentEnable()}">
+															<span title="delete" class="glyphicon glyphicon-trash"></span>
+														</button>
+														<button class="btn btn-xs btn-success" data-bind="click:fnc.crossDocApp.showEditCrossDoc, css: {'cm-disabled-tab': !fnc.app.prvCrossDocEditDocumentEnable()}">
+															<span title="edit" class="glyphicon glyphicon-cog"></span>
+														</button>
+														<button class="btn btn-xs btn-primary" data-bind="click:fnc.crossDocApp.showPreviewCrossDoc, css: {'cm-disabled-tab': !fnc.app.prvCrossDocViewDocumentEnable()}">
+															<span title="preview" class="glyphicon glyphicon-zoom-in"></span>
+														</button>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<!--/table body-->
+							<!-- Paging -->
+							<div class="panel-footer" style="margin-bottom:0;">
+								<button class="btn btn-xs" style="width:26px;" data-bind="click: previous, enable: hasPrevious()"><span class="glyphicon glyphicon-chevron-left"></span></button>
+								<button class="btn btn-xs" style="width:26px;" data-bind="click: next, enable: hasNext()"><span class="glyphicon glyphicon-chevron-right"></span></button>
+								<!-- ko foreach: totalPagesHolder -->
+								<a class="btn btn-xs btn-default" href="#" role="button" style="width:26px;" data-bind="click: $parent.pageController, style: {color: $parent.pageNumber() + 1 == $data ? '#fff' : '',	background: $parent.pageNumber() + 1 == $data ? '#7dc0ff' : '' }, visible: $index() == 0 || $index() == fnc.crossDocApp.totalPagesHolder().length - 1 || ($parent.pageNumber() - $index() > -5 && $parent.pageNumber() - $index() < 5)">
+									<span class="current" data-bind="text: $data"></span>
+								</a>
+								<!-- /ko -->
+							</div>
+							<!--/Paging-->
+						</div>
+					</div>
+				</div>
+				<!--upload dialog-->
+				<div class="modal fade full-height-modal" style="z-index:1049;" id="modCrossDocUpload" tabindex="-1" role="dialog" aria-labelledby="uploadInvoiceLabel" aria-hidden="true">
+					<div class="modal-dialog" style="margin-top:10px; width:60%;">
+						<div class="modal-content">
+							<div class="modal-header" style="padding-bottom:5px;">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" data-bind="click:allUploaded() || allEmpty()?clearUploadQueue:showConfirmClear"><span aria-hidden="true">&times;</span></button>
+								<h4 class="modal-title" id="uploadInvoiceLabel">Upload Documents</h4>
+							</div>
+							<div class="modal-body">
+								<div id="uploadInputs">
+									<!--alerts-->
+									<div class="alert alert-danger" style="text-align:center;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;" data-bind="visible:currentUploadBatch().hasUploadFailure">
+										A document has failed to upload. Try again, or remove the file by pressing the red <i>X</i>.
+										<span class="glyphicon glyphicon-alert"></span>
+									</div>
+									<div class="alert alert-danger" style="text-align:center;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;" data-bind="visible:currentUploadBatch().alertTooBig">
+										Could not attach file. Try reducing size to under 2.5mb.
+										<span class="glyphicon glyphicon-alert"></span>
+									</div>
+									<div class="alert alert-danger" style="text-align:center;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;" data-bind="visible:currentUploadBatch().hasAttachFailure">
+										A document has failed to attach. Try again or go to the "invoices" tab to try from there.
+										<span class="glyphicon glyphicon-alert"></span>
+									</div>
+									<!--/alerts-->
+									<!--<form>-->
+									<!--location input-->
+									<div class="form-group vertically-condensed-row row" data-bind="css:currentUploadBatch().alertInvalidLocation()?'has-error':'has-success'">
+										<label for="locationInputUpload" class="col-xs-2 col-form-label control-label">Location<span style="color:red;">*</span></label>
+										<div class="col-xs-10">
+											<div class="dropdown">
+												<input class="form-control input-dropdown" id="locationInputUpload" type="text" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" placeholder="Location" data-bind="textInput:currentUploadBatch().location,style:{border:currentUploadBatch().alertInvalidLocation()?'1px solid #a94442':'1px solid #3c763d'},attr:{'disabled':currentUploadBatch().isUploaded() || fnc.app.singleLocation()}" />
+												<small class="form-text text-muted" data-bind="text:currentUploadBatch().location()==''?' This is required. Start typing to filter locations.':currentUploadBatch().alertInvalidLocation()?'Invalid Location':''"></small>
+												<ul class="dropdown-menu dropdown-menu-fixed" style="width:100%;" aria-labelledby="locationInputUpload" data-bind="visible:currentUploadBatch().filteredLocations().length != 0">
+													<li>
+														<ul style="max-height:300px;overflow-y:auto;overflow-x:hidden;" data-bind="foreach:currentUploadBatch().filteredLocations">
+															<li class="dropdown-item" style="line-height:0.7;" data-bind="attr:{tabindex:$index},click:$parent.currentUploadBatch().setLocation">
+																<a class="row">
+																	<div class="col-xs-12" data-bind="text:LocationName"></div>
+																</a>
+															</li>
+														</ul>
+													</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+									<!--/location input-->
+									<!--vendor tip-->
+									<div class="alert alert-info" style="padding-top:0px;padding-bottom:0px;text-align:center;margin-bottom:5px;" data-bind="visible:!currentUploadBatch().existingVendorSelected()">
+										<small><span class="glyphicon glyphicon-info-sign"></span> <strong>Heads up!</strong> To attach your documents to an invoice record, select a vendor from the dropdown</small>
+									</div>
+									<!--/vendor tip-->
+									<!--vendor input-->
+									<div class="form-group vertically-condensed-row row">
+										<label for="vendorInputUpload" class="col-xs-2 col-form-label">Vendor</label>
+										<div class="col-xs-10">
+											<div class="dropdown">
+												<input class="input-dropdown form-control" type="text" id="vendorInputUpload" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" placeholder="Vendor" data-bind="textInput:currentUploadBatch().company,attr:{'disabled':currentUploadBatch().isUploaded}">
+												<small class="form-text text-muted">enter custom, or choose from vendors associated with chosen location(start typing to filter)</small>
+												<ul class="dropdown-menu dropdown-menu-fixed" style="width:100%;" aria-labelledby="vendorInputUpload" data-bind="visible:currentUploadBatch().filteredVendors().length != 0">
+													<li class="dropdown-header row">
+														<div class="col-xs-4">
+															Company
+														</div>
+														<div class="col-xs-4">
+															Address
+														</div>
+														<div class="col-xs-2" style="padding-left:0px;">
+															Require PO
+														</div>
+														<div class="col-xs-2" style="padding-left:0px;">
+															GL Account
+														</div>
+													</li>
+													<li role="separator" class="divider"></li>
+													<li>
+														<ul style="max-height:300px;overflow-y:auto;overflow-x:hidden;">
+															<!-- ko foreach: currentUploadBatch().filteredVendors -->
+															<li class="dropdown-item" style="line-height:1.1;" data-bind="click:$parent.currentUploadBatch().setVendor,attr:{tabindex:$index}">
+																<a class="row" style="margin-top:0px;margin-bottom:0px;">
+																	<div class="col-xs-4" style="overflow:hidden;text-overflow:ellipsis;padding-left:0px;" data-bind="text:Company"></div>
+																	<div class="col-xs-4" style="overflow:hidden;text-overflow:ellipsis;padding-right:0px;padding-left:0px;" data-bind="text:Address1"></div>
+																	<div class="col-xs-2" style="overflow:hidden;text-overflow:ellipsis;padding-right:0px;padding-left:0px;text-align:center;">
+																		<span data-bind="css:{'glyphicon glyphicon-check':RequiredPO>0}"></span>
+																	</div>
+																	<div class="col-xs-2" style="overflow:hidden;text-overflow:ellipsis;padding-right:0px;padding-left:0px;text-align:center;">
+																		<span data-bind="css:{'glyphicon glyphicon-check':GLAccountId != 0}"></span>
+																	</div>
+																</a>
+															</li>
+															<!-- /ko -->
+														</ul>
+													</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+									<!--/vendor input-->
+									<!--attachment options-->
+									<div class="form-group vertically-condensed-row form-check form-check-inline row" style="text-align:center;background:whitesmoke;margin-left:0px;margin-right:0px;" data-bind="visible:currentUploadBatch().existingVendorSelected">
+										<ul class="nav nav-pills nav-justified">
+											<li data-bind="css:{'active':(currentUploadBatch().searchExistingOn() && fnc.app.prvCrossDocAttachToInvoiceEnable())}">
+												<a style="padding-top:5px;padding-bottom:5px;cursor:pointer;height:44px;" data-bind="click:currentUploadBatch().toggleSearchExistingOn,style:{'pointer-events':currentUploadBatch().isUploaded() || !fnc.app.prvCrossDocAttachToInvoiceEnable() ? 'none':'auto'}, css: {'cm-disabled-tab': !fnc.app.prvCrossDocAttachToInvoiceEnable()}"> Attach Document(s) to an Existing Invoice Record </a>
+											</li>
+											<li data-bind="css:{'active':(currentUploadBatch().createInvoiceSelected() && fnc.app.prvCrossDocAttachToInvoiceEnable())},visible:currentUploadBatch().vendorHasGL">
+												<a style="padding-top:5px;padding-bottom:5px;cursor:pointer;height:44px;" data-bind="click:currentUploadBatch().toggleCreateInvoiceSelected,style:{'pointer-events':currentUploadBatch().isUploaded() || !fnc.app.prvCrossDocAttachToInvoiceEnable() ? 'none':'auto'}, css: {'cm-disabled-tab': !fnc.app.prvCrossDocAttachToInvoiceEnable()}">Create a New Invoice Record and Attach Document(s)</a>
+											</li>
+											<li data-bind="css:{'active':(currentUploadBatch().doNotAttach() || !fnc.app.prvCrossDocAttachToInvoiceEnable())}">
+												<a style="height:100%;padding-top:5px;padding-bottom:5px;cursor:pointer;height:44px;" data-bind="click:currentUploadBatch().toggleDoNotAttach,style:{'pointer-events':currentUploadBatch().isUploaded()?'none':'auto'}">Upload Document(s) without Attaching to Invoice Record</a>
+											</li>
+										</ul>
+									</div>
+									<!--/attachment options-->
+									<!--PO list input-->
+									<div class="form-group vertically-condensed-row row" data-bind="visible:!currentUploadBatch().searchExistingOn()">
+										<label for="poInput" class="col-xs-2 col-form-label">PO(s)</label>
+										<div class="col-xs-10">
+											<input class="form-control" id="poInput" type="text" placeholder="PO#" data-bind="textInput:currentUploadBatch().POList,attr:{'disabled':currentUploadBatch().isUploaded}" />
+											<small class="form-text text-muted">for multiple, separate with commas</small>
+										</div>
+									</div>
+									<!--/PO list input-->
+									<!--invoice number input-->
+									<div class="form-group vertically-condensed-row row" data-bind="css:currentUploadBatch().createInvoiceSelected()?currentUploadBatch().invoiceNum() != '' ?currentUploadBatch().alertDuplicateInvoice()?'has-warning':'has-success':'has-error':'',visible:!currentUploadBatch().searchExistingOn() || currentUploadBatch().createInvoiceSelected()">
+										<label for="invoiceNumInput" class="col-xs-2 col-form-label control-label">
+											Invoice #<span style="color:red" data-bind="visible:currentUploadBatch().createInvoiceSelected">*</span>
+										</label>
+										<div class="col-xs-10" data-bind="style:{'padding-left':currentUploadBatch().alertDuplicateInvoice()?'0px':'10px'}">
+											<div class="input-group" style="width:100%;">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">
+													<span style="color:#f39105;cursor:help;" class="glyphicon glyphicon-alert" title="An invoice with this number already exists." data-bind="visible:currentUploadBatch().alertDuplicateInvoice"></span>
+												</div>
+												<input class="form-control" type="text" id="invoiceNumInput" placeholder="Invoice Number" data-bind="textInput:currentUploadBatch().invoiceNum,event:{blur:currentUploadBatch().checkDuplicateInvoice},style:{border:currentUploadBatch().createInvoiceSelected()?currentUploadBatch().invoiceNum() == ''?'1px solid #a94442':currentUploadBatch().alertDuplicateInvoice()?'1px solid #8a6d3b':'1px solid #3c763d':'none'},attr:{'disabled':currentUploadBatch().isUploaded}" />
+											</div>
+										</div>
+									</div>
+									<!--/invoice number input-->
+									<!--total input-->
+									<div class="form-group vertically-condensed-row row" data-bind="css:currentUploadBatch().createInvoiceSelected()?currentUploadBatch().total() != '' ?'has-success':'has-error':'',visible:!currentUploadBatch().searchExistingOn() || currentUploadBatch().createInvoiceSelected()">
+										<label for="totalInput" class="col-xs-2 col-form-label control-label">
+											Total<span style="color:red" data-bind="visible:currentUploadBatch().createInvoiceSelected">*</span>
+										</label>
+										<div class="col-xs-10" style="padding-left:6px;">
+											<div class="input-group">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">$</div>
+												<input class="form-control" type="number" id="totalInput" placeholder="Total" data-bind="textInput:currentUploadBatch().total,style:{border:currentUploadBatch().createInvoiceSelected()?currentUploadBatch().total() == ''?'1px solid #a94442':'1px solid #3c763d':'none'},attr:{'disabled':currentUploadBatch().isUploaded}">
+											</div>
+										</div>
+									</div>
+									<!--/total input-->
+									<!--invoice date input-->
+									<div class="form-group vertically-condensed-row row" data-bind="css:currentUploadBatch().createInvoiceSelected()?currentUploadBatch().invoiceDate() != '' ?'has-success':'has-error':'',visible:currentUploadBatch().createInvoiceSelected()">
+										<label for="invoiceDateInput1" class="col-xs-2 col-form-label control-label">
+											Inv. Date<span style="color:red">*</span>
+										</label>
+										<div class="col-xs-10">
+											<input type="text" id="invoiceDateInput1" class="form-control jq-datepicker" data-bind="textInput: currentUploadBatch().invoiceDate,style:{border:currentUploadBatch().invoiceDate() == ''?'1px solid #a94442':'1px solid #3c763d'},attr:{'disabled':currentUploadBatch().isUploaded}" />
+										</div>
+									</div>
+									<!--/invoice date input-->
+									<!--new invoice inputs-->
+									<div class="form-inline vertically-condensed-row row" data-bind="visible:currentUploadBatch().createInvoiceSelected()">
+										<!--tax input-->
+										<div class="col-xs-4">
+											<label for="taxInput">Tax</label>
+											<div class="input-group" style="width:100%;">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">$</div>
+												<input class="form-control" id="taxInput" type="number" placeholder="Tax" data-bind="textInput:currentUploadBatch().tax,attr:{'disabled':currentUploadBatch().isUploaded}" />
+											</div>
+										</div>
+										<!--/tax input-->
+										<!--freight input-->
+										<div class="col-xs-4">
+											<label for="freightInput">Freight</label>
+											<div class="input-group" style="width:100%;">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">$</div>
+												<input class="form-control" id="freightInput" type="number" placeholder="Freight" data-bind="textInput:currentUploadBatch().freight,attr:{'disabled':currentUploadBatch().isUploaded}" />
+											</div>
+										</div>
+										<!--/freight input-->
+										<!--discount input-->
+										<div class="col-xs-4">
+											<label for="discountInput">Discount</label>
+											<div class="input-group" style="width:100%;">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">$</div>
+												<input class="form-control" id="discountInput" type="number" placeholder="Discount" data-bind="textInput:currentUploadBatch().discount,attr:{'disabled':currentUploadBatch().isUploaded}" />
+											</div>
+										</div>
+										<!--/discount input-->
+									</div>
+									<!--/new invoice inputs-->
+									<!--search existing input-->
+									<div class="form-group vertically-condensed-row has-feedback has-feedback-left row" data-bind="css:currentUploadBatch().invoiceSelected()?'has-success':'has-error',visible:currentUploadBatch().existingVendorSelected() && currentUploadBatch().searchExistingOn()">
+										<div class="col-xs-12 dropdown">
+											<div class="input-group" style="width:100%;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;color:red;">*</div>
+												<input id="searchExistingInputUpload" class="form-control  input-dropdown" type="text" placeholder="Search existing invoice records..." data-bind="textInput:currentUploadBatch().invoiceFilter,click:currentUploadBatch().clearInvoice,style:{border:!currentUploadBatch().invoiceSelected()?'1px solid #a94442':'1px solid #3c763d'},attr:{'disabled':currentUploadBatch().isUploaded}">
+											</div>
+											<small class="form-text text-muted">start typing to filter</small>
+											<div class="dropdown-menu" style="width:100%; font-size:12px;">
+												<ul class="dropdown-menu-fixed" style="padding-left:0px; margin-bottom:0px;" aria-labelledby="searchExistingInputUpload">
+													<li class="dropdown-header row">
+														<div class="col-xs-3">
+															PO #
+														</div>
+														<div class="col-xs-3">
+															Invoice #
+														</div>
+														<div class="col-xs-3">
+															Invoice Date
+														</div>
+														<div class="col-xs-2" style="text-align:right;">
+															<span style="padding-right:2px;">Total</span>
+														</div>
+														<div class="col-xs-1">
+															<button class="btn btn-xs btn-info" data-bind="click:currentUploadBatch().toggleDateFilter">
+																<span class="glyphicon glyphicon-chevron-left"></span>
+																<span class="glyphicon glyphicon-calendar"></span>
+															</button>
+														</div>
+													</li>
+													<li role="separator" class="divider" style="margin-bottom:0px;margin-top:0px;"></li>
+													<li style="text-align:center;" data-bind="visible:currentUploadBatch().filteredInvoices().length == 0"> No results found</li>
+													<li>
+														<ul style="height:165px;overflow-y:auto;overflow-x:hidden;">
+															<!-- ko foreach: currentUploadBatch().filteredInvoices -->
+															<li class="dropdown-item" style="cursor:pointer;line-height:1;" data-bind="click:$parent.currentUploadBatch().setInvoice,attr:{tabindex:$index}">
+																<a class="row" style="margin-top:0px;margin-bottom:0px;">
+																	<div class="col-xs-3" style="overflow:hidden;text-overflow:ellipsis;" data-bind="text:POLabel,attr:{title:PONumbers}"></div>
+																	<div class="col-xs-3" style="overflow:hidden;text-overflow:ellipsis;" data-bind="text:InvoiceNumber"></div>
+																	<div class="col-xs-3" style="overflow:hidden;text-overflow:ellipsis;" data-bind="text:DeliveryDate"></div>
+																	<div class="col-xs-2" style="overflow:hidden;text-overflow:ellipsis;text-align:right;" data-bind="text:Number(POTotal).toFixed(2)"></div>
+																	<div class="col-xs-1"></div>
+																</a>
+															</li>
+															<!-- /ko -->
+														</ul>
+													</li>
+												</ul>
+												<!-- Date Range Section -->
+												<div style="width:100%;position:absolute;top:0px;left:0px;">
+													<div class="panel panel-default slide-left highlighted" style="width:50%;margin-left:50%;margin-bottom:45px;" data-bind="slideVisible:currentUploadBatch().dateFilterVisible,click:stopPropagation">
+														<div class="panel-heading" style="padding:5px 0px;color:brown;">
+															<button class="btn btn-sm btn-info" data-bind="click:currentUploadBatch().toggleDateFilter">
+																<span class="glyphicon glyphicon-chevron-right"></span>
+																<span class="glyphicon glyphicon-calendar"></span>
+															</button>
+															<span style="margin-left:5px;font-weight:bolder;">Date Range</span>
+														</div>
+														<div class="panel-body" style="padding-bottom: 10px;padding-top:0px;padding-left:0px;padding-right:0px;">
+															<div class="controls" data-bind="">
+																<div class="row" style="padding:5px 10px 0px 10px;">
+																	<div class="col-xs-12">
+																		<select class="input-medium input-nopadding" id="" style="margin-bottom: 0px; width: 100%;" data-bind="options: fnc.app.filterAvailableDateRanges,value:currentUploadBatch().invoiceFilterDateRange,attr:{'disabled':currentUploadBatch().isUploaded}"></select>
+																	</div>
+																</div>
+																<div class="row" style="padding:5px 10px 0px 10px;">
+																	<div class="col-xs-3"><label for="dateFieldFrom">Starting:</label></div>
+																	<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" style="height:18px;" data-bind="textInput: currentUploadBatch().invoiceFromDate,event:{blur:currentUploadBatch().invoiceDateSelected},attr:{'disabled':currentUploadBatch().isUploaded}" /></div>
+																</div>
+																<div class="row" style="padding:5px 10px 5px 10px;">
+																	<div class="col-xs-3"><label for="dateFieldTo">Ending:</label></div>
+																	<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" style="height:18px;" data-bind="textInput: currentUploadBatch().invoiceToDate,event:{blur:currentUploadBatch().invoiceDateSelected},attr:{'disabled':currentUploadBatch().isUploaded}" /></div>
+																</div>
+																<div class="row" style="padding:5px 10px 5px 10px;">
+																	<div class="col-xs-12" style="text-align:right;">
+																		<button class="btn btn-xs btn-primary" data-bind="click:function(d,e){currentUploadBatch().getPOs();currentUploadBatch().toggleDateFilter(d,e);}">
+																			Search
+																		</button>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<!-- /Date Range Section -->
+											</div>
+										</div>
+									</div>
+									<!--/search existing input-->
+								</div>
+								<!--upload file input-->
+								<div id="uploadFileInput"class="row" style="border-top:1px solid whitesmoke;" data-bind="style:{height:currentUploadBatch().dropZoneHeight},event:{dragover:onDragOver,dragleave:onDragLeave,drop:onDrop},css:{hover:fileOver()}">
+									<div class="col-xs-4" style="height:100%;">
+											<div class="input-group input-group-sm" style="top:50%;margin-top:-17px;">
+												<label class="btn btn-primary btn-file">
+													<span class="glyphicon glyphicon-folder-open"></span>
+													Browse
+													<input type="file" multiple id="crossDoc-file-input" style="display:none;" data-bind="event:{change: currentUploadBatch().attachUploadFiles($element.files)},attr:{'disabled':currentUploadBatch().isUploaded}">
+												</label>
+												<span> or drag and drop files</span>
+											</div>
+									</div>
+									<!--file display and drop zone-->
+									<div id="drop-zone" class="col-xs-8" style="overflow-y:scroll;border-left:1px solid whitesmoke;height:100%;">
+										<div class="list-group" data-bind="foreach:currentUploadBatch().documents">
+											<div class="list-group-item" data-bind="css:$parent.currentUploadBatch().doNotAttach()?(isUploaded()?'list-group-item-success':uploadFailed()||attachFailed()?'list-group-item-danger':''):(isUploaded()&&isAttached()?'list-group-item-success':uploadFailed()||attachFailed()?'list-group-item-danger':'')">
+												<div class="row">
+													<div class="col-xs-3" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+														<a class="thumbnail" style="margin-bottom:0px;text-align:center;cursor:pointer;" data-bind="click:$parent.showPreviewCrossDoc">
+															<span style="height:70px;font-size:70px;" class="glyphicon glyphicon-file" data-bind="visible:contentType.toLowerCase() != 'pdf' && contentType.toLowerCase() != 'jpeg' && contentType.toLowerCase() != 'jpg' && contentType.toLowerCase() != 'png'"></span>
+															<img class="img-thumbnail" style="height:70px;" data-bind="attr:{src:docURL},visible:contentType.toLowerCase() == 'pdf'||contentType.toLowerCase() == 'jpeg'||contentType.toLowerCase() == 'jpg' || contentType.toLowerCase() == 'png'" />
+														</a>
+													</div>
+													<div class="form-group col-xs-5" style="padding-left:0px;margin-top:15px;" data-bind="css:docName() != ''?'has-success':'has-error'">
+														<label class="control-label">Document Name:<span style="color:red">*</span></label>
+														<input class="form-control" type="text" placeholder="document name..." data-bind="textInput:docName,attr:{'disabled':$parent.currentUploadBatch().isUploaded},style:{border:docName() == ''?'1px solid #a94442':'1px solid #3c763d'}" />
+														<small class="form-text text-muted" data-bind="text:docName()==''?'This is required':''"></small>
+													</div>
+													<div class="col-xs-3" style="padding-left:0px;margin-top:15px;">
+														<label for="docType">Document Type:</label>
+														<select id="docType" style="width:100%;" data-bind="options:$parent.documentTypes,optionsText:'TypeName',value:docType, attr:{'disabled':$parent.currentUploadBatch().isUploaded}"></select>
+													</div>
+													<span class="col-xs-1" style="margin-top:28px;">
+														<button class="btn btn-xs btn-danger glyphicon glyphicon-remove" style="float:right;" data-bind="click:$parent.currentUploadBatch().removeChosenFileUpload,visible:!isUploaded()"></button>
+														<span class="glyphicon glyphicon-check" style="float:right; color:green;" data-bind="visible:isUploaded"></span>
+														<span class="glyphicon glyphicon-paperclip" style="float:right;" data-bind="visible:isAttached"></span>
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--/file display and drop zone-->
+								</div>
+								<!--/upload file input-->
+							</div>
+							<!--</form>-->
+							<div class="modal-footer">
+								<!--pagination-->
+								<div class="btn-toolbar" role="toolbar">
+									<div class="btn-group btn-group-sm" role="group">
+										<button class="btn" data-bind="click: uploadPrevious, enable: uploadHasPrevious"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										<button class="btn" data-bind="click: uploadNext, enable: uploadHasNext"><span class="glyphicon glyphicon-chevron-right"></span></button>
+										<!-- ko foreach: uploadQueue -->
+										<button class="btn btn-default" role="button" style="width:26px;" data-bind="click:$parent.uploadBatchController, style: {color: $parent.uploadBatchNumber() == $index() ? '#fff' : '',	background: $parent.uploadBatchNumber() == $index() ? '#7dc0ff' : '' }, visible: $index() == 0 || $index() == fnc.crossDocApp.uploadQueue().length - 1 ||($parent.uploadBatchNumber() - $index() > -1 && $parent.uploadBatchNumber() - $index() < 1)">
+											<span class="current" data-bind="text: $index()+1"></span>
+										</button>
+										<!-- /ko -->
+									</div>
+									<!--/pagination-->
+									<div class="btn-group btn-group-sm" style="float:right;" role="group">
+										<button title="upload all un-uploaded batches" type="submit" class="btn btn-success" data-bind="click:uploadAllBatches,attr:{'disabled':!allUploadAble()||allUploaded()}">
+											<span class="glyphicon glyphicon-cloud-upload"></span>
+											<span data-bind="text:currentUploadBatch().hasUploadFailure()||currentUploadBatch().hasAttachFailure()?'Try Again':'Upload'"></span>
+										</button>
+									</div>
+									<div class="btn-group btn-group-sm" style="float:right;" role="group">
+										<button class="btn btn-danger" data-bind="click:$parent.removeUploadBatch">
+											<span class="glyphicon glyphicon-trash"></span> Remove Batch
+										</button>
+										<button class="btn btn-primary" data-bind="click:$parent.addUploadBatch">
+											<span class="glyphicon glyphicon-plus"></span> New Batch
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--/upload dialog-->
+				<!--edit dialog-->
+				<div class="modal fade" id="modCrossDocEdit" tabindex="-1" role="dialog" aria-labelledby="editInvoiceLabel" aria-hidden="true">
+					<div class="modal-dialog" style="margin-top:10px; width:50%;">
+						<div class="modal-content">
+							<form id="frmeditFiles" autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title" id="editInvoiceLabel">Edit Document</h4>
+								</div>
+								<div class="modal-body">
+									<!--alerts-->
+									<div class="alert alert-danger" style="text-align:center;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;" data-bind="visible:chosenCrossDocBatch().hasUploadFailure">
+										The document has failed to update. Try again, or close the dialog.
+										<span class="glyphicon glyphicon-alert"></span>
+									</div>
+									<div class="alert alert-danger" style="text-align:center;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;" data-bind="visible:chosenCrossDocBatch().hasAttachFailure">
+										The document has failed to attach. Try again or go to the "invoices" tab to try from there.
+										<span class="glyphicon glyphicon-alert"></span>
+									</div>
+									<!--/alerts-->
+									<!--<form>-->
+									<!--location input-->
+									<div class="form-group vertically-condensed-row row" data-bind="css:chosenCrossDocBatch().alertInvalidLocation()?'has-error':'has-success'">
+										<label for="locationInputEdit" class="col-xs-2 col-form-label control-label">Location<span style="color:red;">*</span></label>
+										<div class="col-xs-10">
+											<div class="dropdown">
+												<input class="form-control input-dropdown" id="locationInputEdit" type="text" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" placeholder="Location" data-bind="textInput:chosenCrossDocBatch().location,style:{border:chosenCrossDocBatch().alertInvalidLocation()?'1px solid #a94442':'1px solid #3c763d'},attr:{'disabled':chosenCrossDocBatch().isUploaded() || fnc.app.filterAvailableLocations().length === 1}" />
+												<small class="form-text text-muted" data-bind="text:chosenCrossDocBatch().location()==''?' This is required. Start typing to filter locations.':chosenCrossDocBatch().alertInvalidLocation()?'Invalid Location':''"></small>
+												<ul class="dropdown-menu dropdown-menu-fixed" style="width:100%;" aria-labelledby="locationInputEdit" data-bind="visible:chosenCrossDocBatch().filteredLocations().length != 0">
+													<li>
+														<ul style="max-height:300px;overflow-y:auto;overflow-x:hidden;" data-bind="foreach:chosenCrossDocBatch().filteredLocations">
+															<li class="dropdown-item" style="line-height:0.7;" data-bind="attr:{tabindex:$index},click:$parent.chosenCrossDocBatch().setLocation">
+																<a class="row">
+																	<div class="col-xs-12" data-bind="text:LocationName"></div>
+																</a>
+															</li>
+														</ul>
+													</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+									<!--/location input-->
+									<!--vendor tip-->
+									<div class="alert alert-info" style="padding-top:0px;padding-bottom:0px;text-align:center;margin-bottom:5px;" data-bind="visible:!chosenCrossDocBatch().existingVendorSelected()">
+										<small><span class="glyphicon glyphicon-info-sign"></span> <strong>Heads up!</strong> To attach your documents to an invoice record, select a vendor from the dropdown</small>
+									</div>
+									<!--/vendor tip-->
+									<!--vendor input-->
+									<div class="form-group vertically-condensed-row row">
+										<label for="vendorInputEdit" class="col-xs-2 col-form-label">Vendor</label>
+										<div class="col-xs-10">
+											<div class="dropdown">
+												<input class="input-dropdown form-control" type="text" id="vendorInputEdit" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" placeholder="Vendor" data-bind="textInput:chosenCrossDocBatch().company,attr:{'disabled':chosenCrossDocBatch().isUploaded}">
+												<small class="form-text text-muted">enter custom, or choose from vendors associated with chosen location(start typing to filter)</small>
+												<ul class="dropdown-menu dropdown-menu-fixed" style="width:100%;" aria-labelledby="vendorInputEdit" data-bind="visible:chosenCrossDocBatch().filteredVendors().length != 0">
+													<li class="dropdown-header row">
+														<div class="col-xs-4">
+															Company
+														</div>
+														<div class="col-xs-4">
+															Address
+														</div>
+														<div class="col-xs-2" style="padding-left:0px;">
+															Require PO
+														</div>
+														<div class="col-xs-2" style="padding-left:0px;">
+															GL Account
+														</div>
+													</li>
+													<li role="separator" class="divider"></li>
+													<li>
+														<ul style="max-height:300px;overflow-y:auto;overflow-x:hidden;">
+															<!-- ko foreach: chosenCrossDocBatch().filteredVendors -->
+															<li class="dropdown-item" style="line-height:1.1;" data-bind="click:$parent.chosenCrossDocBatch().setVendor,attr:{tabindex:$index}">
+																<a class="row" style="margin-top:0px;margin-bottom:0px;">
+																	<div class="col-xs-4" style="overflow:hidden;text-overflow:ellipsis;padding-left:0px;" data-bind="text:Company"></div>
+																	<div class="col-xs-4" style="overflow:hidden;text-overflow:ellipsis;padding-right:0px;padding-left:0px;" data-bind="text:Address1"></div>
+																	<div class="col-xs-2" style="overflow:hidden;text-overflow:ellipsis;padding-right:0px;padding-left:0px;text-align:center;">
+																		<span data-bind="css:{'glyphicon glyphicon-check':RequiredPO>0}"></span>
+																	</div>
+																	<div class="col-xs-2" style="overflow:hidden;text-overflow:ellipsis;padding-right:0px;padding-left:0px;text-align:center;">
+																		<span data-bind="css:{'glyphicon glyphicon-check':GLAccountId != 0}"></span>
+																	</div>
+																</a>
+															</li>
+															<!-- /ko -->
+														</ul>
+													</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+									<!--/vendor input-->
+									<!--attachment options-->
+									<div class="form-group vertically-condensed-row form-check form-check-inline row" style="text-align:center;background:whitesmoke;margin-left:0px;margin-right:0px;" data-bind="visible:chosenCrossDocBatch().existingVendorSelected">
+										<ul class="nav nav-pills nav-justified">
+											<li style="height:100%;" data-bind="css:{'active':chosenCrossDocBatch().searchExistingOn}">
+												<a style="height:100%;padding-top:5px;padding-bottom:5px;cursor:pointer;" data-bind="click:chosenCrossDocBatch().toggleSearchExistingOn,style:{'pointer-events':chosenCrossDocBatch().isUploaded()?'none':'auto'}">Attach Document to an Existing Invoice Record</a>
+											</li>
+											<li data-bind="css:{'active':chosenCrossDocBatch().createInvoiceSelected},visible:chosenCrossDocBatch().vendorHasGL">
+												<a style="padding-top:5px;padding-bottom:5px;cursor:pointer;" data-bind="click:chosenCrossDocBatch().toggleCreateInvoiceSelected,style:{'pointer-events':chosenCrossDocBatch().isUploaded()?'none':'auto'}">Create a New Invoice Record and Attach</a>
+											</li>
+											<li data-bind="css:{'active':chosenCrossDocBatch().doNotAttach}">
+												<a style="padding-top:5px;padding-bottom:5px;cursor:pointer;" data-bind="click:chosenCrossDocBatch().toggleDoNotAttach,style:{'pointer-events':chosenCrossDocBatch().isUploaded()?'none':'auto'}">Update Document without Attaching to Invoice Record</a>
+											</li>
+										</ul>
+									</div>
+									<!--/attachment options-->
+									<!--PO list input-->
+									<div class="form-group vertically-condensed-row row" data-bind="visible:!chosenCrossDocBatch().searchExistingOn()">
+										<label for="poInput" class="col-xs-2 col-form-label">PO(s)</label>
+										<div class="col-xs-10">
+											<input class="form-control" id="poInput" type="text" placeholder="PO#" data-bind="textInput:chosenCrossDocBatch().POList,attr:{'disabled':chosenCrossDocBatch().isUploaded}" />
+											<small class="form-text text-muted">for multiple, separate with commas</small>
+										</div>
+									</div>
+									<!--/PO list input-->
+									<!--invoice number input-->
+									<div class="form-group vertically-condensed-row row" data-bind="css:chosenCrossDocBatch().createInvoiceSelected()?chosenCrossDocBatch().invoiceNum() != '' ?chosenCrossDocBatch().alertDuplicateInvoice()?'has-warning':'has-success':'has-error':'',visible:!chosenCrossDocBatch().searchExistingOn() || chosenCrossDocBatch().createInvoiceSelected()">
+										<label for="invoiceNumInput" class="col-xs-2 col-form-label control-label">
+											Invoice #<span style="color:red;" data-bind="visible:chosenCrossDocBatch().createInvoiceSelected">*</span>
+										</label>
+										<div class="col-xs-10" data-bind="style:{'padding-left':chosenCrossDocBatch().alertDuplicateInvoice()?'0px':'10px'}">
+											<div class="input-group" style="width:100%;">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">
+													<span style="color:#f39105;cursor:help;" class="glyphicon glyphicon-alert" title="An invoice with this number already exists." data-bind="visible:chosenCrossDocBatch().alertDuplicateInvoice"></span>
+												</div>
+												<input class="form-control" type="text" id="invoiceNumInput" placeholder="Invoice Number" data-bind="textInput:chosenCrossDocBatch().invoiceNum,event:{blur:chosenCrossDocBatch().checkDuplicateInvoice},style:{border:chosenCrossDocBatch().createInvoiceSelected()?chosenCrossDocBatch().invoiceNum() == ''?'1px solid #a94442':chosenCrossDocBatch().alertDuplicateInvoice()?'1px solid #8a6d3b':'1px solid #3c763d':'none'},attr:{'disabled':chosenCrossDocBatch().isUploaded}" />
+											</div>
+										</div>
+									</div>
+									<!--/invoice number input-->
+									<!--total input-->
+									<div class="form-group vertically-condensed-row row" data-bind="css:chosenCrossDocBatch().createInvoiceSelected()?chosenCrossDocBatch().total() != '' ?'has-success':'has-error':'',visible:!chosenCrossDocBatch().searchExistingOn() || chosenCrossDocBatch().createInvoiceSelected()">
+										<label for="totalInput" class="col-xs-2 col-form-label control-label">
+											Total<span style="color:red" data-bind="visible:chosenCrossDocBatch().createInvoiceSelected">*</span>
+										</label>
+										<div class="col-xs-10" style="padding-left:6px;">
+											<div class="input-group">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">$</div>
+												<input class="form-control" type="number" id="totalInput" placeholder="Total" data-bind="textInput:chosenCrossDocBatch().total,style:{border:chosenCrossDocBatch().createInvoiceSelected()?chosenCrossDocBatch().total() == ''?'1px solid #a94442':'1px solid #3c763d':'none'},attr:{'disabled':chosenCrossDocBatch().isUploaded}">
+											</div>
+										</div>
+									</div>
+									<!--/total input-->
+									<!--invoice date input-->
+									<div class="form-group vertically-condensed-row row" data-bind="css:chosenCrossDocBatch().createInvoiceSelected()?chosenCrossDocBatch().invoiceDate() != '' ?'has-success':'has-error':'',visible:chosenCrossDocBatch().createInvoiceSelected()">
+										<label for="invoiceDateInput2" class="col-xs-2 col-form-label control-label">
+											Inv. Date<span style="color:red">*</span>
+										</label>
+										<div class="col-xs-10">
+											<input type="text" id="invoiceDateInput2" class="form-control jq-datepicker" data-bind="textInput: chosenCrossDocBatch().invoiceDate,style:{border:chosenCrossDocBatch().invoiceDate() == ''?'1px solid #a94442':'1px solid #3c763d'},attr:{'disabled':chosenCrossDocBatch().isUploaded}" />
+										</div>
+									</div>
+									<!--/invoice date input-->
+									<!--new invoice inputs-->
+									<div class="form-inline vertically-condensed-row row" data-bind="visible:chosenCrossDocBatch().createInvoiceSelected()">
+										<!--tax input-->
+										<div class="col-xs-4">
+											<label for="taxInput">Tax</label>
+											<div class="input-group" style="width:100%;">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">$</div>
+												<input class="form-control " id="taxInput" type="number" placeholder="Tax" data-bind="textInput:chosenCrossDocBatch().tax,attr:{'disabled':chosenCrossDocBatch().isUploaded}" />
+											</div>
+										</div>
+										<!--/tax input-->
+										<!--freight input-->
+										<div class="col-xs-4">
+											<label for="freightInput">Freight</label>
+											<div class="input-group" style="width:100%;">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">$</div>
+												<input class="form-control " id="freightInput" type="number" placeholder="Freight" data-bind="textInput:chosenCrossDocBatch().freight,attr:{'disabled':chosenCrossDocBatch().isUploaded}" />
+											</div>
+										</div>
+										<!--/freight input-->
+										<!--discount input-->
+										<div class="col-xs-4">
+											<label for="discountInput" style="">Discount</label>
+											<div class="input-group" style="width:100%;">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;">$</div>
+												<input class="form-control " id="discountInput" type="number" placeholder="Discount" data-bind="textInput:chosenCrossDocBatch().discount,attr:{'disabled':chosenCrossDocBatch().isUploaded}" />
+											</div>
+										</div>
+										<!--/discount input-->
+									</div>
+									<!--/new invoice inputs-->
+									<!--search existing input-->
+									<div class="form-group vertically-condensed-row has-feedback has-feedback-left row" data-bind="css:chosenCrossDocBatch().invoiceSelected()?'has-success':'has-error',visible:chosenCrossDocBatch().existingVendorSelected() && chosenCrossDocBatch().searchExistingOn()">
+										<div class="col-xs-12 dropdown">
+											<div class="input-group" style="width:100%;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+												<div class="input-group-addon" style="padding:0px;background-color:inherit;border:none;color:red;">*</div>
+												<input id="searchExistingInputEdit" class="form-control  input-dropdown" type="text" placeholder="Search existing invoice records..." data-bind="textInput:chosenCrossDocBatch().invoiceFilter,click:chosenCrossDocBatch().clearInvoice,style:{border:!chosenCrossDocBatch().invoiceSelected()?'1px solid #a94442':'1px solid #3c763d'},attr:{'disabled':chosenCrossDocBatch().isUploaded}">
+											</div>
+											<small class="form-text text-muted">start typing to filter</small>
+											<div class="dropdown-menu" style="width:100%; font-size:12px;">
+												<ul class="dropdown-menu-fixed" style="padding-left:0px; margin-bottom:0px;" aria-labelledby="searchExistingInputEdit">
+													<li class="dropdown-header row">
+														<div class="col-xs-3">
+															PO #
+														</div>
+														<div class="col-xs-3">
+															Invoice #
+														</div>
+														<div class="col-xs-3">
+															Invoice Date
+														</div>
+														<div class="col-xs-2" style="text-align:right;">
+															<span style="padding-right:2px;">Total</span>
+														</div>
+														<div class="col-xs-1">
+															<button class="btn btn-xs btn-info" data-bind="click:chosenCrossDocBatch().toggleDateFilter">
+																<span class="glyphicon glyphicon-chevron-left"></span>
+																<span class="glyphicon glyphicon-calendar"></span>
+															</button>
+														</div>
+													</li>
+													<li role="separator" class="divider" style="margin-bottom:0px;margin-top:0px;"></li>
+													<li style="text-align:center;" data-bind="visible:chosenCrossDocBatch().filteredInvoices().length == 0"> No results found</li>
+													<li>
+														<ul style="height:165px;overflow-y:auto;overflow-x:hidden;">
+															<!-- ko foreach: chosenCrossDocBatch().filteredInvoices -->
+															<li class="dropdown-item" style="cursor:pointer;line-height:1;" data-bind="click:$parent.chosenCrossDocBatch().setInvoice,attr:{tabindex:$index}">
+																<a class="row" style="margin-top:0px;margin-bottom:0px;">
+																	<div class="col-xs-3" style="overflow:hidden;text-overflow:ellipsis;" data-bind="text:POLabel,attr:{title:PONumbers}"></div>
+																	<div class="col-xs-3" style="overflow:hidden;text-overflow:ellipsis;" data-bind="text:InvoiceNumber"></div>
+																	<div class="col-xs-3" style="overflow:hidden;text-overflow:ellipsis;" data-bind="text:DeliveryDate"></div>
+																	<div class="col-xs-2" style="overflow:hidden;text-overflow:ellipsis;text-align:right;" data-bind="text:Number(POTotal).toFixed(2)"></div>
+																	<div class="col-xs-1"></div>
+																</a>
+															</li>
+															<!-- /ko -->
+														</ul>
+													</li>
+												</ul>
+												<!-- Date Range Section -->
+												<div style="width:100%;position:absolute;top:0px;left:0px;">
+													<div class="panel panel-default slide-left highlighted" style="width:50%;margin-left:50%;margin-bottom:45px;" data-bind="slideVisible:chosenCrossDocBatch().dateFilterVisible,click:stopPropagation">
+														<div class="panel-heading" style="padding:5px 0px;color:brown;">
+															<button class="btn btn-sm btn-info" data-bind="click:chosenCrossDocBatch().toggleDateFilter">
+																<span class="glyphicon glyphicon-chevron-right"></span>
+																<span class="glyphicon glyphicon-calendar"></span>
+															</button>
+															<span style="margin-left:5px;font-weight:bolder;">Date Range</span>
+														</div>
+														<div class="panel-body" style="padding-bottom: 10px;padding-top:0px;padding-left:0px;padding-right:0px;">
+															<div class="controls" data-bind="">
+																<div class="row" style="padding:5px 10px 0px 10px;">
+																	<div class="col-xs-12">
+																		<select class="input-medium input-nopadding" id="" style="margin-bottom: 0px; width: 100%;" data-bind="options: fnc.app.filterAvailableDateRanges,value:chosenCrossDocBatch().invoiceFilterDateRange,attr:{'disabled':chosenCrossDocBatch().isUploaded}"></select>
+																	</div>
+																</div>
+																<div class="row" style="padding:5px 10px 0px 10px;">
+																	<div class="col-xs-3"><label for="dateFieldFrom">Starting:</label></div>
+																	<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" style="height:18px;" data-bind="textInput: chosenCrossDocBatch().invoiceFromDate,event:{blur:chosenCrossDocBatch().invoiceDateSelected},attr:{'disabled':chosenCrossDocBatch().isUploaded}" /></div>
+																</div>
+																<div class="row" style="padding:5px 10px 5px 10px;">
+																	<div class="col-xs-3"><label for="dateFieldTo">Ending:</label></div>
+																	<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" style="height:18px;" data-bind="textInput: chosenCrossDocBatch().invoiceToDate,event:{blur:chosenCrossDocBatch().invoiceDateSelected},attr:{'disabled':chosenCrossDocBatch().isUploaded}" /></div>
+																</div>
+																<div class="row" style="padding:5px 10px 5px 10px;">
+																	<div class="col-xs-12" style="text-align:right;">
+																		<button class="btn btn-xs btn-primary" data-bind="click:function(d,e){chosenCrossDocBatch().getPOs();chosenCrossDocBatch().toggleDateFilter(d,e);}">
+																			Search
+																		</button>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<!-- /Date Range Section -->
+											</div>
+										</div>
+									</div>
+									<!--/search existing input-->
+								</div>
+								<!--</form>-->
+								<!--display files-->
+								<div style="height:130px;overflow-y:auto;">
+									<div class="list-group" style="border-top:1px solid whitesmoke;" data-bind="foreach:chosenCrossDocBatch().documents">
+										<div class="list-group-item" data-bind="css:$parent.chosenCrossDocBatch().doNotAttach()?(isUploaded()?'list-group-item-success':uploadFailed()?'list-group-item-danger':''):(isUploaded()&&isAttached()?'list-group-item-success':uploadFailed()||attachFailed()?'list-group-item-danger':'')">
+											<div class="row">
+												<div class="form-group col-xs-8" style="margin-top:15px;" data-bind="css:docName() != ''?'has-success':'has-error'">
+													<label class="control-label">Document Name:<span style="color:red">*</span></label>
+													<input class="form-control" type="text" placeholder="document name..." data-bind="textInput:docName,attr:{'disabled':$parent.chosenCrossDocBatch().isUploaded},style:{border:docName() == ''?'1px solid #a94442':'1px solid #3c763d'}" />
+													<small class="form-text text-muted" data-bind="text:docName()==''?'This is required':''"></small>
+												</div>
+												<div class="col-xs-3" style="padding-left:0px;margin-top:15px;">
+													<label for="docType">Document Type:</label>
+													<select id="docType" style="width:100%;" data-bind="value:docType,foreach:$parent.documentTypes,attr:{'disabled':$parent.chosenCrossDocBatch().isUploaded}">
+														<option data-bind="value:$data,text:TypeName,attr:{selected:InvoiceDocTypeId == $parent.docType().InvoiceDocTypeId}"></option>
+													</select>
+												</div>
+												<span class="col-xs-1" style="margin-top:28px;">
+													<span class="glyphicon glyphicon-check" style="float:right; color:green;" data-bind="visible:isUploaded"></span>
+													<span class="glyphicon glyphicon-paperclip" style="float:right;" data-bind="visible:isAttached"></span>
+												</span>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!--/display files-->
+								<div class="modal-footer">
+									<button class="btn btn-success" style="float:right;" data-bind="click:chosenCrossDocBatch().beginUpdate,attr:{'disabled':!chosenCrossDocBatch().isUploadable()||chosenCrossDocBatch().isUploaded()}">
+										<span data-bind="text:chosenCrossDocBatch().hasUploadFailure()||chosenCrossDocBatch().hasAttachFailure()?'Try Again':'Update'"></span>
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!--/edit dialog-->
+				<!--confirm delete dialog-->
+				<div class="modal fade" id="modCrossDocConfirmDelete" tabindex="-1" role="dialog" aria-hidden="true">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content">
+							<form id="frmDeleteFiles">
+								<div class="modal-body" style="text-align:center;">
+									<h5>Are you sure you want to delete?</h5>
+									<div class="modal-footer">
+										<div class="text-center">
+											<button class="btn" data-dismiss="modal">cancel</button>
+											<button class="btn btn-primary" data-dismiss="modal" data-bind="click:removeChosenCrossDoc">delete</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!--/confirm delete dialog-->
+				<!--confirm queue clear dialog-->
+				<div class="modal fade" id="modCrossDocConfirmClear" tabindex="-1" role="dialog" aria-hidden="true">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content">
+							<form id="frmClearQueue">
+								<div class="modal-body" style="text-align:center;">
+									<h5>You still have files that haven't been uploaded. <br /><br /> Are you sure you want to close?</h5>
+									<div class="modal-footer">
+										<div class="text-center">
+											<button class="btn" data-dismiss="modal" data-bind="click:showUploads">no</button>
+											<button class="btn btn-primary" data-dismiss="modal" data-bind="click:clearUploadQueue">yes</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!--/confirm queue clear dialog-->
+				<!--browser error dialog-->
+				<div class="modal fade" id="modBrowserError" tabindex="-1" role="dialog" aria-hidden="true">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content">
+							<form id="frmOkay">
+								<div class="modal-body" style="text-align:center;">
+									<h5>Unfortunately, this feature is not working on <span data-bind="text:browserName"></span>. Please try another browser.<br /> We apologize for the inconvenience. </h5>
+									<div class="modal-footer">
+										<div class="text-center">
+											<button class="btn btn-primary" data-dismiss="modal">ok</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!--/browser error dialog-->
+				<!--pop-up blocked overlay-->
+				<div class="modal fade" id="modPopUpError" tabindex="-1" role="dialog" aria-hidden="true">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content">
+							<form id="frmOkay">
+								<div class="modal-body" style="text-align:center;">
+									<h5>The pop-up was blocked.<br> Please enable pop-ups on our page to use this feature. </h5>
+									<div class="modal-footer">
+										<div class="text-center">
+											<button class="btn btn-primary" data-dismiss="modal">ok</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!--/pop-up blocked overlay-->
+				<!--Upload Complete dialog-->
+				<div class="modal fade" id="modUploadComplete" tabindex="-1" role="dialog" aria-hidden="true">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content">
+							<form id="frmOkay">
+								<div class="modal-body" style="text-align:center;">
+									<h5>All Documents Were Successfully Uploaded.</h5>
+									<div class="modal-footer">
+										<div class="text-center">
+											<button class="btn btn-primary" data-dismiss="modal">ok</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!--/uploadCompleteDialog-->
+				<!--file preview overlay-->
+				<div data-bind="stopBindings:true">
+					<div class="modal fade" style="z-index:1049;" id="modCrossDocPreview" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-bind="with:fnc.crossDocApp.previewer">
+						<div class="modal-dialog" style="margin-bottom:0px;margin-top:0px;width:100%;">
+							<div class="modal-content" data-bind="with:currentFile">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h5 class="modal-title" id="myModalLabel">PREVIEW</h5>
+								</div>
+								<div class="modal-body">
+									<!--ko if: contentType.toLowerCase() == 'pdf' || contentType.toLowerCase() == 'png' || contentType.toLowerCase() == 'jpg' || contentType.toLowerCase() == 'jpeg'-->
+									<div id="previewViewport" class="well thumbnail" data-toggle="tooltip" data-placement="bottom" title="click on an image to rotate it" style="width:100%;margin-bottom:0;overflow-y:auto;" data-bind="foreach:previewImages,style:{height:$parent.previewHeight() + 'px'}">
+										<div style="text-align:center;" data-bind="style:{width:sideLength() +'px',height:sideLength()+ 'px',lineHeight:sideLength() + 'px'}">
+											<img class="img-thumbnail" style="vertical-align:middle;" src="" data-bind="attr: {src: url},style:{'max-width':$parent.contentType.toLowerCase() == 'pdf' ? 'none' :'100%', 'webkitTransform':rotationCSS,'oTransform':rotationCSS,'msTransform':rotationCSS,'transform':rotationCSS,'MozTransform':rotationCSS},click:function(){rotate(90);}" />
+										</div>
+									</div>
+									<!--/ko-->
+									<!--ko if: contentType.toLowerCase() != 'pdf' && contentType.toLowerCase() != 'png' && contentType.toLowerCase() != 'jpg' && contentType.toLowerCase() != 'jpeg'-->
+									<h5 style="text-align:center;"><span> Unfortunately, this file type cannot be previewed.</span></h5>
+									<!--/ko-->
+
+								</div>
+								<div class="modal-footer">
+									<!--ko if: contentType.toLowerCase() == 'pdf'-->
+									<div class="btn-group" style="float:left;">
+										<a class="btn btn-primary" data-bind="click:function(){zoom('max');}, attr:{disabled: currentWidth() === $parent.previewWidth()}"><span class="glyphicon glyphicon-resize-full"></span></a>
+										<a class="btn btn-primary" data-bind="click:function(){zoom(100);}"><span class="glyphicon glyphicon-zoom-in"></span></a>
+										<a class="btn btn-primary" data-bind="click:function(){zoom(-100);}, attr:{'disabled':currentWidth() == $parent.minimumImageWidth}"><span class="glyphicon glyphicon-zoom-out"></span></a>
+									</div>
+									<!--/ko-->
+									<!--ko if: fnc.crossDocApp.chosenCrossDoc().recordId != ''-->
+									<a class="btn btn-info" data-bind="click:function(){fnc.crossDocApp.showEditCrossDoc(fnc.crossDocApp.chosenCrossDoc())}, css: {'cm-disabled-tab': !fnc.app.prvCrossDocEditDocumentEnable()}">Edit Info</a>
+									<!--ko if: contentType.toLowerCase() == 'pdf' || contentType.toLowerCase() == 'png' || contentType.toLowerCase() == 'jpg' || contentType.toLowerCase() == 'jpeg'-->
+									<a class="btn btn-default" role="button" href="#" download="" style="float:right;" data-bind="click:download, css: {'cm-disabled-tab': !fnc.app.prvCrossDocDownloadDocumentEnable()}">Download</a>
+									<!--/ko-->
+									<!--<a class="btn btn-default" role="button" href="#" download="" style="float:right;" data-bind="click:saveChanges, css: {'cm-disabled-tab': !fnc.app.prvCrossDocDownloadDocumentEnable()}">Save Changes</a>-->
+									<!--/ko-->
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--/file preview overlay-->
+				<!--Canvas Editor-->
+				<div data-bind="stopBindings:true">
+					<div id="modCanvasEditor" class="modal fade" style="z-index:1051;" tabindex="-1" role="dialog" aria-hidden="true" data-bind="with:fnc.crossDocApp.previewer">
+						<div class="modal-dialog modal-sm" style="width:100%;">
+							<div class="modal-content">
+								<form id="frmOkay">
+									<div class="modal-body" style="text-align:center;">
+										<div id="canvasEditor">
+										</div>
+										<div class="modal-footer">
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--/canvas Editor-->
+			</div>
+		</div>
+		<style>
+			ul.dropdown-menu-fixed {
+				padding-bottom: 0px;
+			}
+
+				ul.dropdown-menu-fixed > li > ul {
+					list-style-type: none;
+					padding-left: 0px;
+				}
+
+					ul.dropdown-menu-fixed > li > ul > li.dropdown-item {
+						border-bottom: 1px solid rgba(0,0,0,0.10);
+						padding-left: 10px;
+					}
+
+						ul.dropdown-menu-fixed > li > ul > li.dropdown-item:focus {
+							background-color: #ebebf8;
+							outline: 1px solid #A5C7FE;
+						}
+
+						ul.dropdown-menu-fixed > li > ul > li.dropdown-item:hover {
+							background-color: #ebebf8;
+							cursor: pointer;
+						}
+
+				ul.dropdown-menu-fixed > li.divider {
+					margin-bottom: 0px;
+				}
+
+			.ui-datepicker {
+				z-index: 1100 !important;
+			}
+
+			.vertically-condensed-row {
+				margin-bottom: 5px;
+			}
+		</style>
+	</div>
+</body>
+</html>

@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>QBO Listener</title>
+
+	<link href="css/bootstrap.min.css" rel="stylesheet" />
+	<script src="lib/jquery-2.1.3.min.js"></script>
+	<script src="lib/bootstrap.min.js"></script>
+	<script src="lib/knockout-3.2.0.js"></script>
+
+	<script>
+		var appid = '88A16020-BE57-4EE4-9FB7-5B028E4A2D1C';
+		var ajaxURL = "/ChefMod.Financials.UI.Services/HostPage.aspx/ExecAppMethod";
+		var callBackURL = window.location.href;		
+		var xid = getQueryStringValue('xid');
+		var qbSessionData;
+		var errMessage = ko.observable('');
+
+		function getQueryStringValue(key) {
+			return unescape(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + escape(key).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"));
+		};
+
+		function urlqs(key) {
+			key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+			var match = location.search.match(new RegExp("[?&]" + key + "=([^&]+)(&|$)"));
+			return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+		};
+
+		function saveLocal(fileName, data) {
+			var localData = { t: Date.now(), d: data };
+			localStorage.setItem(fileName, JSON.stringify(localData));
+		};
+
+		function getLocal(fileName, callback) {
+			var localData = JSON.parse(localStorage.getItem(fileName));
+			var localDate;
+			var r;
+			if (localData) {
+				localDate = new Date(localData.t);
+				r = localData;
+			}
+			if (callback) callback(r);
+			return r;
+		};
+
+		function ajaxPost(action, params, callback) {
+			var json = {
+				oid: qbSessionData.oid, //fnc.app.oid,
+				uc: qbSessionData.uc,
+				iuc: qbSessionData.iuc,
+				SessionId: qbSessionData.sessionId,
+				AppId: appid,
+				params: params
+			};
+			var d = { appid: appid, method: action, json: JSON.stringify(json) };
+			//console.log(Date.now() + "||" + action + "||" + JSON.stringify(json.params));
+			$.ajax({
+				type: "POST",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				url: ajaxURL,
+				data: JSON.stringify(d),
+				success: function (response) {
+					//console.log("success");
+
+					if (response.d == '') {
+						callback(response);
+						return;
+					}
+
+					if (jQuery.parseJSON(response.d).hasOwnProperty('errorNumber') && jQuery.parseJSON(response.d).errorNumber == 100) {
+						//console.log(xhr);
+						console.log('Authorization failed');
+						errMessage('Authorization failed. Please try again later.');
+						$('#modMessage').modal('show');
+						// close modal window
+						$("#modMessage").on("hidden.bs.modal", function () {
+							errMessage('');
+						});
+						return;
+					}
+
+					callback(response);
+
+				},
+
+				error: function (xhr, ajaxOptions, thrownError) {
+					console.log(xhr);
+					errMessage('Unexpected error occurred. Please try again later or contact ChefMod support.');
+					$('#modMessage').modal('show');
+					// close modal window
+					$("#modMessage").on("hidden.bs.modal", function () {
+						errMessage('');
+					});
+					callback({ d: "{result:'error'}" });
+				}
+			});
+			//parent.continueSession();
+		};
+
+		function ajaxPost2(action, params, callback) {
+			var json = {
+				oid: '', //fnc.app.oid,
+				uc: '',
+				iuc: '',
+				SessionId: '',
+				AppId: appid,
+				params: params
+			};
+			var d = { appid: appid, method: action, json: JSON.stringify(json) };
+			//console.log(Date.now() + "||" + action + "||" + JSON.stringify(json.params));
+			$.ajax({
+				type: "POST",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				url: ajaxURL,
+				data: JSON.stringify(d),
+				success: function (response) {
+					//console.log("success");
+
+					if (response.d == '') {
+						callback(response);
+						return;
+					}
+
+					if (jQuery.parseJSON(response.d).hasOwnProperty('errorNumber') && jQuery.parseJSON(response.d).errorNumber == 100) {
+						//console.log(xhr);
+						console.log('Authorization failed');
+						errMessage('Authorization failed. Please try again later.');
+						$('#modMessage').modal('show');
+						// close modal window
+						$("#modMessage").on("hidden.bs.modal", function () {
+							errMessage('');
+						});
+						return;
+					}
+
+					callback(response);
+
+				},
+
+				error: function (xhr, ajaxOptions, thrownError) {
+					console.log(xhr);
+					errMessage('Unexpected error occurred. Please try again later or contact ChefMod support.');
+					$('#modMessage').modal('show');
+					// close modal window
+					$("#modMessage").on("hidden.bs.modal", function () {
+						errMessage('');
+					});
+					callback({ d: "{result:'error'}" });
+				}
+			});
+
+		};
+
+		function createAuthorization(sessionId, callBackURL, callback) {
+			//CreateAuthorization(o.Params.SessionId, o.uc)
+			var params = {};
+			params.SessionId = sessionId;
+			params.CallBackURL = callBackURL;
+			ajaxPost("ChefMod.Financials.UI.Controllers.QBOHelper.CreateAuthorization", params, function (response) {
+				if (response.d == '') {
+					//windowResized();
+					return;
+				}
+				var r = eval('(' + response.d + ')');
+				if (r.result == 'error') {
+					//windowResized();
+					return;
+				}
+
+				if (callback) callback(r.result);
+			});
+
+		};
+		 
+		function finishAuthorization(sessionId, oauthVerifyer, realmId, callback) {
+			//Public Sub FinishAuthorization(sessionId As String, oauthVerifyer As String, realmId As String, userCode As Integer)
+			var params = {};
+			params.SessionId = sessionId;
+			params.OauthVerifyer = oauthVerifyer;
+			params.RealmId = realmId;
+
+			ajaxPost("ChefMod.Financials.UI.Controllers.QBOHelper.FinishAuthorization", params, function (response) {
+				if (response.d == '') {
+					//success
+					if (callback) callback();
+					return;
+				}
+				//error
+				var r = eval('(' + response.d + ')');
+				if (r.result == 'error') {
+					windowResized();
+					return;
+				}
+			});
+		}
+	
+		
+		function disconnect(orgId, realmId, callback) {
+			//Disconnect(o.Params.OrganizationId, o.Params.RealmId, o.uc)
+		}
+
+		function echoLog(tData, callback) {
+			var params = {};
+			params.TempSessionData = tData;
+
+			ajaxPost2("ChefMod.Financials.UI.Controllers.QBOHelper.zEchoLog", params, function (response) {
+				if (response.d == '') {
+					//empty
+					if (callback) callback('');
+					return;
+				}
+				var r = eval('(' + response.d + ')');
+				if (r.result == 'error') {
+					return;
+				}
+
+				if (callback) callback(r.result);
+			});
+		};
+	</script>
+</head>
+
+<body>
+	<!-- ERROR MESSAGE -->
+	<div class="modal fade" id="modMessage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h5 class="modal-title" id="myModalLabel">ERROR MESSAGE</h5>
+				</div>
+				<div class="modal-body">
+					<!--<h4>Authorization failed. Please try it again.</h4>-->
+					<h5 data-bind="text: errMessage()"></h5>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /ERROR MESSAGE -->
+	<script>
+		$(document).ready(function () {
+			//debugger
+			////console.log(window.location.href);
+			////window.opener.setupQb.remoteLog(window.location.href, function () {
+			////	//debugger
+			////})
+			//echoLog(window.location.href, function (r) {
+			//	debugger
+			//	console.log(r.d);
+			//});
+			ko.applyBindings(errMessage, modMessage)
+			getLocal("qbSessionData", function (r) {
+				//console.log(r.d);
+				qbSessionData = r.d;
+				var sessionId = qbSessionData.qbSessionId;
+				if (window.location.toString().indexOf("?") == -1 ) {
+					//no query string params; first time call
+					createAuthorization(sessionId, callBackURL, function (authUrl) {
+						if (authUrl != "") {
+							window.location.href = authUrl;
+						}
+					});
+				} else if (urlqs("oauth_token")) {
+					//authentication
+					finishAuthorization(sessionId, urlqs("oauth_verifier"), urlqs("realmId"), function () {
+						window.opener.setupQb.init(function () {
+							window.close();
+						})
+					})
+				} else if (urlqs("disconnect")) {
+					console.log(urlqs("realmId"));
+				} else {
+					//unknowing param
+					window.opener.setupQb.init(function () {
+						window.close();
+					})
+				}
+			})
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,2069 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title></title>
+	<script src="js/knockout-3.2.0.js"></script>
+</head>
+<body>
+	<div class="container-fluid" id="invApp" role="main" style="" data-bind="with: fnc.invoicesApp">
+		<style>
+		#drop-zone {
+			height: 100px;
+			border: 2px dashed #555;
+			border-radius: 7px;
+			text-align: center;
+			line-height: 100px;
+		}
+
+		#drop-zone.hover {
+			color:green;
+			border-color: green;
+		}
+
+		.cm-tab{
+			border-bottom: 1px solid #ddd;
+			border-left: 1px solid #ddd;
+			border-right: 1px solid #ddd;
+			padding: 5px;
+			margin-bottom: 10px;
+		}
+
+		.cm-table-container {
+			padding:5px;
+		}
+
+		.cm-table-footer {
+			padding: 15px;
+			text-align: right;
+			border-top: 1px solid #e5e5e5;
+		}
+		.cm-table-search-bar {
+			display:block;
+			padding: 5px 5px 0;
+		}
+
+		.cm-td-ellipsis {
+			white-space:nowrap; 
+			text-overflow:ellipsis;
+			overflow:hidden;
+		}
+		</style>
+		<!-- ko if: fnc.app.hiddenTabs()[0].TabType != 'tabInvoiceWithoutPO2' -->
+		<div class="panel panel-default" data-bind="" style="border:none;margin-bottom:0;">
+			<div class="panel-body" style="padding:0px !important;">
+				<div class="container-fluid">
+					<!-- Messages-->
+					<div id="alertMsg01" class="alert alert-success" role="alert" style="position:absolute;top:0px;left:0px;display:none;">
+						<!--<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+						<strong>Success! </strong>Item has been added.
+					</div>
+					<div id="alertMsg02" class="alert alert-success" role="alert" style="position:absolute;top:0px;left:0px;display:none;">
+						<strong>Success! </strong>Item has been updated.
+					</div>
+					<!-- Messages-->
+					<!-- Fixed Header -->
+					<div class="row" style="/*max-width:1780px;*/" data-bind="event: { focusin: tabHeaderFocusIn}">
+						<!-- Left Section -->
+						<div class="col-xs-3">
+							<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-right:-13px; padding: 5px; border-radius: 5px; height:85px; margin-bottom:0;">
+								<div class="row">
+									<div class="col-xs-8">
+										<div class="row">
+											<div class="col-xs-3" style="padding-right:5px;"><label style="float:right; font-size:10px;">LOCATION:</label></div>
+											<div class="col-xs-9" style="padding-right:0;">
+												<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; margin-top:3px; margin-bottom: 0; font-weight:bold;" data-bind="text: decodeText(orgName())"></h6>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-xs-3" style="padding-right:5px;"><label style="float:right; font-size:10px;">VENDOR:</label></div>
+											<div class="col-xs-9" style="padding-right:0;">
+												<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; margin-top:3px; margin-bottom: 0; font-weight:bold;" data-bind="text: decodeText(companyName())"></h6>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-xs-3" style="padding:0;">
+												<label style="float:right; font-size:10px;">PO(s):</label>
+												<button class="btn btn-xs btn-warning" style="float:right; padding: 0px; height: 16px; margin-right: 5px;" data-bind="click: showAddPO, enable: !invoiceIsReadOnly()">
+													<span class="glyphicon glyphicon-plus" style="top:0;"></span>
+												</button>
+											</div>
+											<div class="col-xs-9" style="padding-right:0;">
+												<ul style="margin:0;padding:0;" data-bind="foreach: includedPOList">
+													<li style="display: inline;"><div class="cm-h-li-item" style=""><span data-bind="text: $data"></span>&nbsp;<input class="btn btn-danger btn-xs validated-field" value="X" style="float:right;width:12px;height:16px;line-height:16px;padding:0;" data-bind="click: fnc.invoicesApp.removePOFromInvoice" /></div>&nbsp;</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="row"><div class="checkbox" style="margin:0;"><label style="margin-top: 0px; font-size:0.9em;"><input type="checkbox" style="margin-top: 2px;" data-bind="checked: showSection0" ><span>Show Ordered</span><br /><span>Data</span></label></div></div>
+										<div class="row"><div class="checkbox" style="margin:0;"><label style="margin-top: 0px; font-size:0.9em;"><input type="checkbox" style="margin-top: 2px;" data-bind="checked: showSection1" ><span>Show Invoice</span><br /><span>Data</span></label></div></div>
+										<!--<div class="row"><div class="checkbox" style="margin:0;"><label style="margin-top: 0px; "><input type="checkbox" style="margin-top: 2px;" data-bind="checked: showSection2" disabled="disabled"> Show Delivered Data</label></div></div>-->
+										<!--<div class="row"><div class="checkbox" style="margin:0;"><label style="margin-top: 0px; "><input type="checkbox" style="margin-top: 2px;" data-bind="checked: showDiscrepancy"> Show Only Discrepancy</label></div></div>-->
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- xxx Section -->
+						<div class="col-xs-9">
+							<div class="row">
+								<!-- Middle Section -->
+								<div class="col-xs-9">
+									<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px;  margin-left: -15px; margin-right:-15px; padding: 5px; border-radius: 5px; height:85px; margin-bottom:0;">
+										<div class="row">
+											<div class="col-xs-3" style="padding-right:0;padding-left:25px;">
+												<div class="row">
+													<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;">
+														<label style="margin-top:0px; float:right; font-size:10px;">INV.#:</label>
+														<label style="margin-top:0px; float:right; font-size:10px;" data-bind="if: duplicateInfo() != null"><span style="color:#f39105;margin-right:4px;font-size:12px;cursor:pointer;" class="glyphicon glyphicon-alert" data-bind="visible: isDuplicate(), attr: {title: duplicateInfo().WarningText()}, click: showDuplicateWarning"></span></label>  
+													</div>
+													<div class="col-xs-7" style="padding-left: 5px;"><input type="text" id="invoiceNumber" class="form-control input-sm validated-field" style="padding:0;" data-bind="value: invoiceNumber(), attr: {title: invoiceNumber}" /></div>
+												</div>
+												<div class="row">
+													<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">INV.DATE:</label></div>
+													<div class="col-xs-7" style="padding-left: 5px;"><input type="text" id="invoiceDateRegularInvoice" class="form-control input-sm validated-field" style="padding:0;" data-bind="value: invoiceDate()" /></div>
+												</div>
+												<div class="row">
+													<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;">
+														<label style="margin-top:0px; float:right; font-size:10px;">TERM:</label>
+													</div>
+													<div class="col-xs-7" style="padding-left: 5px;"><input type="text" id="" class="form-control input-sm" style="padding:0;" readonly data-bind="value: term()" /></div>
+												</div>
+												<div class="row" style="">
+													<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; margin-bottom:0px; float:right; font-size:10px;">DUE.DATE:</label></div>
+													<div class="col-xs-7" style="padding-left: 5px;"><input type="text" class="form-control input-sm" style="padding:0;" readonly data-bind="value: dueDate()" /></div>
+												</div>
+											</div>
+											<div class="col-xs-3">
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;cursor:help;" title="Invoice total before discount">INV.TOTAL:</label></div>
+													<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><input type="text" id="invoiceGross" class="form-control input-sm validated-field" style="padding:0; text-align:right;" data-bind="value: grossAmount()" /></div>
+												</div>
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">DISCOUNT:</label></div>
+													<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><input type="text" id="invoiceDiscount" class="form-control input-sm validated-field" style="padding:0; text-align:right;" data-bind="value: discAmount()" /></div>
+												</div>
+												<div class="row"><div class="col-xs-12">&nbsp;</div></div>
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:2px; float:right; font-size:10px;">NET:</label></div>
+													<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><input tabindex="-1" type="text" class="form-control input-sm" style="padding:0; text-align:right;" readonly data-bind="textInput: formatCurrency(netAmount())" /></div>
+												</div>
+											</div>
+
+											<div class="col-xs-3" style="padding-right:0;padding-left:25px;">
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">LINE TOTAL:</label></div>
+													<div class="col-xs-6" style="padding-left:0;"><input tabindex="-1" type="text" class="form-control input-sm" style="padding:0; text-align:right;" readonly data-bind="textInput: formatCurrency(lineTotal())" /></div>
+												</div>
+												<div class="row"><div class="col-xs-12">&nbsp;</div></div>
+												<div class="row"><div class="col-xs-12">&nbsp;</div></div>
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;">
+														<div class="" style="float:left;background-color:transparent; color:#d43f3a; font-size:1.3em; font-weight: 900;" data-bind="visible: showNotEqualSign()"><span class="glyphicon glyphicon-arrow-left"></span><span>&nbsp;&ne;&nbsp;</span><span class="glyphicon glyphicon-arrow-right"></span></div>
+														<div class="" style="float:left;background-color:transparent; color:#4cae4c; font-size:1.3em; font-weight: 900;" data-bind="visible: showEqualSign()"><span class="glyphicon glyphicon-arrow-left"></span><span>&nbsp;=&nbsp;</span><span class="glyphicon glyphicon-arrow-right"></span></div>
+														<div class="" style="float:left;background-color:transparent; color:#E38D13; font-size:1.3em; font-weight: 900;" data-bind="visible: showQuestionSign()"><span class="glyphicon glyphicon-arrow-left"></span><span>&nbsp;?&nbsp;</span><span class="glyphicon glyphicon-arrow-right"></span></div>
+														<label style="margin-top:2px; float:right; font-size:10px;">TOTAL:</label>
+													</div>
+													<div class="col-xs-6" style="padding-left:0;">
+														<input tabindex="-1" type="text" class="form-control input-sm" style="padding:0; text-align:right;" readonly data-bind="textInput: formatCurrency(total())" />
+													</div>
+												</div>
+											</div>
+
+											<div class="col-xs-3">
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;"><a style="cursor:pointer;" data-bind="click: showDepositCreditModalDialog">DEPOSIT/CR:</a></label></div>
+													<div class="col-xs-6" style="padding-left:0;" data-bind="click: showDepositCreditModalDialog"><input tabindex="-1" type="text" id="invoiceDeposit" class="form-control input-sm validated-field cm-deposit-textbox" readonly style="padding:0; text-align:right;" data-bind="textInput: formatToFixed0(depositOrCredit(), 2)" /></div>
+												</div>
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">DISCOUNT:</label></div>
+													<div class="col-xs-6" style="padding-left:0;"><input tabindex="-1" type="text" id="invoiceDiscount" class="form-control input-sm validated-field" style="padding:0; text-align:right;" readonly data-bind="textInput: formatToFixed0(discountComputed(), 2)" /></div>
+												</div>
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">TAX:</label></div>
+													<div class="col-xs-6" style="padding-left:0;"><input type="text" id="invoiceTax" class="form-control input-sm validated-field" style="padding:0; text-align:right;" data-bind="value: tax()" /></div>
+												</div>
+												<div class="row">
+													<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">FREIGHT:</label></div>
+													<div class="col-xs-6" style="padding-left:0;"><input type="text" id="invoiceFreight" class="form-control input-sm validated-field" style="padding:0; text-align:right;" data-bind="value: freight()" /></div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- Right Section -->
+								<div class="col-xs-3">
+									<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-left: -13px; padding: 5px; border-radius: 5px; height:85px; margin-bottom:0;">
+										<div class="row" style="margin-bottom:4px;">
+											<div class="col-xs-12">
+												<button class="btn btn-block btn-primary btn-xs" data-bind="click: showAttachedDocs, css: {'cm-disabled-tab': !fnc.app.prvCrossDocAppEnable()}">
+													<!-- ko if: fnc.app.attachedDocTypes().length -->
+													<span class="fa fa-paperclip" data-bind="visible: fnc.app.attachedDocTypes().indexOf('4') == -1"></span>
+													<span class="fa fa-truck" data-bind="visible: fnc.app.attachedDocTypes().indexOf('4') != -1"></span>
+													<!-- /ko -->
+													<span>CrossDoc</span>
+													<span data-bind="visible: fnc.app.attachedItems().length, text: ' (' + fnc.app.attachedItems().length + ')'"></span>
+												</button>
+											</div>
+										</div>
+										<div class="row" style="margin-bottom:4px;">
+											<div class="col-xs-12">
+												<div class="btn-group" role="group" style="width:100%;">
+													<button type="button" class="btn btn-primary btn-xs" style="width:28%;padding-left:5px;" data-bind="click: goBack2POList"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp;&nbsp;Back</button>
+													<button type="button" class="btn btn-default btn-xs" style="width:44%;" data-bind="click: showGLDistribution">GL Distribution</button>
+													<button type="button" class="btn btn-default btn-xs" style="width:28%;" data-bind="click: printInvoiceRPO">Print</button>
+												</div>
+											</div>										
+										</div>
+										<div class="row">
+											<div class="col-xs-12">
+												<div class="btn-group" style="width:100%">
+													<button id="btnLockInvoice" class="btn btn-default btn-xs  validated-field" style="width:50%" data-bind="click: toggleLockInvoice, enable: fnc.app.prvInvoicesReconcileEnable()"><span data-bind="text: invoiceLockedButtonText()"></span></button>
+													<!-- ko if: invoiceAccepted() == '0' -->
+													<button id="btnAcceptInvoice" class="btn btn-success btn-xs validated-field" style="width:50%" data-bind="click: toggleAcceptInvoice, enable: fnc.app.prvInvoicesAcceptEnable()">
+														<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;&nbsp;<span>Accept</span>
+													</button>
+													<!-- /ko -->
+													<!-- ko if: invoiceAccepted() == '1' && invoiceXported() == '0' -->
+													<button id="btnUnacceptInvoice" class="btn btn-warning btn-xs  validated-field" style="width:50%" data-bind="click: toggleAcceptInvoice, enable: fnc.app.prvInvoicesUnAcceptEnable()">
+														<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;&nbsp;<span>Unaccept</span>
+													</button>
+													<!-- /ko -->
+													<!-- ko if: invoiceXported() == '1' -->
+													<button id="btnUnacceptInvoiceExp" class="btn btn-warning btn-xs" style="width:50%" data-bind="click: toggleAcceptInvoice, enable: fnc.app.prvInvoicesUnAcceptExportedEnable()">
+														<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;&nbsp;<span>Unaccept</span>
+													</button>
+													<!-- /ko -->
+												</div>											
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- /Fixed Header -->
+					<!-- Status Bar -->
+					<div class="row" style="margin:0;">
+						<div class="col-xs-12" style="padding:0;">
+							<!-- ko if: duplicateInfo() != null -->
+							<div class="pull-left" style="padding:2px;color:#f39105;font-weight:bold;cursor:pointer;" data-bind="visible: isDuplicate(), click: showDuplicateWarning">
+								<span class="glyphicon glyphicon-alert" style="float:left;" data-bind=""></span>
+								<div style="float:left;margin-left:4px; white-space:nowrap;text-overflow:ellipsis;overflow:hidden; max-width:300px;" data-bind="">
+									<span data-bind="text: duplicateInfo().WarningText(), attr: {title: duplicateInfo().WarningText()}"></span>
+								</div>
+							</div>
+							<!-- /ko -->
+
+							<!-- Placeholder (height) -->
+							<div class="pull-left" style="padding:2px;">
+								<span class="cm-label">&nbsp;</span>
+							</div>
+							<!-- /Placeholder -->
+							<div class="pull-right" style="padding:2px; color:#d9534f;" data-bind="visible: showInoiceLocked()"><span class="cm-label">Locked By:</span><span class="cm-label" data-bind="text: invoiceLockedBy()"></span><span class="glyphicon glyphicon-lock" style=""></span></div>
+							<div class="pull-right" style="padding:2px; color:#337ab7;" data-bind="visible: showInoiceXported()"><span class="cm-label">Exported By:</span><span class="cm-label" data-bind="text: invoiceXportedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceXportedDate()"></span><span class="glyphicon glyphicon-cloud-download" style=""></span></div>
+							<div class="pull-right" style="padding:2px; color:#5cb85c;" data-bind="visible: showInoiceAccepted()"><span class="cm-label">Accepted By:</span><span class="cm-label" data-bind="text: invoiceAcceptedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceAcceptedDate()"></span><span class="glyphicon glyphicon-ok" style=""></span></div>
+						</div>
+					</div>
+					<!-- /Status Bar -->
+					<!-- Table -->
+					<!-- Caption/Header -->
+					<div class="row" id="recTableScroll" style="/*max-width:1756px;*/ overflow:hidden; margin-left:-5px; margin-right:-5px; border-top: 2px solid lightgray;border-left: 2px solid lightgray;border-right: 2px solid lightgray;" data-bind="event: { focusin: tableCaptionFocusIn, click: tableCaptionFocusIn}">
+						<table id="tblRecHead" class="cm-table table table-condensed  " style="margin-bottom:0;" data-bind="style: {width: recTableWidth()+52+'px'}">
+							<thead>
+								<!-- Caption -->
+								<tr>
+									<td colspan="4" style="padding:0;">
+										<div class="row">
+											<div class="col-xs-8" style="padding-right:0;">
+												<h4 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Items</h4>
+											</div>
+											<div class="col-xs-4" style="padding-left:0;">
+												<input type="text" id="recListFilter" class="form-control input-sm" placeholder="Invoice Item Search..." data-bind="textinput: listSearchFilter" />
+											</div>
+										</div>
+									</td>
+									<td colspan="5" style="padding:0;" data-bind="visible: fnc.invoicesApp.showSection0">
+										<div class="row">
+											<div class="col-xs-12">
+												<h4 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Ordered</h4>
+											</div>
+										</div>
+									</td>
+									<!-- @@@@@@@ -->
+									<td colspan="4" style="padding:0;" data-bind="visible: fnc.invoicesApp.showSection1">
+										<div class="row">
+											<div class="col-xs-12">
+												<h4 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Electronic Invoice&nbsp;<i class="glyphicon glyphicon-info-sign" style="color: #337ab7; font-size: 14px; cursor: pointer;" data-bind="click: showEInvoice"></i></h4>
+											</div>
+										</div>
+									</td>
+									<td colspan="3" style="padding:0;" data-bind="visible: fnc.invoicesApp.showSection2">
+										<div class="row">
+											<div class="col-xs-12">
+												<h4 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Delivered</h4>
+											</div>
+										</div>
+									</td>
+									<td style="padding: 0;" data-bind="attr: {colspan: fnc.invoicesApp.isClassesEnable() ? 7 : 6}">
+										<div class="row">
+											<div class="col-xs-12">
+												<h4 style="margin-bottom: 0; margin-top: 0; margin-right:-20px; background-color:lightgrey;text-align:center;">Reconciled&nbsp;</h4>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<!-- Header -->
+								<tr data-bind="with: fnc.invoicesApp">
+									<th class="col-w-b30-1"></th>
+									<th class="col-w-b30-3" data-bind="with: listHeaders[0]"><span id="item_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">VEND.CODE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="" data-bind="with: listHeaders[1]"><span id="item_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">ITEM</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<!--<th class="col-w-b30-4" style="" data-bind="with: listHeaders[2]"><span id="item_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">BRAND</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>-->
+									<th class="col-w-b30-2" data-bind="with: listHeaders[3]"><span id="item_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">UNIT</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<!-- @@@@@@@ -->
+									<th class="col-w-b30-2" style="text-align:right; border-left: 2px solid red;" data-bind="visible: fnc.invoicesApp.showSection0, with: listHeaders[4]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">QTY</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-2" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection0, with: listHeaders[5]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">UNITS</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-3" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection0, with: listHeaders[6]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PRICE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-3" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection0, with: listHeaders[7]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">TOTAL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-1" data-bind="visible: fnc.invoicesApp.showSection0">
+										<button class="btn btn-xs cm-btn-checkbox validated-field" data-bind="click: fnc.invoicesApp.onCheckPOClick">
+											<span class="glyphicon glyphicon-check" style="margin: 0px;" data-bind="visible: fnc.invoicesApp.checkedPO()"></span>
+											<span class="glyphicon glyphicon-unchecked" style="margin: 0px;" data-bind="visible: !fnc.invoicesApp.checkedPO()"></span>
+										</button>
+									</th>
+									<!-- @@@@@@@ -->
+									<!--<th class="col-w-b30-3" style="border-left: 2px solid red;" data-bind="visible: fnc.invoicesApp.showSection1, with: listHeaders[18]"><span class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">CODE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>-->
+
+									<th class="col-w-b30-2" style="border-left: 2px solid red; text-align: right;" data-bind="visible: fnc.invoicesApp.showSection1, with: listHeaders[8]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">QTY</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-2" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection1, with: listHeaders[9]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">UNITS</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-3" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection1, with: listHeaders[10]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PRICE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-1" style="" data-bind="visible: fnc.invoicesApp.showSection1">
+										<button class="btn btn-xs cm-btn-checkbox validated-field" data-bind="click: fnc.invoicesApp.onCheckInvoiceClick">
+											<span class="glyphicon glyphicon-check" style="margin: 0px;" data-bind="visible: fnc.invoicesApp.checkedInvoice()"></span>
+											<span class="glyphicon glyphicon-unchecked" style="margin: 0px;" data-bind="visible: !fnc.invoicesApp.checkedInvoice()"></span>
+										</button>
+									</th>
+									<!-- @@@@@@@ -->
+									<th class="col-w-b30-3" style="text-align: right; border-left: 2px solid red;" data-bind="visible: fnc.invoicesApp.showSection2, with: listHeaders[11]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">QTY</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-3" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection2, with: listHeaders[12]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">UNITS</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-1" style="" data-bind="visible: fnc.invoicesApp.showSection2, click: fnc.invoicesApp.onCheckDeliveryClick">
+										<span class="glyphicon glyphicon-check" style="margin: 0px;" data-bind="visible: fnc.invoicesApp.checkedDelivery()"></span>
+										<span class="glyphicon glyphicon-unchecked" style="margin: 0px;" data-bind="visible: !fnc.invoicesApp.checkedDelivery()"></span>
+									</th>
+									<!-- @@@@@@@ -->
+									<th class="col-w-b30-4" style="border-left: 2px solid red;" data-bind="with: listHeaders[13]"><span id="item_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">STATUS</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-2" style="text-align:right;" data-bind="with: listHeaders[14]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">UNITS</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b15-1"></th>
+									<th class="col-w-b30-3" style="text-align:right;" data-bind="with: listHeaders[15]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PAY PRICE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-3" style="text-align:right;" data-bind="with: listHeaders[16]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">NET</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									<th class="col-w-b30-1" style="" data-bind="with: listHeaders[17]"><span id="item_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">GL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesApp.activeSort().title"></span></th>
+									
+									<th class="col-w-b30-1" style="" data-bind="visible: fnc.invoicesApp.isClassesEnable()"><span style="cursor:pointer;" data-bind="">CC</span></th>
+
+									<th class="col-w-scroll-17"></th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<!-- /Caption/Header -->
+					<!-- Body -->
+					<div class="row" id="tblReconcileItemListBody" style="/*height:420px; overflow-y: scroll;*/height:350px; overflow-y: scroll; margin-bottom:4px; margin-left:-5px; margin-right:-5px; border-bottom: 2px solid lightgray;border-left: 2px solid lightgray;border-right: 2px solid lightgray;" data-bind="event: { focusin: tableBodyFocusIn, click: tableBodyFocusIn}">
+						<!-- Table -->
+						<table class="cm-table table table-condensed table-striped" style="margin-bottom: 0px; " data-bind="style: {width: recTableWidth()+35+'px'}">
+							<tbody id="tblRecBody" data-bind="foreach: filteredItems" style="">
+								<tr class="cm-hover" data-bind="style: {'background-color': PriceDiscrepancy() ? 'lightyellow' : 'initial'}">
+									<td class="col-w-b30-1 not-editable" style="padding:1px;" data-bind=""><button class="btn btn-xs btn-danger validated-field" style="padding:0;height:18px;vertical-align:top;" data-bind="visible: IsAuto == '0', click: deleteItem"><span class="glyphicon glyphicon-trash"></span></button></td>
+
+
+									<td class="col-w-b30-3 not-editable" data-bind="text: Code"></td>
+									<!-- , attr: {title: ko.toJSON($data.PriceDiscrepancyObject, null, 2)} -->
+									<td class="not-editable"><div style="/*white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;*/" data-bind="text: Item"></div></td>
+									<!--<td class="col-w-b30-4 not-editable" style="" data-bind="text: Brand"></td>-->
+									<td class="col-w-b30-2 not-editable" data-bind="text: Unit"></td>
+									<!-- @@@@@@@ -->
+									<td class="col-w-b30-2 not-editable" style="border-left: 2px solid red;" data-bind="visible: fnc.invoicesApp.showSection0"><span style="float:right;" data-bind="text: formatInteger(Qty)"></span></td>
+									<td class="col-w-b30-2 not-editable" data-bind="visible: fnc.invoicesApp.showSection0">
+										<span style="float:right;" data-bind="text: formatToFixed(Units, 2)"></span>
+									</td>
+									<td class="col-w-b30-3 not-editable" data-bind="visible: fnc.invoicesApp.showSection0"><span style="float:right;" data-bind="text: formatCurrency(Price)"></span></td>
+									<td class="col-w-b30-3 not-editable" data-bind="visible: fnc.invoicesApp.showSection0"><span style="float:right;" data-bind="text: formatCurrency(Total)"></span></td>
+									<td class="col-w-b30-1 not-editable" style="padding: 0 !important;" data-bind="visible: fnc.invoicesApp.showSection0">
+										<button class="btn btn-xs cm-btn-checkbox validated-field" onclick="" data-bind="click: onItemCheckedPOClick">
+											<span class="glyphicon glyphicon-check" style="margin: 0px;" data-bind="visible: isCheckedPO()"></span>
+											<span class="glyphicon glyphicon-unchecked" style="margin: 0px;" data-bind="visible: !isCheckedPO()"></span>
+										</button>
+									</td>
+									<!-- @@@@@@@ -->
+									<!--<td class="col-w-b30-3" style="border-left: 2px solid red;" data-bind="visible: fnc.invoicesApp.showSection1, text: eCode"></td>-->
+
+									<td class="col-w-b30-2 not-editable" style="border-left: 2px solid red;" data-bind="visible: fnc.invoicesApp.showSection1"><span style="float:right;" data-bind="text: formatInteger(eQty)"></span></td>
+									<td class="col-w-b30-2 not-editable" data-bind="visible: fnc.invoicesApp.showSection1"><span style="float:right;" data-bind="text: formatToFixed(eUnits, 2), style: {color: (formatToFixed(eUnits, 2) != formatToFixed(Units, 2)) ? 'red':'black'}"></span></td>
+									<td class="col-w-b30-3 not-editable" data-bind="visible: fnc.invoicesApp.showSection1">
+										<!--<span style="float: left; margin-left:-7px; color:#d43f3a; " class="glyphicon glyphicon-list popover-span" id="btnShowECWTList" data-container="body" data-toggle="popover" data-placement="top" data-trigger="manual" data-html="true;" title="Units" data-content="" data-bind="visible: ECWTList != null, click: showECWTList"></span>-->
+										<span style="float: left; margin-left:-7px; color:#337ab7;cursor:pointer;" class="glyphicon glyphicon-list dropdown-toggle" data-bind="visible: ECWTList != null, click: toggleECWTList"></span>
+										<a data-toggle="dropdown"></a>
+										<div data-cwt-dropdown="" class="dropdown-menu " style="padding:5px;min-width:100px;" data-bind="">
+											<div class="well well-xs" style="padding-left: 5px !important;padding-top: 2px !important; font-weight: bold; font-size:12px;">Units<span style="float:right; cursor:pointer;padding:0 3px;color:white;background-color:#d9534f; border-radius:3px; margin-right:5px;" data-bind="click: closeECWTList">x</span></div>
+											<!--<pre style="margin:0;padding:0;" data-bind="text: ko.toJSON(ECWTArray, null, 2)"></pre>-->
+											<table class="cm-table table table-condensed table-bordered" style="font-size: 12px; margin-bottom:0;" data-bind="">
+												<tbody data-bind="foreach: ECWTArray">
+													<tr><td class="not-editable" style="text-align:right;" data-bind="text: $data"></td></tr>
+												</tbody>
+											</table>
+										</div>
+										<span style="float:right;" data-bind="text: formatCurrency(ePrice), style: {color: (ePrice != Price) ? 'red':'black'}"></span>
+									</td>
+									<td class="col-w-b30-1 not-editable" data-bind="visible: fnc.invoicesApp.showSection1">
+										<button class="btn btn-xs cm-btn-checkbox validated-field" onclick="" data-bind="click: onItemCheckedInvoiceClick">
+											<span class="glyphicon glyphicon-check" style="margin: 0px;" data-bind="visible: isCheckedInvoice()"></span>
+											<span class="glyphicon glyphicon-unchecked" style="margin: 0px;" data-bind="visible: !isCheckedInvoice()"></span>
+										</button>
+									</td>
+									<!-- @@@@@@@ -->
+									<td class="col-w-b30-3" style="border-left: 2px solid red;" data-bind="visible: fnc.invoicesApp.showSection2"><span style="float:right;" data-bind="text: dQty"></span></td>
+									<td class="col-w-b30-3" data-bind="visible: fnc.invoicesApp.showSection2"><span style="float:right;" data-bind="text: dUnits"></span></td>
+									<td class="col-w-b30-1" data-bind="visible: fnc.invoicesApp.showSection2, click: onItemCheckedDeliveryClick">
+										<span class="glyphicon glyphicon-check" style="margin: 0px;" data-bind="visible: isCheckedDelivery()"></span>
+										<span class="glyphicon glyphicon-unchecked" style="margin: 0px;" data-bind="visible: !isCheckedDelivery()"></span>
+									</td>
+									<!-- @@@@@@@ -->
+									<td class="col-w-b30-4 not-editable" style="border-left: 2px solid red;" data-bind="">
+										<span style="float:left;" data-bind="text: Status()"></span>
+										<button class="btn btn-xs btn-warning validated-field" style="float:right; padding:0; border:0; height:16px;width:16px;" data-bind="click: editSelectedItem, visible: Status() == 'SHORT' || Status() == 'RETURN' || Status() == 'BACKORDER'">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										</button>
+									</td>
+									
+									<td class="col-w-b30-2" tabindex="1" style="text-align:right;" data-bind="text: formatUnits(Units2(), $data), event: {change: updateUnits2Cell},  style: {color: (formatToFixed(Units2(), 2) != formatToFixed(Units, 2)) ? 'red':'black'}"></td>
+									
+									<!-- , attr: {title: ko.toJSON($data, null, 2)} -->
+
+									<td class="col-w-b15-1 not-editable dropdown">
+										<span style="float: left; margin-left:-7px; color:#337ab7; cursor:pointer;" class="glyphicon glyphicon-list dropdown-toggle" id="btnShowECWTList" data-bind="visible: isCWTButtonVisible, click: toggleTableCWTList"></span>
+										<a data-toggle="dropdown"></a>
+										<div id="dropdownCWTList" class="dropdown-menu " style="padding:5px;" data-bind="">
+											<div class="well well-xs" style="padding-left: 5px !important;padding-top: 2px !important; font-weight: bold; font-size:12px;">Units<span style="float:right; cursor:pointer;padding:0 3px;color:white;background-color:#d9534f; border-radius:3px; margin-right:5px;" data-bind="click: fnc.invoicesApp.closeCWTDropdown">x</span></div>
+											<table id="tblCWTList" class="cm-table table table-condensed table-bordered" style="font-size: 12px; margin-bottom:0;" data-bind="event: {focusin: fnc.invoicesApp.tableCWTFocusIn, focusout: fnc.invoicesApp.tableCWTFocusOut}">
+												<thead style="font-weight: bold;">
+													<tr>
+														<td class="col-w-b30-2">Invoiced</td>
+														<td class="col-w-b30-2">Received</td>
+														<td class="col-w-b15-1"></td>
+													</tr>
+												</thead>
+												<tfoot>
+													<tr>
+														<td class="not-editable"><input type="text" class="validated-field" style="box-shadow:none; border: 0; background-color: transparent; width:60px; text-align:right;" data-bind="textInput: fnc.invoicesApp.oneItemCWTInoiced" /></td>
+														<td class="not-editable"><input type="text" class="validated-field" style="box-shadow:none; border: 0; background-color: transparent; width:60px; text-align:right;" data-bind="textInput: fnc.invoicesApp.oneItemCWTReceived" /></td>
+														<td class="not-editable" style="text-align: center;"><button class="btn btn-xs btn-warning validated-field" style="padding:0; font-size:10px;" data-bind="click: fnc.invoicesApp.addCWTItem, enable: fnc.invoicesApp.oneItemCWTAddEnabled()"><span class="glyphicon glyphicon-plus"></span></button></td>
+													</tr>
+												</tfoot>
+												<tbody data-bind="foreach: fnc.invoicesApp.oneItemCWTList">
+													<tr>
+														<td class="not-editable" style="text-align:right;" data-bind="text: formatToFixed0(InvoicedCwtItem, 2)"></td>
+														<td class="not-editable"><input type="text" class="validated-field" style="box-shadow:none; border: 0; background-color: transparent; width:60px; text-align:right;" data-bind="textInput: RcdCwtItem, event: {blur: rcdCwtBlur}" /></td>
+														<td class="col-w-b15-1  class=" not-editable""></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</td>
+
+									<td class="col-w-b30-3" tabindex="1" style="text-align:right;" data-bind="text: formatCurrency(PayPrice()), event: {change: updatePayPriceCell}, style: {color: (formatCurrency(PayPrice()) != formatCurrency(Price)) ? 'red':'black'} "></td>
+									<td class="col-w-b30-3 not-editable" data-bind=""><span style="float:right;" data-bind="text: formatNet(Net()), visible: isCheckedPO() || isCheckedInvoice()"></span></td>
+									<td class="col-w-b30-1 not-editable" style="padding:1px;" data-bind=""><button class="btn btn-xs " style="height: 18px;width:20px;padding: 0;" data-bind="click: showItemGLManagement, css: {'btn-success' : PrcntTotal == 100, 'btn-danger' : PrcntTotal != 100}, attr: {title: PrcntSplittingTitle}, visible: isCheckedPO() || isCheckedInvoice()"><span class="glyphicon glyphicon-cog"></span></button></td>
+								
+									<td class="col-w-b30-1 not-editable" style="padding:1px;" data-bind="visible: fnc.invoicesApp.isClassesEnable()">
+										<button class="btn btn-xs btn-warning" style="height: 18px;width:20px;padding: 0;" data-bind="click: showItemCostCenters"><span class="glyphicon glyphicon-subtitles"></span></button>
+									</td>
+
+								</tr>
+							</tbody>
+						</table>
+						<!-- /Table -->
+					</div>
+					<!-- /Body -->
+					
+					<!-- Add New Item -->
+					<div class="row dropup" id="addNewItemDiv" style="height:20px; margin-left:0; margin-right:0;" data-bind="event: { focusin: globalSearchFocusIn, focusout: globalSearchFocusOut}">
+						<div class="col-xs-10 " style="padding:0;">
+							<input type="text" id="createdListFilter" class="form-control input-sm validated-field" style="width: 450px;" placeholder="New Item Search..." data-bind="textinput: globalSearch" />
+							<a data-toggle="dropdown"></a>
+							<div id="globalSearchResult" class="dropdown-menu " style="padding:0; margin-bottom:5px;" data-bind="visible: false">
+								<div class="row" style="margin:0; display:block; overflow-x:hidden;">
+									<table class="cm-table table table-condensed table-bordered" style="margin:0;font-size:12px;">
+										<thead>
+											<tr>
+												<th class="col-w-b30-3">VEND.CODE</th>
+												<th class="col-w-b30-3">ITEM ID</th>
+												<th class="">ITEM</th>
+												<th class="col-w-b30-4">BRAND</th>
+												<th class="col-w-b30-2">UNIT</th>
+												<th class="col-w-b30-2">UOM</th>
+												<th class="col-w-b30-2" style="text-align:right;">UNITS</th>
+												<th class="col-w-b30-3" style="text-align:right;">INV.PRICE</th>
+												<th class="col-w-b30-6">GENERAL LEDGER</th>
+												<th class="col-w-b30-1"></th>
+												<th style="width:17px;padding:0;">
+													<input class="btn btn-danger btn-xs" value="X" style="width: 16px;height: 25px;padding-left: 3px;padding-right: 3px;" data-bind="click: closeSearch">
+												</th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+								<div class="row" style="margin:0; display:block; max-height:400px;height:400px; overflow-y:scroll; overflow-x:hidden;">
+									<table class="cm-table table table-condensed " style="margin:0;font-size:12px;">
+										<tbody id="tblGlobalSearchBody" data-bind="foreach: globalSearchList">
+											<tr class="cm-global-search-row" onmouseover="showElements(this)" onmouseout="hideElements(this)" style="height:22px;" data-bind="	css: { 'cm-active-row': Selected() } ">
+												<td class="col-w-b30-3 not-editable" style="padding:0 !important;vertical-align:middle;" data-bind="text: Code"></td>
+												<td class="col-w-b30-3 not-editable" style="padding:0 !important;vertical-align:middle;" data-bind="text: ItemId"></td>
+												<td class="not-editable" style="padding:0 !important;vertical-align:middle;" data-bind="text: Item"></td>
+												<td class="col-w-b30-4 not-editable" style="padding:0 !important;vertical-align:middle;" data-bind="text: Brand"></td>
+												<td class="col-w-b30-2 not-editable" style="padding:0 !important;vertical-align:middle;" data-bind="text: Unit"></td>
+												<td class="col-w-b30-2 not-editable" style="padding:0 !important;vertical-align:middle;" data-bind="text: UOM"></td>
+												<td class="col-w-b30-2 not-editable cm-cell-with-input" style="padding:0 !important; vertical-align:middle;"><input class="cm-inputcell" onfocus="" onblur="" type="text" style="border-right:none !important;" data-bind="	textInput: Units, click: selectRow" /></td>
+												<td class="col-w-b30-3 not-editable cm-cell-with-input" style="padding:0 !important; vertical-align:middle;"><input class="cm-inputcell" onfocus="" onblur="" type="text" style="" data-bind="	textInput: Price, click: selectRow" /></td>
+												<td class="col-w-b30-6 not-editable" style="padding-left:5px;vertical-align:middle;" data-bind="visible: glArray.length == 1, text: glArray[0].glDescription + ' (' + glArray[0].glCode + ')'"></td>
+												<td class="col-w-b30-6 not-editable" style="padding:0 !important;vertical-align:middle;" data-bind="visible: glArray.length > 1">
+													<button class="btn btn-xs btn-link" style="padding:0;" data-toggle="popover" data-placement="left" data-trigger="manual" data-html="true;" title="GL Accounts" data-content="" data-bind="click: showGLArrayItems"><span style="text-decoration:underline;">MULTIPLE ACCOUNTS</span></button>
+												</td>
+												<td class="col-w-b30-1 not-editable" data-bind="" style="vertical-align:middle;"><button class="btn btn-xs btn-warning btn-add-to-invoice" style="height:17px;width:17px;padding-left:2px; padding-top:0px; padding-right:0px;" data-bind="click: addToInvoice, enable: validAddToInvoice()"><span class="glyphicon glyphicon-plus"></span></button> </td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row" style="display:none;">
+						<div class="col-xs-2"><h4>Add New Item</h4></div>
+					</div>
+					<!-- /Add New Item -->
+
+				</div>
+			</div>
+			
+			<!--<pre data-bind="text: ko.toJSON($data, null, 2)"></pre>-->
+			<!--<pre data-bind="text: ko.toJSON(attachmentsObject(), null, 2)"></pre>-->
+
+		</div>
+		<!-- /ko -->
+
+		<!-- ko if: fnc.app.hiddenTabs()[0].TabType == 'tabInvoiceWithoutPO2' -->
+		<div class="panel panel-default" data-bind="with: fnc.invoicesAppNoPo" style="border:none;margin-bottom:0;">
+			<div class="panel-body" style="padding:0px !important;">
+				<div class="container-fluid">
+					<!-- Fixed Header -->
+					<div class="row" data-bind="">
+						<!-- Left Section -->
+						<div class="col-xs-4" style="padding-right:2px;">
+							<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-bottom:0; padding: 5px; border-radius: 5px; height:85px;">
+								<!-- Location -->
+								<div class="row">
+									<div class="col-xs-2" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; margin-bottom:0px; float:right; font-size:10px;">LOCATION:</label></div>
+									<div class="col-xs-10" style="/*height:39px;*/ padding-left:5px;">
+										<!-- ko if: fnc.app.singleLocation() -->
+										<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px; font-weight:bold; margin: 0; padding-top:2px;" data-bind="text: decodeText(orgName())"></h6>
+										<!-- /ko -->
+										<!-- ko if: !fnc.app.singleLocation() -->
+										<select id="selectAllLocations" class="validated-field" style="box-shadow:none; border: 0; background-color: transparent; margin-top: 1px; font-weight:bold; width:100%;" data-bind="options: fnc.app.filterAvailableLocations, optionsText: 'LocationName', optionsCaption: 'Choose...', optionsValue: 'LocationId', value: orgId"></select>
+										<!-- /ko -->									
+									</div>
+								</div>
+								<!-- Vendor -->
+								<div class="row" data-bind="visible: !(vendorNotFound() && invoiceAccepted() == '1')">
+									<div class="col-xs-2" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; margin-bottom:0px; float:right; font-size:10px;">VENDOR:</label></div>
+									<div class="col-xs-10" style="/*height:39px;*/ padding-left: 5px;">
+										<!--<h4 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px; " data-bind="text: companyName()"></h4>-->
+										<select id="selectAllVendors" class="validated-field" style="box-shadow:none; border: 0; background-color: transparent; margin-top: 1px; font-weight:bold; width:100%;" data-bind="options: noPORequiredVendors, optionsText: 'Company', optionsCaption: 'Choose...', optionsValue: 'SBVendId', value: companyId"></select>
+										<!--<select class="validated-field" style="box-shadow:none; border: 0; background-color: transparent; margin-top: 1px; font-weight:bold; width:100%;" data-bind="foreach: noPORequiredVendors, value: companyId">
+											<option data-bind="text: Company, attr: {disabled: !Enabled(), value: SBVendId}"></option>
+										</select>-->
+									</div>
+								</div>
+								<!--<div class="row" data-bind="visible: vendorNotFound() && invoiceAccepted() == '1'">
+									<div class="col-xs-2" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; margin-bottom:0px; float:right; font-size:10px;">VENDOR:</label></div>
+									<div class="col-xs-10" style="padding-left: 5px;"><h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px; font-weight:bold; margin: 0; padding-top:2px; color:red;" data-bind="text: companyName()"></h6></div>
+								</div>-->
+								<!-- Warning -->
+								<div class="row">
+									<div class="col-xs-12" data-bind="if: vendorNotFound()">
+										<div class="" style="height: 36px;vertical-align:middle; margin-left: 15px;margin-right: 15px;margin-bottom: 0;padding: 0 15px;display:table-cell;color: red;/*background-color:#fcf8e3;border-radius:5px;*/">
+											<span>Vendor </span><span style="font-weight:bold; text-decoration:underline;" data-bind="text: companyName(), visible: invoiceAccepted() == '0'"></span><span> is no longer active.</span>
+											<span data-bind="visible: invoiceAccepted() == '0'">Please select another vendor.</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Middle Section-->
+						<div class="col-xs-6" style="padding-left:0;padding-right:0;">
+							<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-bottom:0; padding: 5px; border-radius: 5px; height:85px;">
+								<div class="row">
+									<div class="col-xs-3">
+										<div class="row">
+											<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;">
+												<label style="margin-top:0px; float:right; font-size:10px;">INV.#:</label>
+												<label style="margin-top:0px; float:right; font-size:10px;" data-bind="if: duplicateInfo() != null"><span style="color:#f39105;margin-right:4px;font-size:12px;cursor:pointer;" class="glyphicon glyphicon-alert" data-bind="visible: isDuplicate(), attr: {title: duplicateInfo().WarningText()}, click: showDuplicateWarning"></span></label>  
+											</div>
+											<div class="col-xs-7" style="padding-left: 5px;"><input type="text" id="invoiceNumber2" class="form-control input-sm validated-field" style="padding:0;" data-bind="value: invoiceNumber(), attr: {title: invoiceNumber}" /></div>
+										</div>
+										<div class="row" style="">
+											<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; margin-bottom:0px; float:right; font-size:10px;">INV.DATE:</label></div>
+											<div class="col-xs-7" style="padding-left: 5px;"><input type="text" id="invoiceDateManualInvoice" class="form-control input-sm validated-field" style="padding:0;" data-bind="value: invoiceDate()" /></div>
+										</div>
+										<div class="row">
+											<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;">
+												<label style="margin-top:0px; float:right; font-size:10px;">TERM:</label>
+											</div>
+											<div class="col-xs-7" style="padding-left: 5px;"><input type="text" id="" class="form-control input-sm" style="padding:0;" readonly data-bind="value: term()" /></div>
+										</div>
+										<div class="row" style="">
+											<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; margin-bottom:0px; float:right; font-size:10px;">DUE.DATE:</label></div>
+											<div class="col-xs-7" style="padding-left: 5px;"><input type="text" class="form-control input-sm" style="padding:0;" readonly data-bind="value: dueDate()" /></div>
+										</div>
+									</div>
+									
+									<div class="col-xs-3">
+										<div class="row" style="">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;cursor:help;" title="Invoice total before discount">INV.TOTAL:</label></div>
+											<div class="col-xs-6" style="padding-left: 5px;"><input type="text" id="invoiceGross2" class="form-control input-sm validated-field" style="padding:0;text-align:right;" data-bind="value: grossAmount()" /></div>
+										</div>
+										<div class="row">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">DISCOUNT:</label></div>
+											<div class="col-xs-6" style="padding-left: 5px;"><input type="text" id="invoiceDiscount2" class="form-control input-sm validated-field" style="padding:0;text-align:right;" data-bind="value: discAmount()" /></div>
+										</div>
+										<div class="row"><div class="col-xs-12">&nbsp;</div></div>
+										<div class="row">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">NET:</label></div>
+											<div class="col-xs-6" style="padding-left: 5px;"><input type="text" tabindex="-1" class="form-control input-sm" style="padding:0; text-align:right;" readonly data-bind="textInput: formatCurrency(netAmount())" /></div>
+										</div>
+									</div>
+									
+									<div class="col-xs-3">
+										<div class="row">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">LINE TOTAL:</label></div>
+											<div class="col-xs-6" style="padding-left:0;"><input type="text" tabindex="-1" class="form-control input-sm" style="padding:0; text-align:right;" readonly data-bind="textInput: formatCurrency(lineTotal())" /></div>
+										</div>
+										<div class="row"><div class="col-xs-12">&nbsp;</div></div>
+										<div class="row"><div class="col-xs-12">&nbsp;</div></div>
+										<div class="row">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;">
+												<div class="" style="float:left;background-color:transparent; color:#d43f3a; font-size:1.3em; font-weight: 900;" data-bind="visible: showNotEqualSign()"><span class="glyphicon glyphicon-arrow-left"></span><span>&nbsp;&ne;&nbsp;</span><span class="glyphicon glyphicon-arrow-right"></span></div>
+												<div class="" style="float:left;background-color:transparent; color:#4cae4c; font-size:1.3em; font-weight: 900;" data-bind="visible: showEqualSign()"><span class="glyphicon glyphicon-arrow-left"></span><span>&nbsp;=&nbsp;</span><span class="glyphicon glyphicon-arrow-right"></span></div>
+												<div class="" style="float:left;background-color:transparent; color:#E38D13; font-size:1.3em; font-weight: 900;" data-bind="visible: showQuestionSign()"><span class="glyphicon glyphicon-arrow-left"></span><span>&nbsp;?&nbsp;</span><span class="glyphicon glyphicon-arrow-right"></span></div>
+												<label style="margin-top:2px; float:right; font-size:10px;">TOTAL:</label>
+											</div>
+											<div class="col-xs-6" style="padding-left:0;">
+												<input type="text" tabindex="-1" class="form-control input-sm" style="padding:0; text-align:right;" readonly data-bind="textInput: formatCurrency(total())" />
+											</div>
+										</div>
+									</div>
+									
+									<div class="col-xs-3">
+										<div class="row">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;"><a style="cursor:pointer;" data-bind="click: showDepositCreditModalDialog">DEPOSIT/CR:</a></label></div>
+											<div class="col-xs-6" style="padding-left:0;" data-bind="click: showDepositCreditModalDialog"><input tabindex="-1" id="invoiceDeposit2" class="form-control input-sm validated-field cm-deposit-textbox" style="padding:0; text-align:right;" readonly data-bind="textInput: formatToFixed0(depositOrCredit(), 2)" type="text"></div>
+										</div>
+										<div class="row">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">DISCOUNT:</label></div>
+											<div class="col-xs-6" style="padding-left:0;"><input tabindex="-1" id="invoiceDiscount" class="form-control input-sm validated-field" style="padding:0; text-align:right;" readonly="" data-bind="textInput: formatToFixed0(discountComputed(), 2)" type="text"></div>
+										</div>
+										<div class="row">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">TAX:</label></div>
+											<div class="col-xs-6" style="padding-left: 0px;"><input type="text" id="invoiceTax2" class="form-control input-sm validated-field" style="padding:0; text-align:right;" data-bind="value: tax()" /></div>
+										</div>
+										<div class="row">
+											<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">FREIGHT:</label></div>
+											<div class="col-xs-6" style="padding-left: 0px;"><input type="text" id="invoiceFreight2" class="form-control input-sm validated-field" style="padding:0; text-align:right;" data-bind="value: freight()" /></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Right Section -->
+						<div class="col-xs-2" style="padding-left:2px;">
+							<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-bottom:0; padding: 4px; border-radius: 5px; height:85px;">
+								<div class="row" style="margin-bottom:4px;">
+									<div class="col-xs-12">
+										<button class="btn btn-block btn-primary btn-xs" data-bind="click: showAttachedDocs, css: {'cm-disabled-tab': !fnc.app.prvCrossDocAppEnable()}">
+											<!-- ko if: fnc.app.attachedDocTypes().length -->
+											<span class="fa fa-paperclip" data-bind="visible: fnc.app.attachedDocTypes().indexOf('4') == -1"></span>
+											<span class="fa fa-truck" data-bind="visible: fnc.app.attachedDocTypes().indexOf('4') != -1"></span>
+											<!-- /ko -->
+											<span>CrossDoc</span>
+											<span data-bind="visible: fnc.app.attachedItems().length, text: ' (' + fnc.app.attachedItems().length + ')'"></span>
+										</button>
+									</div>
+								</div>
+								<div class="row" style="margin-bottom:4px/*margin-bottom:10px;*/">
+									<div class="col-xs-12" style="/*height:33px;*/">
+										<div class="btn-group" role="group" style="width:100%;">
+											<button class="btn btn-primary btn-xs" style="width:50%;" data-bind="click: goBack2POList"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp;&nbsp;Back</button>
+											<button type="button" class="btn btn-default btn-xs" style="width:50%;" data-bind="click: printInvoiceNRPO">Print</button>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="btn-group" style="width:100%">
+											<button id="btnLockInvoice2" class="btn btn-default btn-xs validated-field" style="width:50%" data-bind="click: toggleLockInvoice, enable: fnc.app.prvInvoicesReconcileEnable()"><span data-bind="text: invoiceLockedButtonText()"></span></button>
+											<!-- ko if: invoiceAccepted() == '0' -->
+											<button id="btnAcceptInvoice2" class="btn btn-success btn-xs validated-field" style="width:50%" data-bind="click: toggleAcceptInvoice, enable: fnc.app.prvInvoicesAcceptEnable()">
+												<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;&nbsp;<span>Accept</span>
+											</button>
+											<!-- /ko -->
+											<!-- ko if: invoiceAccepted() == '1' && invoiceXported() == '0' -->
+											<button id="btnUnacceptInvoice2" class="btn btn-warning btn-xs validated-field" style="width:50%" data-bind="click: toggleAcceptInvoice, enable: fnc.app.prvInvoicesUnAcceptEnable()">
+												<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;&nbsp;<span>Unaccept</span>
+											</button>
+											<!-- /ko -->
+											<!-- ko if: invoiceXported() == '1' -->
+											<button id="btnUnacceptInvoiceExp2" class="btn btn-warning btn-xs" style="width:50%" data-bind="click: toggleAcceptInvoice, enable: fnc.app.prvInvoicesUnAcceptExportedEnable()">
+												<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;&nbsp;<span>Unaccept</span>
+											</button>
+											<!-- /ko -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- /Fixed Header -->
+					
+					<!-- Status Bar -->
+					<div class="row" style="margin:0;">
+						<div class="col-xs-12" style="padding:0;">
+							<!-- ko if: duplicateInfo() -->
+							<div class="pull-left" style="padding:2px;color:#f39105;font-weight:bold;cursor:pointer;" data-bind="visible: isDuplicate(), attr: {title: duplicateInfo().WarningText()}, click: showDuplicateWarning">
+								<span class="glyphicon glyphicon-alert" style="float:left;" data-bind=""></span>
+								<div style="float:left;margin-left:4px; white-space:nowrap;text-overflow:ellipsis;overflow:hidden; max-width:300px;" data-bind="">
+									<span data-bind="text: duplicateInfo().WarningText()"></span>
+								</div>
+							</div>
+							<!-- /ko -->
+							<div class="pull-left" style="padding:2px;"><span class="cm-label">&nbsp;</span></div>
+
+							<div class="pull-right" style="padding:2px; color:#d9534f;" data-bind="visible: showInoiceLocked()"><span class="cm-label">Locked By:</span><span class="cm-label" data-bind="text: invoiceLockedBy()"></span><span class="glyphicon glyphicon-lock" style=""></span></div>
+							<div class="pull-right" style="padding:2px; color:#337ab7;" data-bind="visible: showInoiceXported()"><span class="cm-label">Exported By:</span><span class="cm-label" data-bind="text: invoiceXportedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceXportedDate()"></span><span class="glyphicon glyphicon-cloud-download" style=""></span></div>
+							<div class="pull-right" style="padding:2px; color:#5cb85c;" data-bind="visible: showInoiceAccepted()"><span class="cm-label">Accepted By:</span><span class="cm-label" data-bind="text: invoiceAcceptedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceAcceptedDate()"></span><span class="glyphicon glyphicon-ok" style=""></span></div>
+						</div>
+					</div>
+					<!-- /Status Bar -->
+
+					<!-- Section -->
+					<div id="glAccountSection" class="" style="" data-bind="">
+						<!-- Table -->
+						<!-- Caption/Header -->
+						<div class="row" style="overflow: hidden;margin-left:0;margin-right:0;" data-bind="">
+							<table class="cm-table table table-condensed  table-bordered" style="margin-bottom:0;" data-bind="">
+								<thead>
+									<!-- Caption -->
+									<tr>
+										<td colspan="9" style="padding: 0;">
+											<div class="row">
+												<div class="col-xs-12">
+													<h4 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">&nbsp;</h4>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<!-- Header -->
+									<tr data-bind="">
+										<th data-bind="with: listHeaders[0]" class="col-w-b30-4"><span id="gl_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">GL ACCOUNT</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[1]" class=""><span id="gl_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">DESRIPTION</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></th>
+										<th data-bind="with: listHeaders[2]" style="text-align:right;" class="col-w-b30-4"><span id="gl_list" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">SUB TOTAL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[3]" style="text-align:right;" class="col-w-b30-4"><span id="gl_list" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">TAX</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[4]" style="text-align:right;" class="col-w-b30-4"><span id="gl_list" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">FREIGHT</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[5]" style="text-align:right;" class="col-w-b30-4"><span id="gl_list" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">DISCOUNT</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span></th>
+										<th data-bind="with: listHeaders[6]" style="text-align:right;" class="col-w-b30-4"><span id="gl_list" class="" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">TOTAL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.invoicesAppNoPo.activeSort().title"></span></th>
+										<!-- ko if:  fnc.invoicesAppNoPo.isClassesEnable() -->
+										<th style="width:50px;"></th>
+										<!-- /ko -->
+										<!-- ko if:  !fnc.invoicesAppNoPo.isClassesEnable() -->
+										<th style="width:30px;"></th>
+										<!-- /ko -->
+										<th style="width: 17px;"></th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<!-- /Caption/Header -->
+						<!-- Body -->
+						<div class="row" id="" style="overflow-y: scroll; margin-bottom:4px;margin-left:0;margin-right:0;height:250px;" data-bind="">
+							<!-- Table -->
+							<table class="cm-table table table-condensed table-striped" style="margin-bottom: 0px; " data-bind="">
+								<!-- Body -->
+								<tbody id="tblAccountItems" data-bind="foreach: allItems">
+									<tr class="cm-hover" data-bind="visible: InvoiceGLDistribId != 0">
+										<td class="col-w-b30-4" data-bind="text: GLAccNumber"></td>
+										<td data-bind="text: GLAccDescription"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(SubTotal())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLTax)"></span></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLFreight)"></span></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLDiscount)"></span></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(Total())"></span></td>
+										<!-- ko if:  fnc.invoicesAppNoPo.isClassesEnable() -->
+										<td style="width:50px;text-align:left;" data-bind="">
+											<button class="btn btn-xs btn-danger btn-delete-from-list validated-field" style="height: 17px; width: 17px; padding-left: 0px; padding-top: 0px; padding-right: 0px; " data-bind="click: removeItem"><span class=" glyphicon glyphicon-trash"></span></button>
+											<button class="btn btn-xs btn-warning btn-cc-split validated-field" style="height: 17px; width: 17px; padding-left: 0px; padding-top: 0px; padding-right: 0px; " data-bind="click: showItemCostCenters"><span class=" glyphicon glyphicon-subtitles"></span></button>
+										</td>
+										<!-- /ko -->
+										<!-- ko if:  !fnc.invoicesAppNoPo.isClassesEnable() -->
+										<td style="width:30px;text-align:left;" data-bind="">
+											<button class="btn btn-xs btn-danger btn-delete-from-list validated-field" style="height: 17px; width: 17px; padding-left: 0px; padding-top: 0px; padding-right: 0px; " data-bind="click: removeItem"><span class=" glyphicon glyphicon-trash"></span></button>
+										</td>
+										<!-- /ko -->
+										<!--<td style="width: 17px;" data-bind=""></td>-->
+									</tr>
+								</tbody>
+								<tbody>
+									<tr style="font-weight:bolder;">
+										<td colspan="2" style="text-align:right;"><span>Sub Total:</span></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumSubTotal())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumTax())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumFreight())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumDiscount())"></td>
+										<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumTotal())"></td>
+										<!-- ko if:  fnc.invoicesAppNoPo.isClassesEnable() -->
+										<td style="width:50px;" data-bind=""></td>
+										<!-- /ko -->
+										<!-- ko if:  !fnc.invoicesAppNoPo.isClassesEnable() -->
+										<td style="width:30px;" data-bind=""></td>
+										<!-- /ko -->
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<!-- /Body -->
+						<!-- /Table -->
+						<!-- Add New Item -->
+						<div class="row">
+							<div class="col-xs-5 col-xs-offset-1">
+								<table class="cm-table table table-condensed table-bordered ">
+									<caption style="text-align:center;padding: 0;">
+										<h4>Add New Item</h4>
+									</caption>
+									<thead>
+										<tr>
+											<th class="col-w-b30-7">GL ACCOUNT</th>
+											<th class="col-w-b30-3" style="text-align:right;">TOTAL</th>
+											<th class="col-w-b30-1"></th>
+										</tr>
+									</thead>
+									<tbody data-bind="">
+										<tr>
+											<td data-bind=""><select class="validated-field" style="height:100%; width: 100%; box-shadow:none; border: 0;" data-bind="options: allGLAccounts, optionsText: function(it){return it.GLAccDescription+' ('+it.GLAccNumber+')'}, value: newItemGLAccount, optionsCaption: 'Choose...'"></select></td>
+											<td><input type="text" class="form-control input-sm validated-field" style="padding:0; height:22px; text-align:right;border:0; box-shadow:0 0px;" data-bind="textinput: newItemPayPrice"></td>
+											<td style="vertical-align:middle; text-align:center;	"><button class="btn btn-xs btn-warning btn-add-to-invoice" style="height: 17px; width: 17px; padding-left: 2px; padding-top: 0px; padding-right: 0px; " data-bind="click: addItemToList, enable: enableAddNewItem()"><span class=" glyphicon glyphicon-plus"></span></button></td>
+
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- /Add New Item -->
+					</div>
+					<!-- /Section -->
+				</div>
+				
+				<!--<pre data-bind="text: ko.toJSON(allItems(), null, 2)"></pre>-->
+			</div>
+		</div>
+		<!-- /ko -->
+		
+		<!-- ***************************************-->
+		<!-- **************** MODAL ****************-->
+		<!-- ***************************************-->
+
+		<!-- Show	CostCenters GL Distibution -->
+		<div class="modal draggable fade" id="modShowCostCentersGLDistribution" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">GL DISTRIBUTION</h4>
+					</div>
+					<div class="modal-body">
+						<table class="cm-table table table-condensed" style="">
+							<thead>
+								<tr style="font-size:10px; font-weight:bolder;">
+									<td style="width:100px;">GL ACCOUNT</td>
+									<td style="width:400px;">GL DESCRIPTION</td>
+									<td style="width:70px;text-align:right;">TOTAL</td>
+								</tr>
+							</thead>
+							<tfoot>
+								<tr style="font-weight:bolder;">
+									<td>Total:</td>
+									<td></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(sumTotal())"></td>
+								</tr>
+							</tfoot>
+							<tbody data-bind="foreach: costCentersGlDistributionList">
+								<tr><td colspan="3" style="text-align:center;background-color:lightgrey;" data-bind="text: $data[0].CostCenterName"></td></tr>
+								<tr>
+									<td colspan="3" style="padding:0;">
+										<table class="cm-table table table-condensed" style="">
+											<tbody data-bind="">
+												<!-- ko foreach: $data -->
+												<tr>
+													<td style="width:100px;" data-bind="text: GLAccNumber"></td>
+													<td style="width:400px;" data-bind="text: GLAccDescription"></td>
+													<td style="width:70px;text-align:right;" data-bind="text: formatCurrency(Total())"></td>
+												</tr>
+												<!-- /ko -->
+												<tr style="font-weight:bolder;">
+													<td>SubTotal:</td>
+													<td></td>
+													<td style="text-align:right;" data-bind="text: formatCurrency(fnc.invoicesApp.getCostCentersGlDistributionColumnSum('Total', $index()))"></td>
+												</tr>
+											</tbody>
+										</table>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<!--<pre data-bind="text: ko.toJSON(costCentersGlDistributionList(), null, 2)"></pre>-->
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Show CostCenters GL Distibution -->
+
+		<!-- Show	GL Distibution -->
+		<div class="modal draggable fade" id="modShowGLDistribution" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">GL DISTRIBUTION</h4>
+					</div>
+					<div class="modal-body">
+						<table class="cm-table table table-condensed" style="">
+							<thead>
+								<tr style="font-size:10px; font-weight:bolder;">
+									<td>GL ACCOUNT</td>
+									<td>GL DESCRIPTION</td>
+									<td style="text-align:right;">SUBTOTAL</td>
+									<td style="text-align:right;">TAX</td>
+									<td style="text-align:right;">FREIGHT</td>
+									<td style="text-align:right;">DISCOUNT</td>
+									<!--<td style="text-align:right;">DEPOSIT</td>-->
+									<td style="text-align:right;">TOTAL</td>
+								</tr>
+							</thead>
+							<tfoot>
+								<tr style="font-weight:bolder;">
+									<td>Total:</td>
+									<td></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(sumSubTotal())"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(sumTax())"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(sumFreight())"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(sumDiscount())"></td>
+									<!--<td style="text-align:right;" data-bind="text: formatCurrency(sumDeposit())"></td>-->
+									<td style="text-align:right;" data-bind="text: formatCurrency(sumTotal())"></td>
+								</tr>
+							</tfoot>
+							<tbody data-bind="foreach: glDistributionList">
+								<tr>
+									<td data-bind="text: GLAccNumber"></td>
+									<td data-bind="text: GLAccDescription"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(SubTotal)"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(Tax)"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(Freight)"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(Discount)"></td>
+									<!--<td style="text-align:right;" data-bind="text: formatCurrency(Deposit)"></td>-->
+									<td style="text-align:right;" data-bind="text: formatCurrency(Total())"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Show	GL Distibution -->
+
+		<!-- Show Item GL Accounts -->
+		<div class="modal draggable fade" id="modShowItemGLAccounts" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog">
+				<div class="modal-content" data-bind="">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel" data-bind="text: itemGLAccountsHeader"></h4>
+					</div>
+					<div class="modal-body" style="padding-bottom:0;">
+						<table class="cm-table table table-condensed table-hover">
+							<thead style="display:block;">
+								<tr>
+									<th style="width:90px;">GL NUMBER</th>
+									<th style="width:300px;">GL DESCRIPTION</th>
+									<th style="width:80px;text-align:right;">COST %</th>
+									<th style="width:80px;text-align:right;">SUB TOTAL</th>
+								</tr>
+							</thead>
+							<tbody data-bind="" style="display:block;height:260px;overflow-y:scroll;">
+								<!-- ko foreach: itemGLAccountsList -->
+								<tr>
+									<td style="width:90px;" data-bind="text: GLAccNumber"></td>
+									<td style="width:300px;" data-bind="text: GLAccDescription"></td>
+									<td style="width:80px;"><input type="text" class="validated-field" style="border:none; box-shadow:none; width:100%; text-align:right; background-color:transparent;" data-bind="textinput: Prcnt" /></td>
+									<td style="width:80px;text-align:right;" data-bind="text: formatCurrency(SubTotal())"></td>
+								</tr>
+								<!-- /ko -->
+
+							</tbody>
+							<tbody style="display:block;">
+								<tr style="font-weight:bold;">
+									<td style="width:90px;">&nbsp;</td>
+									<td style="width:300px;"></td>
+									<td style="width:80px;text-align:right;" data-bind="text: formatPercent(itemGLAccountsTotal()), style: {color: itemGLAccountsTotal() == 100 ? 'black' : 'red'}"></td>
+									<td style="width:80px;text-align:right;" data-bind="text: formatCurrency(itemCalculatedNet()), style: {color: itemOriginalNet() == itemCalculatedNet() ? 'black' : 'red'}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<div class="checkbox" style="display:inline-block; float:left;">
+							<label>
+								<input type="checkbox" class="validated-field" style="margin-top: 2px;" data-bind="checked: rememberCostSplitSettings" />
+								Remember cost split settings.
+							</label>
+						</div>
+						<button type="button" class="btn btn-default" data-bind="click: submitItemCostSplitUpdate, enable: enableSubmitCostSplitButton()">Submit</button>
+					</div>
+					<!--<pre style="margin:0;padding:0;display:inline-block;" data-bind="text: 'rememberCostSplitSettings=' + ko.toJSON(rememberCostSplitSettings(), null, 2)"></pre>-->
+					<!--<pre style="margin:0;padding:0;display:inline-block;" data-bind="text: 'itemGLAccountsTotal=' +  ko.toJSON(itemGLAccountsTotal(), null, 2)"></pre>-->
+					<!--<pre style="margin:0;padding:0;display:inline-block;" data-bind="text: 'prvSetupChartOfAcctsEnable=' +  ko.toJSON(fnc.app.prvSetupChartOfAcctsEnable(), null, 2)"></pre>-->
+				</div>
+			</div>
+		</div>
+		<!-- /Show Item GL Accounts -->
+
+		<!-- Confirm Delete Invoice Item -->
+		<div class="modal draggable fade" id="modConfirmDelInvItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="myModalLabel">CONFIRM DELETE</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: selectedForDeleteItem() != null -->
+						<div data-bind="with: selectedForDeleteItem">
+							<p><span data-bind="text: Item"></span> will be deleted from the invoice.</p>
+						</div>
+						<!--<pre data-bind="text: ko.toJSON(selectedForDeleteItem(), null, 2)"></pre>-->
+						<!-- /ko -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bind="click: cancelDelInvItem">Cancel</button>
+						<button type="button" class="btn btn-default" data-bind="click: deleteInvItem">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Confirm Delete Invoice Item -->
+
+		<!-- Confirm Remove PO From Invoice -->
+		<div class="modal draggable fade" id="modConfirmRemovePO" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">CONFIRM REMOVE PO</h4>
+					</div>
+					<div class="modal-body">
+						<p>PO&nbsp;<span data-bind="text: selectedForRemovePO()"></span>&nbsp;will be removed from the invoice.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bind="click: cancelRemovePO">Cancel</button>
+						<button type="button" class="btn btn-default" data-bind="click: submitRemovePO">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Confirm Remove PO From Invoice -->
+
+		<!-- Add PO -->
+		<div class="modal draggable fade" id="modAddPO" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">ADD PO</h4>
+					</div>
+					<div class="modal-body">
+						<!--<pre data-bind="text: ko.toJSON(addPONewItems(), null, 2)"></pre>-->
+						<table class="cm-table table table-condensed table-hover">
+							<thead>
+								<tr style="font-size:10px; font-weight:bolder;">
+									<td class="col-w-b30-1"></td>
+									<td class="col-w-b30-4">PO NUMBER</td>
+									<td class="col-w-b30-4">DELIVERY DATE</td>
+									<td class="col-w-b30-4">ORDER TOTAL</td>
+								</tr>
+							</thead>
+							<tbody data-bind="foreach: addPONewItems">
+								<tr style="">
+									<td style=""><input type="checkbox" data-bind="checked: Selected" style="" /></td>
+									<td style="vertical-align:middle;" data-bind="text: PONumber"></td>
+									<td style="vertical-align:middle;" data-bind="text: DeliveryDate"></td>
+									<td style="vertical-align:middle;" data-bind="text: formatCurrency(POTotal)"></td>
+								</tr>
+							</tbody>
+							<!-- ko if: addPONewItems().length == 0 -->
+							<tbody>
+								<tr>
+									<td colspan="4" style="text-align:center;padding-top:20px !important; font-size:1.5em;">There is nothing to add.</td>
+								</tr>
+							</tbody>
+							<!-- /ko -->
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bind="click: submitAddPO, enable: addPONewItems().length > 0">Submit</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Add PO -->
+
+
+
+		<!-- Manage Invoice Item -->
+		<div class="modal draggable fade" id="modManageInvoiceItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-bind="">
+			<div class="modal-dialog">
+				<div class="modal-content" data-bind="with: selectedItem">
+					<form id="frmManageItem">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title" id="myModalLabel">Manage item: <span data-bind="text: Item"></span></h4>
+						</div>
+						<div class="modal-body">
+							<div class="form-group" style="margin-bottom:0px;">
+								<p class="help-block question1">What happened to <span data-bind="text: UnitsDelta()"></span> units?</p>
+								<div class="radio"><label><input type="radio" style="margin-top:2px;" name="optionsRadios" value="short" data-bind="checked: selectedItemChecked">SHORT</label></div>
+								<div class="radio"><label><input type="radio" style="margin-top:2px;" name="optionsRadios" value="return" data-bind="checked: selectedItemChecked">RETURN</label></div>
+								<div class="radio"><label><input type="radio" style="margin-top:2px;" name="optionsRadios" value="back_order" data-bind="checked: selectedItemChecked">BACKORDER</label></div>
+								<!--<div class="radio"><label><input type="radio" style="margin-top:2px;" name="optionsRadios" value="split" data-bind="checked: selectedItemChecked">I have additional invoice(s) for this item</label></div>-->
+								<div class="split-invoices-table" style="" data-bind="visible: selectedItemChecked() == 'split'">
+									<table id="tblSplitInvoices" class="cm-table table table-condensed table-bordered table-striped">
+										<thead style="font-size: 1.0em; font-weight: bolder">
+											<tr style="">
+												<th>INVOICE #</th>
+												<th>UNITS</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody data-bind="foreach: splitInvoices">
+											<tr>
+												<td tabindex="1" data-bind="text: InvoiceNumber, event: {change: updateInvoiceNumberCell}"></td>
+												<td tabindex="1" data-bind="text: Units, event: {change: updateUnitsCell}"></td>
+												<td style="text-align:center;"><button class="btn btn-danger btn-xs" data-bind="click: $parent.removeSplitInvoice"><i class="glyphicon glyphicon-trash"></i></button></td>
+											</tr>
+										</tbody>
+									</table>
+									<div style="text-align:left;"><button class="btn btn-xs btn-default" onclick="" data-bind="click: addSplitInvoice">Add anonther invoice</button></div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="submit" class="btn btn-primary" data-bind="click: submitSelectedItem">Submit</button>
+						</div>
+					</form>
+					<!--<pre data-bind="text: ko.toJSON(splitInvoices(), null, 2)"></pre>-->
+				</div>
+			</div>
+		</div>
+		<!-- /Manage Invoice Item -->
+
+		<!-- Deposit/Credit Management -->
+		<div class="modal draggable fade" id="modDepositCreditManagement" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" style="width:900px;" data-bind="">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">Invoice Deposit/Credit</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: depositOrCredit() == 0 -->
+						<h5> No Deposit/Credit has been entered.</h5>
+						<!-- /ko -->
+						<!-- ko if: depositOrCredit() != 0 -->
+						<table class="cm-table table table-condensed table-bordered table-hover">
+							<thead>
+								<tr>
+									<th class="col-w-b30-1"></th>
+									<th class="col-w-b30-4">GL ACCT</th>
+									<th>DESCRIPTION</th>
+									<th class="col-w-b30-3" style="text-align:right;">AMOUNT</th>
+									<th class="col-w-b30-6">NOTES</th>
+									<th class="col-w-b30-6">ADDED BY</th>
+									<th class="col-w-b30-6">ADDED DT</th>
+								</tr>
+							</thead>
+							<tbody data-bind="foreach: allInvoiceAdjustmentItems">
+								<tr style="/*white-space:nowrap; text-overflow:ellipsis;*/">
+									<td style="padding:1px;text-align:center;" data-bind="">
+										<button class="btn btn-xs btn-danger" style="padding:0;height:18px;vertical-align:top;" data-bind="visible: IsAuto == '0' && !fnc.invoicesApp.invoiceIsReadOnly(), click: deleteItem"><span class="glyphicon glyphicon-trash"></span></button>
+									</td>
+									<td data-bind="text: GLAccNumber"></td>
+									<td data-bind="text: GLAccDescription"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(Amount)"></td>
+									<td data-bind="text: Notes"></td>
+									<td data-bind="text: AddedBy"></td>
+									<td data-bind="text: AddedDT"></td>
+								</tr>
+							</tbody>
+						</table>
+						<!-- /ko -->
+					</div>
+					<div class="modal-footer" data-bind="visible: !invoiceIsReadOnly()">
+						<!-- Add New Line -->
+						<div class="row">
+							<div class="col-xs-6 col-xs-offset-2">
+								<table class="cm-table table table-condensed table-bordered ">
+									<caption style="text-align:center;padding: 0;">
+										<h5>Add Deposit/Credit (+/-)</h5>
+									</caption>
+									<thead>
+										<tr>
+											<th class="col-w-b30-6">GL ACCT</th>
+											<th class="col-w-b30-3" style="text-align:right;">AMOUNT</th>
+											<th class="col-w-b30-6" style="text-align:left;">NOTES</th>
+											<th class="col-w-b30-1"></th>
+										</tr>
+									</thead>
+									<tbody data-bind="">
+										<tr>
+											<td data-bind=""><select class="" style="height:100%; width: 100%; box-shadow:none; border: 0;" data-bind="options: allGLAccounts, optionsText: function(it){return it.GLAccDescription+' ('+it.GLAccNumber+')'}, value: newAdjustmentItemGLAccount, optionsCaption: 'Choose...'"></select></td>
+											<td><input type="text" class="form-control input-sm" style="padding:0; height:22px; text-align:right;border:0; box-shadow:0 0px;" data-bind="value: newAdjustmentItemAmount, valueUpdate: 'afterkeydown'" /></td>
+											<td><input type="text" class="form-control input-sm" style="padding:0; height:22px; text-align:left;border:0; box-shadow:0 0px;" data-bind="value: newAdjustmentItemNotes" /></td>
+											<td style="vertical-align:middle; text-align:center;	"><button class="btn btn-xs btn-warning btn-add-to-invoice" style="height: 17px; width: 17px; padding-left: 2px; padding-top: 0px;" data-bind="click: addDepositCreditLine, enable: newAdjusmentAddEnable()"><span class=" glyphicon glyphicon-plus"></span></button></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- /Add New Line -->
+					</div>
+				</div>
+				<!--<pre data-bind="text: ko.toJSON(newAdjustmentItemAmount(), null, 2)"></pre>-->
+			</div>
+		</div>
+		<!-- /Deposit/Credit Management -->
+
+		<!-- Confirm Delete Invoice Deposit/Credit -->
+		<div class="modal draggable fade" id="modConfirmDelInvDeposit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+						<h4 class="modal-title" id="myModalLabel">CONFIRM DELETE</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: selectedForDeleteDeposit() != null -->
+						<div data-bind="with: selectedForDeleteDeposit">
+							<p>Adjustment for <span data-bind="text: formatCurrency(Amount)"></span> will be deleted from the invoice.</p>
+						</div>
+						<!--<pre data-bind="text: ko.toJSON(selectedForDeleteDeposit(), null, 2)"></pre>-->
+						<!-- /ko -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bind="click: cancelDelInvDeposit">Cancel</button>
+						<button type="button" class="btn btn-default" data-bind="click: deleteInvDeposit">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Confirm Delete Invoice Deposit/Credit -->
+
+
+
+		<!-- noPO Deposit/Credit Management -->
+		<div class="modal draggable fade" id="modNoPODepositCreditManagement" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" style="width:900px;" data-bind="with: fnc.invoicesAppNoPo">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">Invoice Deposit/Credit</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: depositOrCredit() == 0 -->
+						<h5> No Deposit/Credit has been entered.</h5>
+						<!-- /ko -->
+						<!-- ko if: depositOrCredit() != 0 -->
+						<table class="cm-table table table-condensed table-bordered table-hover">
+							<thead>
+								<tr>
+									<th class="col-w-b30-1"></th>
+									<th class="col-w-b30-4">GL ACCT</th>
+									<th>DESCRIPTION</th>
+									<th class="col-w-b30-3" style="text-align:right;">AMOUNT</th>
+									<th class="col-w-b30-6">NOTES</th>
+									<th class="col-w-b30-6">ADDED BY</th>
+									<th class="col-w-b30-6">ADDED DT</th>
+								</tr>
+							</thead>
+							<tbody data-bind="foreach: allInvoiceAdjustmentItems">
+								<tr style="/*white-space:nowrap; text-overflow:ellipsis;*/">
+									<td style="padding:1px;text-align:center;" data-bind="">
+										<button class="btn btn-xs btn-danger" style="padding:0;height:18px;vertical-align:top;" data-bind="visible: IsAuto == '0' && !$parent.invoiceIsReadOnly(), click: deleteItem"><span class="glyphicon glyphicon-trash"></span></button>
+									</td>
+									<td data-bind="text: GLAccNumber"></td>
+									<td data-bind="text: GLAccDescription"></td>
+									<td style="text-align:right;" data-bind="text: formatCurrency(Amount)"></td>
+									<td data-bind="text: Notes"></td>
+									<td data-bind="text: AddedBy"></td>
+									<td data-bind="text: AddedDT"></td>
+								</tr>
+							</tbody>
+						</table>
+						<!-- /ko -->
+					</div>
+					<div class="modal-footer" data-bind="visible: !invoiceIsReadOnly()">
+						<!-- Add New Line -->
+						<div class="row">
+							<div class="col-xs-6 col-xs-offset-2">
+								<table class="cm-table table table-condensed table-bordered ">
+									<caption style="text-align:center;padding: 0;">
+										<h5>Add Deposit/Credit (+/-)</h5>
+									</caption>
+									<thead>
+										<tr>
+											<th class="col-w-b30-6">GL ACCT</th>
+											<th class="col-w-b30-3" style="text-align:right;">AMOUNT</th>
+											<th class="col-w-b30-6" style="text-align:left;">NOTES</th>
+											<th class="col-w-b30-1"></th>
+										</tr>
+									</thead>
+									<tbody data-bind="">
+										<tr>
+											<td data-bind=""><select class="" style="height:100%; width: 100%; box-shadow:none; border: 0;" data-bind="options: allGLAccounts, optionsText: function(it){return it.GLAccDescription+' ('+it.GLAccNumber+')'}, value: newAdjustmentItemGLAccount, optionsCaption: 'Choose...'"></select></td>
+											<td><input type="text" class="form-control input-sm" style="padding:0; height:22px; text-align:right;border:0; box-shadow:0 0px;" data-bind="value: newAdjustmentItemAmount, valueUpdate: 'afterkeydown'" /></td>
+											<td><input type="text" class="form-control input-sm" style="padding:0; height:22px; text-align:left;border:0; box-shadow:0 0px;" data-bind="value: newAdjustmentItemNotes" /></td>
+											<td style="vertical-align:middle; text-align:center;	"><button class="btn btn-xs btn-warning btn-add-to-invoice" style="height: 17px; width: 17px; padding-left: 2px; padding-top: 0px;" data-bind="click: addDepositCreditLine, enable: newAdjusmentAddEnable()"><span class=" glyphicon glyphicon-plus"></span></button></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- /Add New Line -->
+					</div>
+				</div>
+				<!--<pre data-bind="text: ko.toJSON(newAdjusmentAddEnable(), null, 2)"></pre>-->
+			</div>
+		</div>
+		<!-- /noPO Deposit/Credit Management -->
+
+		<!-- noPO Confirm Delete Invoice Deposit/Credit -->
+		<div class="modal draggable fade" id="modNoPOConfirmDelInvDeposit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" data-bind="with: fnc.invoicesAppNoPo">
+				<div class="modal-content">
+					<div class="modal-header">
+						<!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+						<h4 class="modal-title" id="myModalLabel">CONFIRM DELETE</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: selectedForDeleteDeposit() != null -->
+						<div data-bind="with: selectedForDeleteDeposit">
+							<p>Adjustment for <span data-bind="text: formatCurrency(Amount)"></span> will be deleted from the invoice.</p>
+						</div>
+						<!--<pre data-bind="text: ko.toJSON(selectedForDeleteDeposit(), null, 2)"></pre>-->
+						<!-- /ko -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bind="click: cancelDelInvDeposit">Cancel</button>
+						<button type="button" class="btn btn-default" data-bind="click: deleteInvDeposit">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /noPO Confirm Delete Invoice Deposit/Credit -->
+
+		<!-- Confirm Manual Invoice Change Location -->
+		<div class="modal draggable fade" id="modConfirmManualInvChangeLocation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" data-bind="with: fnc.invoicesAppNoPo">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">CONFIRM CHANGE LOCATION</h4>
+					</div>
+					<div class="modal-body">
+						<p><span data-bind="text: companyName()"></span> is not assigned to <span id="spanOrgName"></span>. Would you like to choose another vendor?</p>
+						<!--<pre data-bind="text: ko.toJSON($data, null, 2)"></pre>-->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-bind="click: cancelChangeLocation">Cancel</button>
+						<button type="button" class="btn btn-default" data-bind="click: proceedChangeLocation">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Confirm Manual Invoice Change Location -->
+		
+		<!-- Confirm Delete Manual Invoice Item -->
+		<div class="modal draggable fade" id="modConfirmDelManualInvItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" data-bind="with: fnc.invoicesAppNoPo">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="myModalLabel">CONFIRM DELETE</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: selectedForDeleteItem() != null -->
+						<div data-bind="with: selectedForDeleteItem">
+							<p><span data-bind="text: GLAccNumber"></span> will be deleted from the invoice.</p>
+						</div>
+						<!--<pre data-bind="text: ko.toJSON(selectedForDeleteItem(), null, 2)"></pre>-->
+						<!-- /ko -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bind="click: cancelDelInvItem">Cancel</button>
+						<button type="button" class="btn btn-default" data-bind="click: deleteInvItem">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Confirm Delete Manual Invoice Item -->
+		
+
+		<!-- Print Regular Invoice -->
+		<div id="modPrintInvoiceRPO" class="modal draggable fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog" style="width:1200px;">
+				<div class="modal-content">
+					<div class="modal-header" style="padding-bottom:5px; padding-top:5px;">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h5 class="modal-title">INVOICE</h5>
+					</div>
+					<div class="modal-body">
+						<div id="printRPOInvoice" class="panel panel-default">
+							<!-- Fixed Header -->
+							<div class="panel-heading" style="border:none;">
+								<div class="row">
+									<!-- Left Section -->
+									<div class="col-xs-4">
+										<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-right:-13px; margin-left:-15px; padding: 5px; border-radius: 5px; height:85px; margin-bottom:0;">
+											<div class="row">
+												<div class="col-xs-12">
+													<div class="row">
+														<div class="col-xs-3" style="padding-right:5px;"><label style="float:right; font-size:10px;">LOCATION:</label></div>
+														<div class="col-xs-9" style="padding-right:0;">
+															<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; margin-top:3px; margin-bottom: 0; font-weight:bold;" data-bind="text: decodeText(orgName())"></h6>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-xs-3" style="padding-right:5px;"><label style="float:right; font-size:10px;">VENDOR:</label></div>
+														<div class="col-xs-9" style="padding-right:0;">
+															<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; margin-top:3px; margin-bottom: 0; font-weight:bold;" data-bind="text: decodeText(companyName())"></h6>
+														</div>
+													</div>
+													<div class="row">
+														<!--<div class="col-xs-3" style="padding-right:5px;"><label style="float:right; font-size:10px;">PO(s):</label></div>
+														<div class="col-xs-9" style="padding:0;">
+															<ul style="margin:0;padding-left:10px;" data-bind="foreach: includedPOList">
+																<li style="display: inline;font-size:10px;" data-bind="text: $data+';'"></li>
+															</ul>
+														</div>-->
+														
+														<div class="col-xs-3" style="padding-right: 5px;"><label style="float:right; font-size:10px;">PO(s):</label></div>
+														<div class="col-xs-9" style="">
+															<!-- ko foreach: includedPOList -->
+															<div style="display: inline-block;font-size:10px;height:16px;line-height:16px;vertical-align:top;" data-bind="text: $data+';'"></div>
+															<!-- /ko -->
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- /Left Section -->
+									<!-- Right Section -->
+									<div class="col-xs-8">
+										<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px;  margin-left: -15px; margin-right:-15px; padding: 5px; border-radius: 5px; height:85px; margin-bottom:0;">
+											<div class="row">
+												<div class="col-xs-3" style="padding-right:0;padding-left:25px;">
+													<div class="row">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">INV.#:</label></div>
+														<div class="col-xs-7" style="padding-left: 5px;"><label id="invoiceNumber" class="" style="margin-top:0px;padding:0;font-size:10px;" data-bind="text: invoiceNumber()"></label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">INV.DATE:</label></div>
+														<div class="col-xs-7" style="padding-left: 5px;"><label id="invoiceDate" class="" style="margin-top:0px;padding:0;font-size:10px;" data-bind="text: invoiceDate()"></label></div>
+													</div>
+												</div>
+												<div class="col-xs-3">
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;cursor:help;" title="Invoice total before discount">INV.TOTAL:</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label id="invoiceGross" class="" style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(grossAmount())"></label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">DISCOUNT:</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label id="invoiceDiscount" class="" style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(discAmount())"></label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">&nbsp;</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label style="margin-top:0px;padding:0;font-size:10px;text-align:right;">&nbsp;</label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px;float:right; font-size:10px;">NET:</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label style="margin-top:0px;padding:0;font-size:10px;float:right;" readonly data-bind="text: formatCurrency(netAmount())"></label></div>
+													</div>
+												</div>
+												<div class="col-xs-3" style="padding-right:0;padding-left:25px;">
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">LINE TOTAL:</label></div>
+														<div class="col-xs-6" style="padding-left:0;"><label style="margin-top:0px;padding:0;font-size:10px;float:right;" readonly data-bind="text: formatCurrency(lineTotal())"></label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">&nbsp;</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label style="margin-top:0px;padding:0;font-size:10px;text-align:right;">&nbsp;</label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">&nbsp;</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label style="margin-top:0px;padding:0;font-size:10px;text-align:right;">&nbsp;</label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;">
+															<label style="margin-top:0px; float:right; font-size:10px;">TOTAL:</label>
+														</div>
+														<div class="col-xs-6" style="padding-left:0;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" readonly data-bind="text: formatCurrency(total())"></label>
+														</div>
+													</div>
+												</div>
+												<div class="col-xs-3">
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;"><span>DEPOSIT/CR:</span></label></div>
+														<div class="col-xs-6" style="padding-left:0;" data-bind=""><label id="invoiceDeposit" class="" readonly style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(depositOrCredit())"></label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">DISCOUNT:</label></div>
+														<div class="col-xs-6" style="padding-left:0;"><label id="invoiceDiscount" style="margin-top:0px;padding:0;font-size:10px;float:right;" readonly data-bind="text: formatCurrency(discountComputed())"></label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">TAX:</label></div>
+														<div class="col-xs-6" style="padding-left:0;"><label id="invoiceTax" style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(tax())"></label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">FREIGHT:</label></div>
+														<div class="col-xs-6" style="padding-left:0;"><label id="invoiceFreight" style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(freight())"></label></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- /Right Section -->
+								</div>
+							</div>
+							<!-- /Fixed Header -->
+							<!-- Status Bar -->
+							<div class="row" style="">
+								<div class="col-xs-12" style="font-size:0.8em !important;">
+									<div class="pull-left" style="padding:2px;"><span class="cm-label">&nbsp;</span></div>
+									<!--<div class="pull-right" style="padding:2px; color:#d9534f;" data-bind="visible: showInoiceLocked()"><span class="cm-label">Locked By:</span><span class="cm-label" data-bind="text: invoiceLockedBy()"></span><span class="glyphicon glyphicon-lock" style=""></span></div>-->
+									<div class="pull-right" style="padding:2px; color:#337ab7;" data-bind="visible: showInoiceXported()"><span class="cm-label">Exported By:</span><span class="cm-label" data-bind="text: invoiceXportedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceXportedDate()"></span></div>
+									<div class="pull-right" style="padding:2px; color:#5cb85c;" data-bind="visible: showInoiceAccepted()"><span class="cm-label">Accepted By:</span><span class="cm-label" data-bind="text: invoiceAcceptedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceAcceptedDate()"></span></div>
+								</div>
+							</div>
+							<!-- /Status Bar -->
+							<!-- Table -->
+							<div class="row" id="" style="overflow:hidden; margin-left:0px; margin-right:0px;" data-bind="">
+								<table id="tblRecHead" class="cm-table table table-condensed table-bordered" style="margin-bottom:0;width:100%;" data-bind="">
+									<thead>
+										<!-- Caption -->
+										<tr>
+											<td colspan="3" style="padding:0;">
+												<div class="row">
+													<div class="col-xs-12" style="padding-right:0;">
+														<h6 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Items</h6>
+													</div>
+												</div>
+											</td>
+											<td colspan="4" style="padding:0;" data-bind="visible: fnc.invoicesApp.showSection0">
+												<div class="row">
+													<div class="col-xs-12">
+														<h6 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Ordered</h6>
+													</div>
+												</div>
+											</td>
+											<!-- @@@@@@@ -->
+											<td colspan="3" style="padding:0;" data-bind="visible: fnc.invoicesApp.showSection1">
+												<div class="row">
+													<div class="col-xs-12">
+														<h6 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Electronic Invoice</h6>
+													</div>
+												</div>
+											</td>
+											<td colspan="2" style="padding:0;" data-bind="visible: fnc.invoicesApp.showSection2">
+												<div class="row">
+													<div class="col-xs-12">
+														<h6 style="margin-bottom: 0; margin-top: 0; background-color:lightgrey;text-align:center;">Delivered</h6>
+													</div>
+												</div>
+											</td>
+											<td colspan="4" style="padding: 0;">
+												<div class="row">
+													<div class="col-xs-12">
+														<h6 style="margin-bottom: 0; margin-top: 0; margin-right:-20px; background-color:lightgrey;text-align:center;">Reconciled</h6>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<!-- Header -->
+										<tr data-bind="with: fnc.invoicesApp" style="font-size:0.6em !important;">
+											<th class="col-w-b30-2" data-bind="with: listHeaders[0]"><span id="item_list" class="sort-alpha" style="" data-bind="text: $data.title, click: sortListItems">VEND.CODE</span></th>
+											<th class="" data-bind="with: listHeaders[1]"><span id="item_list" class="sort-alpha" style="" data-bind="text: $data.title, click: sortListItems">ITEM</span></th>
+											<!--<th class="col-w-b30-4" style="" data-bind="with: listHeaders[2]"><span id="item_list" class="sort-alpha" style="" data-bind="text: $data.title, click: sortListItems">BRAND</span></th>-->
+											<th class="col-w-b30-1" data-bind="with: listHeaders[3]"><span id="item_list" class="sort-alpha" style="" data-bind="text: $data.title, click: sortListItems">UNIT</span></th>
+											<!-- @@@@@@@ -->
+											<th class="col-w-b30-1" style="text-align:right; border-left: 1px solid lightgray;" data-bind="visible: fnc.invoicesApp.showSection0, with: listHeaders[4]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">QTY</span></th>
+											<th class="col-w-b30-1" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection0, with: listHeaders[5]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">UNITS</span></th>
+											<th class="col-w-b30-2" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection0, with: listHeaders[6]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">PRICE</span></th>
+											<th class="col-w-b30-2" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection0, with: listHeaders[7]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">TOTAL</span></th>
+											<!-- @@@@@@@ -->
+											<!--<th class="col-w-b30-3" style="border-left: 1px solid lightgray;" data-bind="visible: fnc.invoicesApp.showSection1, with: listHeaders[18]"><span class="sort-alpha" style="" data-bind="text: $data.title, click: sortListItems">CODE</span></th>-->
+
+											<th class="col-w-b30-1" style="border-left: 1px solid lightgray; text-align: right;" data-bind="visible: fnc.invoicesApp.showSection1, with: listHeaders[8]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">QTY</span></th>
+											<th class="col-w-b30-1" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection1, with: listHeaders[9]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">UNITS</span></th>
+											<th class="col-w-b30-2" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection1, with: listHeaders[10]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">PRICE</span></th>
+
+											<!-- @@@@@@@ -->
+											<th class="col-w-b30-1" style="text-align: right; border-left: 1px solid lightgray;" data-bind="visible: fnc.invoicesApp.showSection2, with: listHeaders[11]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">QTY</span></th>
+											<th class="col-w-b30-1" style="text-align:right;" data-bind="visible: fnc.invoicesApp.showSection2, with: listHeaders[12]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">UNITS</span></th>
+											<!-- @@@@@@@ -->
+											<th class="col-w-b30-2" style="border-left: 1px solid lightgray;" data-bind="with: listHeaders[13]"><span id="item_list" class="sort-alpha" style="" data-bind="text: $data.title, click: sortListItems">STATUS</span></th>
+											<th class="col-w-b30-1" style="text-align:right;" data-bind="with: listHeaders[14]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">UNITS</span></th>
+											<th class="col-w-b30-2" style="text-align:right;" data-bind="with: listHeaders[15]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">PAY PRICE</span></th>
+											<th class="col-w-b30-2" style="text-align:right;" data-bind="with: listHeaders[16]"><span id="item_list" style="" data-bind="text: $data.title, click: sortListItems">NET</span></th>
+										</tr>
+									</thead>
+									<tbody id="tblRecBody" data-bind="foreach: filteredItems" style="font-size:0.6em !important;">
+										<tr class="cm-hover">
+											<td data-bind="text: Code"></td>
+											<td><div style="/*white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;*/" data-bind="text: Item"></div></td>
+											<!--<td style="" data-bind="text: Brand"></td>-->
+											<td data-bind="text: Unit"></td>
+											<!-- @@@@@@@ -->
+											<td style="border-left: 1px solid lightgray;" data-bind="visible: fnc.invoicesApp.showSection0"><span style="float:right;" data-bind="text: formatInteger(Qty)"></span></td>
+											<td data-bind="visible: fnc.invoicesApp.showSection0">
+												<span style="float:right;" data-bind="text: formatToFixed(Units, 2)"></span>
+											</td>
+											<td data-bind="visible: fnc.invoicesApp.showSection0"><span style="float:right;" data-bind="text: formatCurrency(Price)"></span></td>
+											<td data-bind="visible: fnc.invoicesApp.showSection0"><span style="float:right;" data-bind="text: formatCurrency(Total)"></span></td>
+											<!-- @@@@@@@ -->
+											<!--<td style="border-left: 1px solid lightgray;" data-bind="visible: fnc.invoicesApp.showSection1, text: eCode"></td>-->
+
+											<td style="border-left: 1px solid lightgray;" data-bind="visible: fnc.invoicesApp.showSection1"><span style="float:right;" data-bind="text: formatInteger(eQty)"></span></td>
+											<td data-bind="visible: fnc.invoicesApp.showSection1"><span style="float:right;" data-bind="text: formatToFixed(eUnits, 2), style: {color: (formatToFixed(eUnits, 2) != formatToFixed(Units, 2)) ? 'red':'black'}"></span></td>
+											<td data-bind="visible: fnc.invoicesApp.showSection1">
+												<span style="float:right;" data-bind="text: formatCurrency(ePrice), style: {color: (ePrice != Price) ? 'red':'black'}"></span>
+											</td>
+											<!-- @@@@@@@ -->
+											<td style="border-left: 1px solid lightgray;" data-bind="visible: fnc.invoicesApp.showSection2"><span style="float:right;" data-bind="text: dQty"></span></td>
+											<td data-bind="visible: fnc.invoicesApp.showSection2"><span style="float:right;" data-bind="text: dUnits"></span></td>
+											<!-- @@@@@@@ -->
+											<td style="border-left: 1px solid lightgray;" data-bind=""><span style="float:left;" data-bind="text: Status()"></span></td>
+											<td style="text-align:right;" data-bind="text: formatToFixed(Units2(), 2), event: {change: updateUnits2Cell},  style: {color: (formatToFixed(Units2(), 2) != formatToFixed(Units, 2)) ? 'red':'black'} "></td>
+											<!--<td class="col-w-b15-1 not-editable"><span style="float: left; margin-left:-10px; color:#d43f3a; " class="glyphicon glyphicon-list popover-span" id="btnShowECWTList" data-container="body" data-toggle="popover" data-placement="top" data-trigger="manual" data-html="true;" title="Units" data-content="" data-bind="visible: ECWTList != null, click: showEditECWTList"></span></td>-->
+											<td style="text-align:right;" data-bind="text: formatCurrency(PayPrice()), event: {change: updatePayPriceCell}, style: {color: (formatCurrency(PayPrice()) != formatCurrency(Price)) ? 'red':'black'} "></td>
+											<td><span style="float:right;" data-bind="text: formatCurrency(Net())"></span></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<!-- /Table -->
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Print Regular Invoice -->
+
+		<!-- Print Manual Invoice -->
+		<div id="modPrintInvoiceNRPO" class="modal draggable fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog" style="width:1200px;">
+				<div class="modal-content">
+					<div class="modal-header" style="padding-bottom:5px; padding-top:5px;">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h5 class="modal-title">INVOICE</h5>
+					</div>
+					<div class="modal-body">
+						<div id="printNRPOInvoice" class="panel panel-default" data-bind="with: fnc.invoicesAppNoPo">
+							<div class="panel-body" style="padding:0px !important;">
+								<!-- Fixed Header -->
+								<div class="row" data-bind="">
+									<!-- Left Section -->
+									<div class="col-xs-4" style="padding-right:2px;">
+										<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-bottom:0; padding: 5px; border-radius: 5px; height:85px;">
+											<div class="row">
+												<div class="col-xs-3" style="padding-right: 0px;"><label style="margin-top:9px; margin-bottom:0px; float:right; font-size:10px;">LOCATION:</label></div>
+												<div class="col-xs-9" style="height:39px; padding-left:5px;">
+													<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px; font-weight:bold; margin: 0; padding-top:12px;" data-bind="text: decodeText(orgName())"></h6>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-xs-3" style="padding-right: 0px;"><label style="margin-top:9px; margin-bottom:0px; float:right; font-size:10px;">VENDOR:</label></div>
+												<div class="col-xs-9" style="height:39px; padding-left: 5px;">
+													<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px; font-weight:bold; margin: 0; padding-top:12px;" data-bind="text: decodeText(companyName())"></h6>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- /Left Section -->
+									<!-- Right Section-->
+									<div class="col-xs-8" style="padding-left:0;">
+										<div class="well well-sm" style="border: 1px solid lightGray; margin-top: 5px; margin-bottom:0; padding: 5px; border-radius: 5px; height:85px;">
+											<div class="row">
+												<div class="col-xs-3">
+													<div class="row">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">INV.#:</label></div>
+														<div class="col-xs-7" style="padding-left: 5px;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:left;" data-bind="text: invoiceNumber()"></label>
+														</div>
+													</div>
+													<div class="row" style="">
+														<div class="col-xs-5" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; margin-bottom:0px; float:right; font-size:10px;">INV.DATE:</label></div>
+														<div class="col-xs-7" style="padding-left: 5px;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:left;" data-bind="text: invoiceDate()"></label>
+														</div>
+													</div>
+												</div>
+
+												<div class="col-xs-3">
+													<div class="row" style="">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;cursor:help;" title="Invoice total before discount">INV.TOTAL:</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(grossAmount())"></label>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">DISCOUNT:</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(discAmount())"></label>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">&nbsp;</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label style="margin-top:0px;padding:0;font-size:10px;text-align:right;">&nbsp;</label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">NET:</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(netAmount())"></label>
+														</div>
+													</div>
+												</div>
+
+												<div class="col-xs-3">
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">LINE TOTAL:</label></div>
+														<div class="col-xs-6" style="padding-left:0;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(lineTotal())"></label>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">&nbsp;</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label style="margin-top:0px;padding:0;font-size:10px;text-align:right;">&nbsp;</label></div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 0px;"><label style="margin-top:0px; float:right; font-size:10px;">&nbsp;</label></div>
+														<div class="col-xs-6" style="padding-left: 5px;padding-right:0;"><label style="margin-top:0px;padding:0;font-size:10px;text-align:right;">&nbsp;</label></div>
+													</div>													
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">TOTAL:</label></div>
+														<div class="col-xs-6" style="padding-left:0;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(total())"></label>
+														</div>
+													</div>
+												</div>
+
+												<div class="col-xs-3">
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">DEPOSIT/CR:</label></div>
+														<div class="col-xs-6" style="padding-left:0;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(depositOrCredit())"></label>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">DISCOUNT:</label></div>
+														<div class="col-xs-6" style="padding-left:0;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(discountComputed())"></label>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">TAX:</label></div>
+														<div class="col-xs-6" style="padding-left: 0px;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(tax())"></label>
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-xs-6" style="padding-left: 0px; padding-right: 5px;"><label style="margin-top:0px; float:right; font-size:10px;">FREIGHT:</label></div>
+														<div class="col-xs-6" style="padding-left: 0px;">
+															<label style="margin-top:0px;padding:0;font-size:10px;float:right;" data-bind="text: formatCurrency(freight())"></label>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- /Fixed Header -->
+								<!-- Status Bar -->
+								<div class="row" style="margin-top:10px;">
+									<div class="col-xs-12" style="font-size:0.8em !important;">
+										<div class="pull-left" style="padding:2px;"><span class="cm-label">&nbsp;</span></div>
+										<div class="pull-right" style="padding:2px; color:#d9534f;" data-bind="visible: showInoiceLocked()"><span class="cm-label">Locked By:</span><span class="cm-label" data-bind="text: invoiceLockedBy()"></span></div>
+										<div class="pull-right" style="padding:2px; color:#337ab7;" data-bind="visible: showInoiceXported()"><span class="cm-label">Exported By:</span><span class="cm-label" data-bind="text: invoiceXportedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceXportedDate()"></span></div>
+										<div class="pull-right" style="padding:2px; color:#5cb85c;" data-bind="visible: showInoiceAccepted()"><span class="cm-label">Accepted By:</span><span class="cm-label" data-bind="text: invoiceAcceptedBy()"></span><span class="cm-label">Date:</span><span class="cm-label" data-bind="text: invoiceAcceptedDate()"></span></div>
+									</div>
+								</div>
+								<!-- /Status Bar -->
+								<!-- Table -->
+								<div class="row" style="overflow: hidden;margin-left:0;margin-right:0;">
+									<table class="cm-table table table-condensed  table-bordered" style="margin-bottom:0;font-size:0.6em !important;">
+										<thead>
+											<tr data-bind="">
+												<th data-bind="with: listHeaders[0]" class="col-w-b30-4"><span data-bind="text: $data.title">GL ACCOUNT</span></th>
+												<th data-bind="with: listHeaders[1]" class=""><span data-bind="text: $data.title">DESRIPTION</span></th>
+												<th data-bind="with: listHeaders[2]" style="text-align:right;" class="col-w-b30-4"><span data-bind="text: $data.title">SUB TOTAL</span></th>
+												<th data-bind="with: listHeaders[3]" style="text-align:right;" class="col-w-b30-4"><span data-bind="text: $data.title">TAX</span></th>
+												<th data-bind="with: listHeaders[4]" style="text-align:right;" class="col-w-b30-4"><span data-bind="text: $data.title">FREIGHT</span></th>
+												<th data-bind="with: listHeaders[5]" style="text-align:right;" class="col-w-b30-4"><span data-bind="text: $data.title">DISCOUNT</span></th>
+												<th data-bind="with: listHeaders[6]" style="text-align:right;" class="col-w-b30-4"><span data-bind="text: $data.title">TOTAL</span></th>
+											</tr>
+										</thead>
+										<!-- Body -->
+										<tbody id="tblAccountItems" data-bind="foreach: allItems">
+											<tr data-bind="visible: GLAccNumber != null">
+												<td class="col-w-b30-4" data-bind="text: GLAccNumber"></td>
+												<td data-bind="text: GLAccDescription"></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(SubTotal())"></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLTax)"></span></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLFreight)"></span></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(GLDiscount)"></span></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind=""><span data-bind="text: formatCurrency(Total())"></span></td>
+											</tr>
+										</tbody>
+										<tbody>
+											<tr style="font-weight:bolder;">
+												<td colspan="2" style="text-align:right;"><span>Sub Total:</span></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumSubTotal())"></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumTax())"></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumFreight())"></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumDiscount())"></td>
+												<td class="col-w-b30-4" style="text-align:right;" data-bind="text: formatCurrency(sumTotal())"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+							</div>
+							<!--<pre data-bind="text: ko.toJSON($data, null, 2)"></pre>-->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Duplicate Invoice Warning -->
+		<div class="modal draggable fade" id="modDuplicateInvoiceWarning" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" data-bind="">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">DUPLICATE INVOICE</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: duplicateInfo() != null -->
+						<div data-bind="">
+							<p><span data-bind="text: duplicateInfo().WarningText()"></span></p>
+						</div>
+						<!-- /ko -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Duplicate Invoice Warning -->
+
+		<!-- Duplicate Invoice (no PO required) Warning -->
+		<div class="modal draggable fade" id="modDuplicateInvoiceWarningNoPORequired" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" data-bind="with: fnc.invoicesAppNoPo">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">DUPLICATE INVOICE</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: duplicateInfo() != null -->
+						<div data-bind="">
+							<p><span data-bind="text: duplicateInfo().WarningText()"></span></p>
+						</div>
+						<!-- /ko -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Duplicate Invoice Warning -->
+
+		<!-- Show GL Acct Cost Centers -->
+		<div class="modal draggable fade" id="modShowGLAcctCostCenters" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" data-bind="with: fnc.invoicesAppNoPo">
+				<!-- ko if: fnc.invoicesAppNoPo.selectedForCostCentersItem() -->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel" data-bind="text: selectedForCostCentersItemHeader()">GL Account Name ($547.00)</h4>
+					</div>
+					<div class="modal-body">
+						<div class="panel panel-default" style="margin-bottom:0;">
+							<div class="panel-heading" style="text-align:left;">
+								<label style="padding-right:15px;">Split between Classes based on:</label>
+								<label class="radio-inline">
+									<input type="radio" name="inlineRadioOptions" value="2" style="margin-top:2px;" data-bind="checked: itemCostCentersSplitTypeValue"> $
+								</label>
+								<label class="radio-inline">
+									<input type="radio" name="inlineRadioOptions" value="3" style="margin-top:2px;" data-bind="checked: itemCostCentersSplitTypeValue"> %
+								</label>
+							</div>
+						</div>
+
+						<table class="cm-table table table-condensed table-hover">
+							<thead style="display:block;">
+								<tr>
+									<th style="width:390px;">CLASS</th>
+									<th style="width:80px;text-align:right;" data-bind="text: itemCostCentersSplitTypeLabel()"></th>
+									<th style="width:80px;text-align:right;">SUB TOTAL</th>
+								</tr>
+							</thead>
+							<tbody data-bind="" style="display:block;height:160px;overflow-y:scroll;">
+								<!-- ko foreach: selectedForCostCentersItem().CostCentersArray -->
+								<tr>
+									<td style="width:390px;" data-bind="text: ClassName"></td>
+									<td style="width:80px;">
+										<input type="text" class="" style="border:none; box-shadow:none; width:100%; text-align:right; background-color:transparent;" data-bind="textInput: SplitValue" />
+									</td>
+									<td style="width:80px;">
+										<div style="display:block;text-align:right;height:18px;line-height:18px;" data-bind="text: formatCurrency(ItemCostCenterSubTotal())"></div>
+									</td>
+								</tr>
+								<!-- /ko -->
+
+							</tbody>
+							<tbody style="display:block;">
+								<tr style="font-weight:bold;">
+									<td style="width:390px;"></td>
+									<td style="width:80px;text-align:right;">Total:</td>
+									<td style="width:80px;text-align:right;" data-bind="text: formatCurrency(itemCostCentersTotal())"></td>
+								</tr>
+							</tbody>
+						</table>
+
+					</div>
+
+					<div class="modal-footer" style="padding: 15px 15px 10px 15px;">
+
+						<div class="checkbox" style="display:inline-block; float:left;">
+							<label>
+								<input type="checkbox" class="" style="margin-top: 2px;" data-bind="checked: itemRememberCostCenterSplitSettings, enable: itemCostCentersSplitTypeValue() == '3'" />
+								Remember cost split settings.
+							</label>
+						</div>
+						<button type="button" class="btn btn-default" style="float:right;" data-bind="click: fnc.invoicesAppNoPo.selectedForCostCentersItem().updateCostCenterSplit">Submit</button>
+
+					</div>
+					
+					<!--<pre style="margin:0;padding:0;" data-bind="text: ko.toJSON(fnc.invoicesAppNoPo.itemCostCentersSplitTypeValue(), null, 2)"></pre>-->
+					<!--<pre style="margin:0;padding:0;" data-bind="text: ko.toJSON(fnc.invoicesAppNoPo.selectedForCostCentersItem(), null, 2)"></pre>-->
+				</div>
+				<!-- /ko -->
+			</div>
+		</div>
+		<!-- /Show GL Acct Cost Centers -->
+
+
+		<!-- Show Item Cost Centers Split -->
+		<div class="modal draggable fade" id="modShowItemCostCenters" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" data-bind="if: fnc.invoicesApp.selectedForCostCentersItem">
+				<div class="modal-content" data-bind="">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel" data-bind="text: fnc.invoicesApp.selectedForCostCentersItemHeader()"></h4>
+					</div>
+					<div class="modal-body" style="padding-bottom:0;">
+						<div class="panel panel-default" style="margin-bottom:0;">
+							<div class="panel-heading" style="text-align:left;">
+								<label style="padding-right:15px;">Split between Classes based on:</label>
+
+								<label class="radio-inline">
+									<input type="radio" name="inlineRadioOptions" value="1" style="margin-top:2px;" data-bind="checked: itemCostCentersSplitTypeValue"> Unit
+								</label>
+								<label class="radio-inline">
+									<input type="radio" name="inlineRadioOptions" value="2" style="margin-top:2px;" data-bind="checked: itemCostCentersSplitTypeValue"> $
+								</label>
+								<label class="radio-inline">
+									<input type="radio" name="inlineRadioOptions" value="3" style="margin-top:2px;" data-bind="checked: itemCostCentersSplitTypeValue"> %
+								</label>
+							</div>
+						</div>
+
+						<table class="cm-table table table-condensed table-hover">
+							<thead style="display:block;">
+								<tr>
+									<th style="width:390px;">CLASS</th>
+									<th style="width:80px;text-align:right;" data-bind="text: itemCostCentersSplitTypeLabel()">UNITS</th>
+									<th style="width:80px;text-align:right;">SUB TOTAL</th>
+								</tr>
+							</thead>
+							<tbody data-bind="" style="display:block;height:160px;overflow-y:scroll;">
+								<!-- ko foreach: itemCostCentersList -->
+								<tr>
+									<td style="width:390px;" data-bind="text: ClassName"></td>
+									<td style="width:80px;">
+										<input type="text" class="" style="border:none; box-shadow:none; width:100%; text-align:right; background-color:transparent;" data-bind="textInput: SplitValue" />
+									</td>
+									<td style="width:80px;">
+										<div style="display:block;text-align:right;height:18px;line-height:18px;" data-bind="text: formatCurrency(ItemCostCenterSubTotal())"></div>
+									</td>
+								</tr>
+								<!-- /ko -->
+
+							</tbody>
+							<tbody style="display:block;">
+								<tr style="font-weight:bold;">
+									<td style="width:390px;"></td>
+									<td style="width:80px;text-align:right;">Total:</td>
+									<td style="width:80px;text-align:right;" data-bind="text: formatCurrency(fnc.invoicesApp.itemCostCentersTotal())"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer" style="padding: 15px 15px 10px 15px;">
+
+						<div class="checkbox" style="display:inline-block; float:left;">
+							<label>
+								<input type="checkbox" class="" style="margin-top: 2px;" data-bind="checked: itemRememberCostCenterSplitSettings, enable: itemCostCentersSplitTypeValue() == '3'" />
+								Remember cost split settings.
+							</label>
+						</div>
+						<button type="button" class="btn btn-default" style="float:right;" data-bind="click: updateCostCenterSplit, enable: isUpdateCostCentersEnable()">Submit</button>
+
+					</div>
+					<!--<pre style="margin:0;padding:0;display:inline-block;" data-bind="text: 'itemCostCentersSplitTypeValue=' + ko.toJSON(itemCostCentersSplitTypeValue(), null, 2)"></pre>-->
+
+					<!--<pre style="margin:0;padding:0;display:inline-block;" data-bind="text: 'rememberCostSplitSettings=' + ko.toJSON(rememberCostSplitSettings(), null, 2)"></pre>-->
+					<!--<pre style="margin:0;padding:0;display:inline-block;" data-bind="text: 'itemGLAccountsTotal=' +  ko.toJSON(itemGLAccountsTotal(), null, 2)"></pre>-->
+					<!--<pre style="margin:0;padding:0;display:inline-block;" data-bind="text: 'prvSetupChartOfAcctsEnable=' +  ko.toJSON(fnc.app.prvSetupChartOfAcctsEnable(), null, 2)"></pre>-->
+				</div>
+			</div>
+		</div>
+		<!-- /Show Item Cost Centers Split -->
+
+		<!--<pre data-bind="text: ko.toJSON($data, null, 2)"></pre>-->
+
+	</div>
+</body>
+</html>

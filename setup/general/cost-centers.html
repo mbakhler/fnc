@@ -1,0 +1,148 @@
+﻿<script type="text/html" id="gn-cost-centers">
+	
+	<!-- MAIN LIST VIEW -->
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="color:#337ab7;font-weight:bold;">Manage Classes</span></div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-xs-4"><input type="text" class="form-control input-sm" placeholder="Search..." data-bind="textInput: fnc.setupCC.searchOrgsCostCenterFilter" /></div>
+			</div>
+		</div>
+		<table class="cm-table table table-condensed table-striped">
+			<thead style="display:block;">
+				<tr style="background-color:#f5f5f5;">
+					<th style="">Location</th>
+					<th class="col-w-b30-2">Classes</th>
+					<th class="col-w-b30-2"></th>
+				</tr>
+				<tr>
+					<td colspan="3" style="width:10000px;height:1px;"></td>
+				</tr>
+			</thead>
+			<tbody id="tblCmOrgsCostCenterListBody" style="display:block; overflow-y:scroll;" data-bind="">
+				<!-- ko foreach: fnc.setupCC.filteredOrgsCostCenterList -->
+				<tr class="cm-hover">
+					<!-- , attr: {title: ko.toJSON($data, null, 2)}, attr: {title: LocationName} -->
+					<td style=""><div style="line-height:25px;height:25px;overflow:hidden;text-overflow:ellipsis;" data-bind="text: LocationName"></div></td>
+					<td class="col-w-b30-2" data-bind="if: CostCentersCount() > 0"><span class="glyphicon glyphicon-ok" style="color:green;"></span>&nbsp;<span data-bind="text: CostCentersCount()"></span></td>
+					<td style="width:35px;"><button class="btn btn-xs btn-success" style="width:25px;float:left;" data-bind="click: showCostCenterManageDialog, enable: fnc.app.prvClassesManageSetupEnable()"><span class=" glyphicon glyphicon-cog"></span></button></td>
+				</tr>
+				<!-- /ko -->
+				<tr>
+					<td colspan="3" style="width:10000px;">&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- /MAIN LIST VIEW -->
+	
+	<!-- ************* -->
+	<!-- MODAL DIALOGS -->
+	<!-- ************* -->
+
+	<!-- ORG COST CENTERS -->
+	<div class="modal draggable fade" id="modOrgCostCenters" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" style="width:800px;">
+			<!-- ko if: fnc.setupCC.selectedCostCenterOrg() -->
+			<div class="modal-content" data-bind="with: fnc.setupCC.selectedCostCenterOrg">
+				<div class="modal-header" style="/**/">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">MANAGE CLASSES&nbsp;(<span data-bind="text: LocationName"></span>)</h4>
+				</div>
+				<div class="modal-body">
+					<table class="cm-table table table-condensed table-hover" style="width:auto;">
+						<!--<caption style="padding:0;"><h6 style="margin-top:0;text-align:center;">COST CENTERS</h6></caption>-->
+						<thead style="display:block;">
+							<tr style="font-size:0.8em;">
+								<th style="width:320px;">NAME</th>
+								<th style="width:140px;">CODE</th>
+								<th style="width:290px;">NOTES</th>
+								<th style="width:20px;"></th>
+							</tr>
+						</thead>
+						<tbody data-bind="" style="display:block;height:160px;overflow-y:scroll;">
+							<!-- ko foreach: CostCenters -->
+							<tr>
+								<td style="width:320px;">
+									<input type="text" maxlength="50" class="cm-inputcell" style="text-align:left !important;background-color:transparent;padding-left:5px;" data-type="cc-name" data-bind="textInput: CostCenterName, event: {blur: updateCostCenter}" />
+								</td>
+								<td style="width:140px;">
+									<input type="text" maxlength="50" class="cm-inputcell" style="text-align:left !important;background-color:transparent;padding-left:5px;" data-type="cc-code" data-bind="textInput: CostCenterCode, event: {blur: updateCostCenter}" />
+								</td>								
+								<td style="/**/width:260px;">
+									<input type="text" maxlength="50" class="cm-inputcell" style="text-align:left !important;background-color:transparent;padding-left:5px;" data-type="cc-notes" data-bind="textInput: CostCenterNotes, event: {blur: updateCostCenter}" />
+								</td>
+								<td style="padding:0;margin:0;width:31px;">
+									<button class="btn btn-xs btn-danger" style="width:25px;" data-bind="click: deleteCostCenterButtonClick"><span class="glyphicon glyphicon-trash"></span></button>
+									<!--<button class="btn btn-xs btn-success" style="width:25px;" data-bind="attr: {title: ko.toJSON($data, null, 2)}"><span class="glyphicon glyphicon-cog"></span></button>-->
+								</td>
+							</tr>
+							<!-- /ko -->
+						</tbody>
+						<tbody data-bind="" style="display:block;">
+							<tr><td><h6> Add Class</h6></td></tr>
+							<tr>
+								<td style="width:320px;"><input type="text" class="form-control input-sm" placeholder="Name" data-bind="textInput: NewCostCenterName" /></td>
+								<td style="width:140px;"><input type="text" class="form-control input-sm" placeholder="Code" data-bind="textInput: NewCostCenterCode" /></td>						
+								<td style="/**/width:260px;"><input type="text" class="form-control input-sm" placeholder="Notes" data-bind="textInput: NewCostCenterNotes" /></td>
+								<td style="padding-top:0 !important;width:31px;">
+									<button class="btn btn-xs btn-warning" style="width:25px;" data-bind="click: addCostCenterButtonClick, enable: isAddCostCenterBtnEnable()"><span class="glyphicon glyphicon-plus"></span></button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<!--<pre data-bind="text: ko.toJSON($data.CostCenters(), null, 2)"></pre>-->
+				</div>
+			</div>
+			<!-- /ko -->
+		</div>
+	</div>
+	<!-- /ORG COST CENTERS -->
+	
+	<!-- COST CENTER CONFIRM DELETE -->
+	<div class="modal draggable fade" id="modConfirmDeleteCostCenter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">CONFIRM DELETE CLASS</h4>
+				</div>
+				<div class="modal-body">
+					<!-- ko if: fnc.setupCC.selectedCostCenterItem() -->
+					<!--<pre data-bind="text: ko.toJSON(fnc.setupCC.selectedCostCenterItem(), null, 2)"></pre>-->
+					<p><span data-bind="text: fnc.setupCC.selectedCostCenterItem().CostCenterName()"></span>&nbsp;will be deleted</p>
+					<!-- /ko -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="click: fnc.setupCC.removeCostCenter">Remove</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /COST CENTER CONFIRM DELETE -->
+	
+	<!-- COST CENTER EDIT -->
+	<div class="modal draggable fade" id="modCostCenterEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">EDIT CLASS</h4>
+				</div>
+				<div class="modal-body">
+					<!-- ko if: fnc.setupCC.selectedCostCenterItem() -->
+					<pre data-bind="text: ko.toJSON(fnc.setupCC.selectedCostCenterItem(), null, 2)"></pre>
+					<!--<p><span data-bind="text: fnc.setupCC.selectedCostCenterItem().CostCenterName"></span>&nbsp;will be deleted</p>-->
+					<!-- /ko -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bind="">Cancel</button>
+					<button type="button" class="btn btn-default" data-bind="">Submit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /COST CENTER EDIT -->
+
+</script>

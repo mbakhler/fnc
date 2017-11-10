@@ -1,0 +1,859 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title></title>
+	<script src="js/knockout-3.2.0.js"></script>
+</head>
+<body>
+	<div class="container-fluid" id="poLst" role="main" style="display:none;" data-bind="with: fnc.poListApp">
+		<div class="row">
+			<!-- Left Sidebar -->
+			<div id="poListLeftSection" class="col-xs-2" style="">
+				<div class="panel panel-default" style="border: 1px solid #337ab7; padding: 5px; border-radius: 5px;margin-bottom:0;">
+					<div class="panel-heading" style="padding:0px;"><h6 class="panel-title">Search <span style="font-size: 9px;color: #337ab7;font-weight: bold; cursor:help; text-decoration:underline;" title="Up to 1000 Purchase Orders are displayed. Refine Date Range and Location filter to narrow down your search.">(Up to 1000 records)</span></h6></div>
+					<!-- Date Range Section -->
+					<div class="panel panel-default" style="margin-top:5px;margin-bottom:0px;">
+						<div class="panel-heading" style="padding:5px 20px;color:brown;">
+							<span style="margin-left:5px;font-weight:bolder;">Date Range</span>
+						</div>
+						<div class="panel-body" style="padding-bottom: 10px;padding-top:0px;padding-left:0px;padding-right:0px;">
+							<div class="radio" style="padding-top:5px; padding-left:10px; margin:0;">
+								<label>
+									<input type="radio" name="optionsDateType2" style="margin-top:2px;" value="0" data-bind="checked: fnc.app.filterRangeBaseOn" />
+									<span style="">Delivery/Invoice Date</span>
+								</label>
+							</div>
+							<div class="radio" style="padding-left:10px; margin:0;">
+								<label>
+									<input type="radio" name="optionsDateType2" style="margin-top:2px;" value="1" data-bind="checked: fnc.app.filterRangeBaseOn" />
+									<span style="">Post Date</span>
+								</label>
+							</div>
+							<div class="radio" style="padding-left:10px; margin:0;">
+								<label>
+									<input type="radio" name="optionsDateType2" style="margin-top:2px;" value="-1" data-bind="checked: fnc.app.filterRangeBaseOn" />
+									<span style="">Any</span>
+								</label>
+							</div>
+
+							<div class="controls" data-bind="style: {opacity: fnc.app.filterRangeBaseOn() != -1 ? 1 : 0.4}">
+								<div class="row" style="padding:5px 10px 0px 10px;" data-bind="">
+									<div class="col-xs-12">
+										<select class="input-medium input-nopadding" id="" style="margin-bottom: 0px; width: 100%;" data-bind="options: fnc.app.filterAvailableDateRanges, value: fnc.app.filterDateRange, valueUpdate: 1, enable: fnc.app.filterRangeBaseOn() != -1"></select>
+									</div>
+								</div>
+								<div class="row" style="padding:5px 10px 0px 10px;">
+									<div class="col-xs-3"><label class="control-label" for="dateFieldFrom">Starting:</label></div>
+									<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" id="dateFieldFrom" style="height:18px;" data-bind="value: fnc.app.filterDateFrom, enable: fnc.app.filterRangeBaseOn() != -1" /></div>
+								</div>
+								<div class="row" style="padding:5px 10px 5px 10px;">
+									<div class="col-xs-3"><label class="control-label" for="dateFieldTo">Ending:</label></div>
+									<div class="col-xs-9"><input type="text" class="form-control input-sm jq-datepicker" id="dateFieldTo" style="height:18px;" data-bind="value: fnc.app.filterDateTo, enable: fnc.app.filterRangeBaseOn() != -1" /></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Date Range Section -->
+
+					<!-- Location Section -->
+					<div class="panel panel-default" style="margin-top:5px;margin-bottom:0px;">
+						<div class="panel-heading" style="padding:0;color:brown;">
+							<div class="row" style="padding-bottom: 5px; padding-top:5px;">
+								<div class="col-xs-7" style="padding-right:0;">
+									<!-- ko if: !fnc.app.singleLocation()  -->
+									<div style="display:table-cell;float:left;width:25px;height:17px;">
+										<span class="glyphicon glyphicon-filter" aria-hidden="true" title="Clear filter" style="margin-left:10px; cursor:pointer;" data-bind="visible: fnc.app.clearLocationFilterVisible, click: clearLocationFilter"></span>&nbsp;
+									</div>
+									<span style="/*margin-left:5px;*/font-weight:bolder;">Location</span>
+									<div style="display:inline-block;padding-left:3px;">
+										<span id="selectedLocationsIcon" class="glyphicon glyphicon-unchecked" aria-hidden="true" title="Toggle selected" style="/*margin-left:5px;*/ cursor:pointer;" data-bind="visible: fnc.app.filterSelectedLocations().length, click: toggleSelectedLocations"></span>&nbsp;
+									</div>
+									<!-- /ko -->
+									<!-- ko if: fnc.app.singleLocation() -->
+									<span style="margin-left:25px;font-weight:bolder;">Location</span>
+									<!-- /ko -->
+								</div>
+								<div class="col-xs-5" style="padding-left:0px; padding-right:25px;">
+									<input type="text" placeholder="Find..." style="width:100%" data-bind="textinput: fnc.app.searchLocationsFilter, visible: !fnc.app.singleLocation()" />
+								</div>
+							</div>
+						</div>
+						<ul class="list-group" id="poListLocation" style="/*height:390px;*/overflow-y:auto;" data-bind="foreach: fnc.app.filteredLocations">
+							<li class="list-group-item" style="padding:0;" data-bind="visible: fnc.app.notSelectedLocationsHidden() ? Selected() : true">
+								<label style="margin:0;font-weight: normal;">
+									<!-- ko if: !fnc.app.singleLocation() -->
+									<input type="checkbox" style="margin-left:10px;" data-bind="checked: Selected" />
+									<span style="margin-left:5px;font-size:0.9em !important;" data-bind="text: LocationName"></span>
+									<!-- /ko -->
+									<!-- ko if: fnc.app.singleLocation()  -->
+									<span style="margin-left:30px;font-size:0.9em !important;" data-bind="text: LocationName"></span>
+									<!-- /ko -->
+								</label>
+							</li>
+						</ul>
+					</div>
+					<!-- /Location Section -->
+					
+					<!-- Search button -->
+					<button class="btn btn-sm btn-block btn-primary" style="margin-top:5px;" data-bind="click: doPOListLoad"><span>Search</span></button>
+					<!-- /Search button -->
+				</div>
+			</div>
+			<!-- /Left Sidebar -->
+			
+			<!-- Main Section -->
+			<div id="poListMiddleSection" class="col-xs-8" style="border: 1px solid #337ab7; padding: 5px; border-radius: 4px; ">
+				<!-- Header -->
+				<div class="row" style="/*max-width:1054px;*/">
+					<!-- Header Left -->
+					<div id="" class="col-xs-9" style="padding-right:1px;">
+						<div class="panel panel-default" style="border: 1px solid lightGray; margin-bottom:5px; padding: 5px; border-radius: 5px;height:101px;" data-bind="css: {poListModeActivePanel: poListMode() == 'invoice-management'}">
+							<div class="panel-heading" style="padding:0px;cursor:pointer;" data-bind="click: setPOListManagementMode"><h6 class="panel-title" data-bind="css: poListManagementCSS">Management</h6></div>
+							<div class="panel-body" style="padding-top:5px;padding-bottom:0;padding-left:0;padding-right:0;" data-bind="style: {opacity: poListMode() == 'invoice-management' ? '1' : '0.6'}">
+								<div class="row">
+
+									<div class="col-xs-4">
+										<div class="row" style="margin:2px 0;">
+											<div class="col-xs-5" style="padding: 0 5px 0 0;text-align: right;"><label style="font-size:10px;" class="control-label" for="rcnPOListInvoiceNo">INV.#:</label></div>
+											<div class="col-xs-7" style="padding:0;"><input type="text" class="form-control input-sm" id="rcnPOListInvoiceNo" style="margin-left:1px;" data-bind="textInput: enteredInvoiceNo, enable: poListMode() == 'invoice-management', css: {'cm-disabled-editable-input': !fnc.app.prvInoicesEditableFieldsEnable()}" /></div>
+										</div>
+										<div class="row" style="margin:5px 0;">
+											<div class="col-xs-5" style="padding: 0 5px 0 0;text-align: right;"><label style="font-size:10px;" class="control-label" for="rcnPOListInvoiceNo">INV.DATE:</label></div>
+											<div class="col-xs-7" style="padding:0;"><input type="text" class="form-control input-sm" id="rcnPOListInvoiceDate" style="height:18px;" data-bind="value: enteredInvoiceDate, enable: poListMode() == 'invoice-management', css: {'cm-disabled-editable-input': !fnc.app.prvInoicesEditableFieldsEnable()}" /></div>
+										</div>
+									</div>
+
+									<div class="col-xs-6">
+										<div class="row" style="margin:2px 0;">
+											<div class="col-xs-3" style="padding: 0 5px 0 0;text-align: right;"><label style="font-size:10px;cursor:help;" class="control-label" for="rcnPOListInvoiceTax" title="Invoice total before discount">INV.TOTAL:</label></div>
+											<div class="col-xs-3" style="padding:0;"><input type="text" class="form-control input-sm" id="rcnPOListInvoiceTax" style="height:18px;text-align:right;" data-bind="textInput: enteredGross, enable: poListMode() == 'invoice-management', css: {'cm-disabled-editable-input': !fnc.app.prvInoicesEditableFieldsEnable()}" /></div>
+											<div class="col-xs-3" style="padding: 0 5px 0 0;text-align: right;"><label style="font-size:10px;" class="control-label" for="rcnPOListInvoiceTax">TAX:</label></div>
+											<div class="col-xs-3" style="padding:0;"><input type="text" class="form-control input-sm" id="rcnPOListInvoiceTax" style="height:18px;text-align:right;" data-bind="textInput: enteredTax, enable: poListMode() == 'invoice-management', css: {'cm-disabled-editable-input': !fnc.app.prvInoicesEditableFieldsEnable()}" /></div>
+										</div>
+										<div class="row" style="margin:5px 0;">
+											<div class="col-xs-3" style="padding: 0 5px 0 0;text-align: right;"><label style="font-size:10px;" class="control-label" for="rcnPOListInvoiceFreight">DISCOUNT:</label></div>
+											<div class="col-xs-3" style="padding:0;"><input type="text" class="form-control input-sm" id="rcnPOListInvoiceFreight" style="height:18px;text-align:right;" data-bind="textInput: enteredDiscount, enable: poListMode() == 'invoice-management', css: {'cm-disabled-editable-input': !fnc.app.prvInoicesEditableFieldsEnable()}" /></div>
+											<div class="col-xs-3" style="padding: 0 5px 0 0;text-align: right;"><label style="font-size:10px;" class="control-label" for="rcnPOListInvoiceFreight">FREIGHT:</label></div>
+											<div class="col-xs-3" style="padding:0;"><input type="text" class="form-control input-sm" id="rcnPOListInvoiceFreight" style="height:18px;text-align:right;" data-bind="textInput: enteredFreight, enable: poListMode() == 'invoice-management', css: {'cm-disabled-editable-input': !fnc.app.prvInoicesEditableFieldsEnable()}" /></div>
+										</div>
+										<div class="row" style="margin:2px 0;">
+											<div class="col-xs-3" style="padding: 0 5px 0 0;text-align: right;"><label style="font-size:10px;" class="control-label" for="rcnPOListInvoiceDisc">NET:</label></div>
+											<div class="col-xs-3" style="padding:0;"><input type="text" class="form-control input-sm" id="rcnPOListInvoiceDisc" readonly style="height:18px;text-align:right;" data-bind="textInput: computedNet, enable: poListMode() == 'invoice-management'" /></div>
+											<!--<div class="col-xs-1" style="padding:0;">
+												<div class="panel panel-danger" style="margin-left: 5px; margin-right: -10px; margin-bottom:0; text-align: center;background-color: #d43f3a;color: white;font-weight: 900;" data-bind="visible: showNotEqualSign">&ne;</div>
+												<div class="panel panel-success" style="margin-left: 5px; margin-right: -10px; margin-bottom:0; text-align: center;background-color: #4cae4c;color: white;font-weight: 900;" data-bind="visible: showEqualSign">=</div>
+											</div>-->
+											<div class="col-xs-3" style="padding: 0 5px 0 0;text-align: right;"><label style="font-size:10px;" class="control-label" for="rcnPOListInvoiceTotal">TOTAL:</label></div>
+											<div class="col-xs-3" style="padding:0;"><input type="text" class="form-control input-sm" id="rcnPOListInvoiceTotal" readonly style="text-align:right;" data-bind="textInput: selectedItemsSum, enable: poListMode() == 'invoice-management'" /></div>
+										</div>
+									</div>
+
+									<div class="col-xs-2">
+										<div class="row">
+											<div class="col-xs-12">
+												<button href="#" class="btn btn-info btn-xs btn-block" style="" data-bind="enable: fnc.app.prvInvoicesCreateManualEnable() && enableCreateNew() && poListMode() == 'invoice-management', click: showCreateManualInvoice">
+													<span>Create</span><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+												</button>
+												<button class="btn btn-primary btn-xs btn-block" type="button" value="Submit" style="margin-top:1px;" data-bind="enable: fnc.app.prvInvoicesReconcileEnable() && enableReconcile() && poListMode() == 'invoice-management', click: reconcileInvoice">
+													<span class="glyphicon glyphicon-object-align-bottom" aria-hidden="true"></span>&nbsp;<span>Reconcile</span>
+												</button>
+											</div>
+										</div>
+									</div>
+
+								</div>
+
+							</div>
+						</div>
+					</div>
+					<!-- /Header Left -->
+					<!-- Header Right -->
+					<div class="col-xs-3" style="padding-left:1px;">
+						<div class="panel panel-default " style="border: 1px solid lightGray; margin-bottom:5px; padding: 5px; border-radius: 5px;height:101px;" data-bind="css: {poListModeActivePanel: poListMode() == 'invoice-export' || poListMode() === 'invoice-download'}">
+							<div class="panel-heading clearfix" style="padding:0px;white-space:nowrap;">
+								<div style="width:50%;float:left;text-align:center;cursor:pointer;" data-bind="css: poListExportModeCSS,click:setPOListExportMode">
+									<span class="panel-title"><span>Export</span></span>
+								</div>
+								<div style="width:50%;float:left;text-align:center;border-left:1px solid darkgray;cursor:pointer;" data-bind="css: poListDownloadModeCSS,click:setPOListDownloadMode">
+									<span class="panel-title"><span>Download</span></span>
+								</div>
+							</div>
+							<div class="panel-body" style="padding:0;" data-bind="style: {opacity: poListMode() == 'invoice-export' || poListMode() === 'invoice-download' ? '1' : '0.6'}">
+								<!--ko if: poListMode() !== 'invoice-download'-->
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="btn-group btn-group-xs btn-group-justified">
+											<button type="button" class="btn btn-default" style="width:33%; line-height:1;" data-value="export-excel" data-bind="enable: poListMode() == 'invoice-export', click: setExportType">CSV</button>
+											<button type="button" class="btn btn-default" style="width:34%; line-height:1;" data-value="export-qbd" data-bind="enable: poListMode() == 'invoice-export', click: setExportType"><span style="color:white;background-color:green;border-radius:6px;">qb</span><span>-desktop</span></button>
+
+											<button type="button" class="btn btn-default" style="width:33%; line-height:1;" data-value="export-qbo" data-bind="enable: poListMode() == 'invoice-export' && fnc.app.prvQboExportInvoicesEnable(), click: setExportType"><span style="color:white;background-color:green;border-radius:6px;">qb</span><span>-online</span></button>
+
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-7" style="padding-top:0px;">
+										<!--<div class="row"><div class="col-xs-12"><div class="radio" style="margin:0;"><label style="min-height:18px;"><input type="radio" name="exportSelectType" style="margin-top:3px;" value="all" data-bind="checked: exportSelectType, enable: poListMode() == 'invoice-export'" />All</label></div></div></div>-->
+										<div class="row"><div class="col-xs-12"><div class="radio" style="margin:0;"><label style="min-height:18px;"><input type="radio" name="exportSelectType" style="margin-top:3px;" value="all-not-exported" data-bind="checked: exportSelectType, enable: poListMode() == 'invoice-export'" />Not Exported</label></div></div></div>
+										<div class="row"><div class="col-xs-12"><div class="radio" style="margin:0;"><label style="min-height:18px;"><input type="radio" name="exportSelectType" style="margin-top:3px;" value="selected" data-bind="checked: exportSelectType, enable: exportSelectedEnable()" />Selected</label></div></div></div>
+									</div>
+									<div class="col-xs-5" style="padding-top:20px;">
+										<button class="btn btn-block btn-sm btn-primary" data-bind="enable: poListMode() == 'invoice-export' && selectedForExportItems().length > 0, click: exportInvoiceList">Submit</button>
+									</div>
+								</div>
+								<!--/ko-->
+								<!--ko if:poListMode() === 'invoice-download'-->
+								<div style="position:relative;">
+									<div style="padding-bottom:33px;">Select the invoices you wish to download, then click submit.</div>
+									<button class="btn btn-sm btn-primary" style="position:absolute;right:0px;bottom:0px;width:32.6666%;" data-bind="enable: poListMode() == 'invoice-download' && selectedForDownloadItems().length > 0, click: showDownloadInvoiceListOptions">Submit</button>
+								</div>
+								<!--/ko-->
+							</div>
+						</div>
+					</div>
+					<!-- /Header Right -->
+				</div>
+				<!-- /Header -->
+
+				<!-- Search -->
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="input-group" style="width:400px;float:right;padding-top:5px;">
+							<input type="text" class="form-control" style="height:22px;" data-bind="textInput: poListSearchKeywords, event: {keypress: doSearchOnEnter}" />
+							<span class="input-group-btn" style="box-shadow:0 0px 5px #006dcc;">
+								<button class="btn btn-xs btn-default" type="button" style="border-radius:0;" data-bind="click: doPOListLoad"><span class="glyphicon glyphicon-search"></span></button>
+								<!--<button class="btn btn-xs btn-default" type="button" style="border-radius:0;" data-bind="click: toggleLeftSection"><span class="glyphicon glyphicon-cog"></span></button>-->
+							</span>
+						</div>
+
+					</div>
+				</div>
+				<!-- /Search -->
+
+				<!-- PO List -->
+				<div class="row">
+					<!-- Table Section -->
+					<div id="poListTableSection" class="col-xs-12" style="">
+						<!-- Table Header -->
+						<table id="tblPOHead" class="cm-table table table-condensed  " style="margin-bottom:0px;">
+							<thead>
+								<tr style="font-size:0.7em;height:28px;">
+									<th class="col-w-b30-2   text-overflow-ellipsis">
+										<input type="checkbox" style="margin-left:2px;" data-bind="visible:poListMode() !=='invoice-management',enable:collapsedItems().length > 0,checked:allSelected" />
+									</th>
+									<th data-bind="with: listHeaders[0]" class="col-w-b30-6   text-overflow-ellipsis"><span id="po_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">COMPANY</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.poListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.poListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[1]" class="  text-overflow-ellipsis"><span id="po_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">LOCATION</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.poListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.poListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[2]" class="col-w-b30-3"><span id="po_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PO #</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.poListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.poListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[3]" class="col-w-b30-3"><span id="po_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">INVOICE #</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.poListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.poListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[4]" class="col-w-b30-3"><span id="po_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">DELIVERY DATE</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.poListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.poListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[5]" class="col-w-b30-3" style="text-align:right;"><span id="po_list" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">PO/INV.TOTAL</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.poListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.poListApp.activeSort().title"></span></th>
+									<th data-bind="with: listHeaders[6]" class="col-w-b30-3"><span id="po_list" class="sort-alpha" style="cursor:pointer;" data-bind="text: $data.title, click: sortListItems">ACCEPTED</span><span class="glyphicon glyphicon-arrow-up" aria-hidden="true" data-bind="visible: $data.asc() && $data.title==fnc.poListApp.activeSort().title"></span><span class="glyphicon glyphicon-arrow-down" aria-hidden="true" data-bind="visible: !$data.asc() && $data.title==fnc.poListApp.activeSort().title"></span></th>
+									<!--<th style="width:17px;"></th>-->
+								</tr>
+							</thead>
+						</table>
+						<!-- /Table Header -->
+						
+						<!-- Table Body -->
+						<div id="tblPOListContainer" style="display:block;overflow:hidden;/*border-right:solid 2px lightgray;*/">
+							<div id="tblPOListBody" style="overflow-y: scroll; border-left: solid 2px lightgrey; border-right: solid 2px lightgrey; border-bottom: solid 2px lightgrey;/*margin-right:-18px;*/">
+								<table class="cm-table table table-condensed cm-table-stripe" style="margin-bottom:0px; table-layout:fixed;">
+									<!--<tbody data-bind="foreach: filteredItems">-->
+									<!--<tbody data-bind="foreach: replicatedItems">-->
+									<!--<tbody data-bind="foreach: collapsedItems">-->
+									<tbody data-bind="foreach: paginated">
+										<!-- collapsed and expanded item -->
+										<!-- ko if: !ExpandedView() -->
+										<tr class="cm-hover" data-bind="style: {opacity: RestoreButtonVisible() ? '.4' : '1', color: Highlighted() ? 'red' : 'black'}">
+
+											<td class="col-w-b30-2  text-overflow-ellipsis">
+												<input type="checkbox" data-bind="checked: Selected, click: onItemSelectedChange.bind($data, $parent, $index()), enable: $data.InvoiceId == '0' || fnc.poListApp.poListMode() == 'invoice-export' || fnc.poListApp.poListMode() === 'invoice-download'" />
+												<button class="btn btn-xs btn-danger" style="padding:0;height:18px;vertical-align:top;" title="Delete" data-bind="click: onDeleteInvoiceClick, visible: DeleteButtonVisible(), enable: fnc.app.prvInvoicesDeleteEnable() && Accepted == '0' && Xported == '0'"><span class="glyphicon glyphicon-trash" style="margin-right:1px;"></span></button>
+												<button class="btn btn-xs btn-warning" style="padding:0;height:18px;vertical-align:top;" title="Restore" data-bind="click: onRestoreInvoiceClick, visible: RestoreButtonVisible(), enable: fnc.app.prvInvoicesRestoreEnable()"><span class="glyphicon glyphicon-export" style="margin-right:1px;"></span></button>
+
+
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Price discrepancies found" data-bind="visible: StatusIcon() == 'price-discrepancy'"><span style="color:#eea236; font-size:1.3em; font-weight: 900;">&#63;</span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="GL cost distribution issue found" data-bind="visible: StatusIcon() == 'question-sign'"><span style="color:#eea236; font-size:1.3em; font-weight: 900;">&#63;</span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Not Completed" data-bind="visible: StatusIcon() == 'not-completed' && InvoiceId != '0'"><span style="font-weight:900;color:brown;font-size:1.3em;">&#8800;</span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="cursor:pointer;" title="Completed" data-bind="visible: StatusIcon() == 'completed', click: onCompletedClick, enable: fnc.app.prvInvoicesAcceptEnable()"><span style="color:#4cae4c; font-size:1.3em; font-weight: 900;">&#61;</span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Accepted" data-bind="visible: StatusIcon() == 'accepted'"><span class="glyphicon glyphicon-ok" style="margin-right:1px;color:#4cae4c;"></span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Exported" data-bind="visible: StatusIcon() == 'exported'"><span class="glyphicon glyphicon-cloud-download" style="margin-right:1px;color:#5bc0de;"></span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Backorder" data-bind="visible: StatusIcon() == 'back-order'"><span class="glyphicon glyphicon-bold" style="margin-right:1px;"></span></button>
+												<!-- completed; not-completed; accepted; exported;	deleted; price-discrepancy; question-sign; back-order; -->
+											</td>
+											<td class="col-w-b30-6 text-overflow-ellipsis" style="padding-left:0px;">
+												<!-- ko if: DocsAttached == '' -->
+												<span class="fa" style="width:12px;"></span>
+												<!-- /ko -->
+												<!-- ko if: DocsAttached != '' -->
+												<div style="display:inline;" data-bind="css: {'cm-disabled-tab': !fnc.app.prvCrossDocAppEnable()}"><span class="fa" style="width:12px;cursor:pointer;" data-bind="click: showAttachedDocs, attr: {title: AttachedTitle()}, css: AttachedCSS"></span></div> 
+												<!-- /ko -->
+												<span data-bind="text: decodeText(Company)"></span>
+											</td>
+											<!-- , attr: {title: ko.toJSON($data, null, 2)} -->
+											<td class="text-overflow-ellipsis">
+												<span data-bind="text: decodeText(Location)"></span>
+											</td>
+
+											<!-- ko if: !RestoreButtonVisible() -->
+											<td class="col-w-b30-3" style="padding-right:0;">
+												<!-- ko if: !MultiplePOs() -->
+												<a style="cursor:pointer;" data-bind="text: PONumber, click: onPOLinkClick"></a>
+												<!-- /ko -->
+												<!-- ko if: MultiplePOs() -->
+												<a style="cursor:pointer;" data-bind="text: PONumber, click: onPOLinkClick, visible: $parent.ExpandCollapseToggle() == 'expand'"></a>
+												<span style="color:#337ab7; cursor:pointer;" data-bind="visible: $parent.ExpandCollapseToggle() == 'collapse', attr: {title: RelatedPOList()}, click: onInvoiceLinkClick">Multiple</span>
+												<!-- /ko -->
+												<i class="glyphicon glyphicon-info-sign" title="eInvoice" style="font-size:0.8em;color:#337ab7;float:right;cursor:pointer;" data-bind="visible: EInvoiceAttached > 0, click: showEInvoice"></i>
+											</td>
+											<td class="col-w-b30-3" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden;"><a style="cursor:pointer;" data-bind="text: InvoiceNumber, click: onInvoiceLinkClick, attr: {title: InvoiceNumber}"></a></td>
+											<!-- /ko -->
+											<!-- ko if: RestoreButtonVisible() -->
+											<td class="col-w-b30-3" style="padding-right:0;">
+												<!-- ko if: !MultiplePOs() -->
+												<span data-bind="text: PONumber"></span>
+												<!-- /ko -->
+												<!-- ko if: MultiplePOs() -->
+												<span style="color:#337ab7;cursor:pointer;" data-bind="visible: $parent.ExpandCollapseToggle() == 'collapse'">Multiple</span>
+												<span data-bind="text: PONumber, visible: $parent.ExpandCollapseToggle() == 'expand'"></span>
+												<!-- /ko -->
+											</td>
+											<td class="col-w-b30-3"><span style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden;width:70px;display:inline-block;" data-bind="text: InvoiceNumber"></span></td>
+											<!-- /ko -->
+
+											<td class="col-w-b30-3" data-bind="text: format2Date(DeliveryDate)"></td>
+											<td class="col-w-b30-3" style="text-align: right;" data-bind="text: formatCurrency(POTotal)"></td>
+											<td class="col-w-b30-3" data-bind="text: format2Date(PostDate)"></td>
+										</tr>
+										<!-- /ko -->
+										<!-- /collapsed and expanded item-->
+										<!-- expanded (only) item -->
+										<!-- ko if: ExpandedView() && $parent.ExpandCollapseToggle() == 'expand' -->
+										<tr class="cm-hover" data-bind="style: {opacity: RestoreButtonVisible() ? '.4' : '1'}">
+											<td class="col-w-b30-2  text-overflow-ellipsis">
+												<input type="checkbox" data-bind="checked: Selected, click: onItemSelectedChange.bind($data, $parent, $index()), enable: $data.InvoiceId == '0' || fnc.poListApp.poListMode() == 'invoice-export' || fnc.poListApp.poListMode() === 'invoice-download'" />
+												<button class="btn btn-xs btn-danger" style="padding:0;height:18px;vertical-align:top;" title="Delete" data-bind="click: onDeleteInvoiceClick, visible: DeleteButtonVisible(), enable: fnc.app.prvInvoicesDeleteEnable() && Accepted == '0' && Xported == '0'"><span class="glyphicon glyphicon-trash" style="margin-right:1px;"></span></button>
+												<button class="btn btn-xs btn-warning" style="padding:0;height:18px;vertical-align:top;" title="Restore" data-bind="click: onRestoreInvoiceClick, visible: RestoreButtonVisible(), enable: fnc.app.prvInvoicesRestoreEnable()"><span class="glyphicon glyphicon-export" style="margin-right:1px;"></span></button>
+
+
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Price discrepancies found" data-bind="visible: StatusIcon() == 'price-discrepancy'"><span style="color:#eea236; font-size:1.3em; font-weight: 900;">&#63;</span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="GL cost distribution issue found" data-bind="visible: StatusIcon() == 'question-sign'"><span style="color:#eea236; font-size:1.3em; font-weight: 900;">&#63;</span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Not Completed" data-bind="visible: StatusIcon() == 'not-completed' && InvoiceId != '0'"><span style="font-weight:900;color:brown;font-size:1.3em;">&#8800;</span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="cursor:pointer;" title="Completed" data-bind="visible: StatusIcon() == 'completed', click: onCompletedClick, enable: fnc.app.prvInvoicesAcceptEnable()"><span style="color:#4cae4c; font-size:1.3em; font-weight: 900;">&#61;</span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Accepted" data-bind="visible: StatusIcon() == 'accepted'"><span class="glyphicon glyphicon-ok" style="margin-right:1px;color:#4cae4c;"></span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Exported" data-bind="visible: StatusIcon() == 'exported'"><span class="glyphicon glyphicon-cloud-download" style="margin-right:1px;color:#5bc0de;"></span></button>
+												<button class="btn btn-xs cm-btn-w-status-icon" style="" title="Backorder" data-bind="visible: StatusIcon() == 'back-order'"><span class="glyphicon glyphicon-bold" style="margin-right:1px;"></span></button>
+												<!-- completed; not-completed; accepted; exported;	deleted; price-discrepancy; question-sign; back-order; -->
+											</td>
+											<td class="col-w-b30-5 text-overflow-ellipsis" style="" data-bind="text: decodeText(Company)"></td>
+											<!-- , attr: {title: ko.toJSON($data, null, 2)} -->
+											<td class="text-overflow-ellipsis" data-bind="text: decodeText(Location)"></td>
+
+											<!-- ko if: !RestoreButtonVisible() -->
+											<td class="col-w-b30-3" style="padding-right:0;"><a style="cursor:pointer;" data-bind="text: PONumber, click: onPOLinkClick"></a><i class="glyphicon glyphicon-info-sign" title="eInvoice" style="font-size:0.8em;color:#337ab7;float:right;cursor:pointer;" data-bind="visible: EInvoiceAttached > 0, click: showEInvoice"></i></td>
+											<td class="col-w-b30-3" style=""><a style="cursor:pointer;text-overflow:ellipsis; white-space:nowrap; overflow:hidden;width:70px;display:inline-block;" data-bind="text: InvoiceNumber, click: onInvoiceLinkClick, attr: {title: InvoiceNumber}"></a></td>
+											<!-- /ko -->
+											<!-- ko if: RestoreButtonVisible() -->
+											<td class="col-w-b30-3" style="padding-right:0;" data-bind="text: PONumber"></td>
+											<td class="col-w-b30-3"><span style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden;width:70px;display:inline-block;" data-bind="text: InvoiceNumber"></span></td>
+											<!-- /ko -->
+
+											<td class="col-w-b30-3" data-bind="text: format2Date(DeliveryDate)"></td>
+											<td class="col-w-b30-3" style="text-align: right;" data-bind="text: formatCurrency(POTotal)"></td>
+											<td class="col-w-b30-3" data-bind="text: format2Date(PostDate)"></td>
+										</tr>
+										<!-- /ko -->
+										<!-- /expanded (only) item -->
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- /Table Body -->
+						
+						<!-- Paging -->
+						<div class="panel panel-default" style="margin-bottom:0;border-left:2px solid lightgray;border-bottom:2px solid lightgray;border-right:2px solid lightgray;border-radius:0;">
+							<div class="panel-body" style="background-color:#f2f2f2;padding:3px 15px;text-align:center;">
+								<!-- ko if: totalPagesHolder().length > 1 -->
+								<!-- ko foreach: totalPagesHolder -->
+								<a class="btn btn-xs btn-default" href="#" role="button" style="width:26px;" data-bind="click: $parent.pageController, style: {color: $parent.pageNumber() + 1 == $data ? '#fff' : '',	background: $parent.pageNumber() + 1 == $data ? '#7dc0ff' : '' }, visible: $index() == 0 || $index() == fnc.poListApp.totalPagesHolder().length - 1 || ($parent.pageNumber() - $index() > -5 && $parent.pageNumber() - $index() < 5)">
+									<span class="current" data-bind="text: $data"></span>
+								</a>
+								<!-- /ko -->
+								<!-- /ko -->
+								<div style="display:block;width:26px;height:22px;float:right;">&nbsp;</div>
+							</div>
+						</div>
+						<!-- /Paging -->
+
+					</div>
+					<!-- /Table Section -->
+				</div>
+				<!-- /PO List -->
+
+			</div>
+			<!-- /Main Section -->
+			
+			<!-- Right Sidebar -->
+			<div class="col-xs-2">
+				<div class="panel panel-default" style="border: 1px solid #337ab7; padding: 5px; border-radius: 5px;margin-bottom:0;">
+					<div class="panel-heading" style="padding:0px;"><h6 class="panel-title">Filter Result</h6></div>
+					<!-- Find in page -->
+					<div class="panel panel-default" style="margin-top:5px;margin-bottom:0;">
+						<div class="panel-heading" style="padding:5px;color:brown;">
+							<input type="search" class="form-control  input-sm" placeholder="Find in page" id="inpPOListSearch" style="height:20px; width:100%; margin:0;" data-bind="textinput: poListSearch" />
+						</div>
+					</div>
+					<!-- /Find in page -->
+					<!-- Show -->
+					<div class="panel panel-default" id="filterShowOptions" style="margin-top:5px;margin-bottom:0;">
+						<div class="panel-heading" style="color:brown; padding: 5px 25px;">
+							<span style="font-weight:bolder;">Show</span>
+						</div>
+						<div class="radio" style="padding-top:5px;padding-left:20px;margin:0;">
+							<label style="margin-top: 7px; padding-left:10px;">
+								<input type="radio" name="radioShow" style="margin-top: 2px;" value="all" data-bind="checked: showResultOption"> All
+							</label>
+						</div>
+						<div class="radio" style="padding-top:0px;padding-left:20px;margin:0;">
+							<label style="padding-left:10px;">
+								<input type="radio" name="radioShow" style="margin-top: 2px;" value="accepted" data-bind="checked: showResultOption"> Accepted
+							</label>
+						</div>
+						<div class="radio" style="padding-top:0px;padding-left:20px;margin:0;">
+							<label style="padding-left:10px;">
+								<input type="radio" name="radioShow" style="margin-top: 2px;" value="not-accepted" data-bind="checked: showResultOption"> Not Accepted
+							</label>
+						</div>
+						<div class="radio" style="padding-top:0px;padding-left:20px;margin:0;">
+							<label style="padding-left:10px;">
+								<input type="radio" name="radioShow" style="margin-top: 2px;" value="completed" data-bind="checked: showResultOption"> Completed
+							</label>
+						</div>
+						<div class="radio" style="padding-top:0px;padding-left:20px;margin:0;">
+							<label style="padding-left:10px;">
+								<input type="radio" name="radioShow" style="margin-top: 2px;" value="not-completed" data-bind="checked: showResultOption"> Not Completed
+							</label>
+						</div>
+						<div class="radio" style="padding-top:0px;padding-left:20px;margin:0;">
+							<label style="padding-left:10px;">
+								<input type="radio" name="radioShow" style="margin-top: 2px;" value="proof-of-delivery" data-bind="checked: showResultOption"> Attached POD
+							</label>
+						</div>
+						<div class="radio" style="padding-top:0px;padding-left:20px;margin:0;">
+							<label style="padding-left:10px;">
+								<input type="radio" name="radioShow" style="margin-top: 2px;" value="no-proof-of-delivery" data-bind="checked: showResultOption"> No POD
+							</label>
+						</div>
+
+						<div class="checkbox" style="margin:0;padding-left: 10px;">
+							<label style="margin-top: 7px;">
+								<input id="showOptionsDeleted" type="checkbox" style="margin-top: 2px;" data-bind="disable:deleteDisabled,checked: deletedSearch"> Deleted
+							</label>
+						</div>
+					</div>
+					<!-- /Show -->
+					<!-- Vendor Section -->
+					<div class="panel panel-default" id="filterVendorOptions" style="margin-top:5px;margin-bottom:0;">
+						<div class="panel-heading" style="padding:0;color:brown;">
+							<div class="row" style="padding-bottom: 5px; padding-top:5px;">
+								<div class="col-xs-7" style="padding-right:0;">
+									<span style="font-weight:bolder;">Vendor</span>
+									<div style="display:table-cell; width:30px;float:left;">
+										<span class="glyphicon glyphicon-filter" aria-hidden="true" title="Clear filter" style="margin-left:10px; cursor:pointer;" data-bind="visible: clearVendorsFilterVisible, click: clearVendorsFilter"></span>&nbsp;
+									</div>
+								</div>
+								<div class="col-xs-5" style="padding-left:0px; padding-right:25px;">
+									<input type="text" placeholder="Find..." style="width:100%" data-bind="textinput: searchVendorsFilter" />
+								</div>
+							</div>
+						</div>
+						<ul class="list-group" id="poListVendor" data-bind="foreach: filteredVendors" style="/*height:386px;*/overflow-y:auto;">
+							<li class="list-group-item" style="padding:0;" data-bind="visible: isPODeleted == 0">
+								<label style="margin:0;font-weight: normal;">
+									<input type="checkbox" style="margin-left:10px;" data-bind="checked: Selected" />
+									<span style="margin-left:5px;font-size:0.9em !important;" data-bind="text: Company"></span>
+								</label>
+							</li>
+							<li class="list-group-item" style="padding:0;" data-bind="visible: isPODeleted == 1 && fnc.poListApp.deletedSearch()">
+								<label style="margin:0;font-weight: normal;">
+									<input type="checkbox" style="margin-left:10px;" data-bind="checked: Selected" />
+									<span style="margin-left:5px;font-size:0.9em !important;" data-bind="text: Company"></span>
+								</label>
+							</li>
+						</ul>
+					</div>
+					<!-- /Vendor Section -->
+				</div>
+			</div>
+			<!-- /Right Sidebar -->
+		</div>
+		<!--<pre style="display:inline-block;width:400px;height:200px; overflow:scroll;" data-bind="text: ko.toJSON(fnc.poListApp.filteredVendors(), null, 2)"></pre>-->
+		<!--<pre style="display:inline-block;width:400px;height:200px; overflow:scroll;" data-bind="text: ko.toJSON(fnc.poListApp.filterSelectedVendors(), null, 2)"></pre>-->
+
+		<!-- MODAL DIALOGS -->
+		<!-- PO Items -->
+		<div class="modal draggable fade" id="modPOItems" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog" style="width:1100px; ">
+				<div class="modal-content" style="height:570px;" data-bind="">
+					<form id="frmPOItems">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title" id="myModalLabel">PO # <span data-bind="text: selectedPONumber()"></span>; <span data-bind="text: selectedPOAllItems().length"></span> item(s); Total: <span data-bind="text: formatCurrency(selectedPOTotal())"></span>;</h4>
+						</div>
+						<div class="modal-body">
+							<div class="row" style="margin:0;">
+								<div class="col-xs-12 " style="padding-left:2px; padding-right:2px;">
+									<input style="height:24px;" type="text" class="form-control input-sm" id="" placeholder="Search for ..." data-bind="textinput: selectedPOItemSearch" />
+									<div id="itemSearchResult" class="" style="width:100%;">
+										<div class="row" style="margin:0; display:block; overflow-x:hidden;">
+											<table class="cm-table table table-condensed " style="margin:0;font-size:12px;">
+												<thead>
+													<tr>
+														<th style="padding-left: 0;">ITEM</th>
+														<th class="col-w-b30-2" style="text-align:center;padding-left: 0;">ITEM ID</th>
+														<th class="col-w-b30-5" style="text-align:center;">BRAND</th>
+														<th class="col-w-b30-3" style="text-align:center;padding-left: 0;">UOM</th>
+														<th class="col-w-b30-2" style="text-align:center;padding-left: 0;">QTY</th>
+														<th class="col-w-b30-2" style="text-align:center;padding-left: 0;">UNIT</th>
+														<th class="col-w-b30-2" style="text-align:center;">
+															<!-- ko if: selectedPOType() != 'back-order-item' -->
+															<span>CWT</span>
+															<!-- /ko -->
+															<!-- ko if: selectedPOType() == 'back-order-item' -->
+															<span>UNITS</span>
+															<!-- /ko -->
+															&nbsp;
+														</th>
+														<th class="col-w-b30-3" style="text-align:right;padding-right: 0;">PRICE</th>
+														<th class="col-w-b30-3" style="text-align:right;padding-right: 0;">EXT.</th>
+														<th style="width:17px;padding:0;"></th>
+													</tr>
+												</thead>
+											</table>
+										</div>
+										<div class="row" style="height:420px; overflow-y:scroll; margin-left:0; margin-right:0;">
+											<table class="cm-table table table-condensed table-hover">
+												<tbody data-bind="foreach: selectedPOFilteredItems">
+													<tr>
+														<td style="padding:0 !important;" data-bind="text: Description"></td>
+														<td class="col-w-b30-2" style="padding:0 !important;text-align:center;" data-bind="text: ItemId"></td>
+														<td class="col-w-b30-5" style="padding:0 !important;text-align:center;" data-bind="text: Brand"></td>
+														<td class="col-w-b30-3" style="padding:0 !important;text-align:center;" data-bind="text: UOM"></td>
+														<td class="col-w-b30-2" style="padding:0 !important;text-align:center;" data-bind="text: formatToFixed(Quantity, 0)"></td>
+														<td class="col-w-b30-2" style="padding:0 !important;text-align:center;" data-bind="text: Unit"></td>
+														<td class="col-w-b30-2" style="padding:0 !important;text-align:center;" data-bind="text: formatToFixed(CWT, 0)"></td>
+														<td class="col-w-b30-3" style="padding:0 !important;text-align:right;" data-bind="text: formatCurrency(UnitPrice)"></td>
+														<td class="col-w-b30-3" style="padding:0 !important;text-align:right;" data-bind="text: formatCurrency(Ext)"></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--<pre data-bind="text: ko.toJSON(vendorSearchList(), null, 2)"></pre>-->
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- /PO Items -->
+		<!-- CREATE MANUAL INVOICE -->
+		<div class="modal draggable fade" id="modCreateManualInvoice" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog" style="width:1000px; ">
+				<div class="modal-content" style="height:480px;" data-bind="">
+					<div id="frmCreateManualInvoice">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title" id="myModalLabel">CREATE MANUAL INVOICE</h4>
+						</div>
+						<div class="modal-body" style="padding-top:2px;">
+
+							<div id="" class="" style="width:100%;" data-bind="visible: createManualInvoiceStep() == 'select-location'">
+								<div class="row">
+									<div class="col-xs-6">
+										<p style="font-weight:bolder;">SELECT LOCATION</p>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4 col-xs-offset-8">
+										<input style="" type="text" class="form-control input-sm" id="" placeholder="Search for ..." data-bind="textinput: manualInvoiceOrganizationSearch" />
+									</div>
+								</div>
+								<div class="row" style="margin:0; display:block; overflow-x:hidden;">
+									<table class="cm-table table table-condensed " style="margin:0;font-size:9px;table-layout:fixed;">
+										<thead>
+											<tr>
+												<th class="col-w-b30-1"></th>
+												<th>LOCATION</th>
+												<th style="width:17px;padding:0;"></th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+								<div class="row" style="height:260px; overflow-y:scroll; margin-left:0; margin-right:0;">
+									<table id="tblLocationSearchBody" class="cm-table table table-condensed table-hover" style="table-layout:fixed;">
+										<tbody data-bind="foreach: filteredManualInvoiceOrganizations">
+											<tr onmouseover="" onmouseout="" style="height:22px;" data-bind="">
+												<td class="col-w-b30-1" style="padding:0 !important;vertical-align:middle;"><input type="checkbox" class="org-checkbox" onclick="" name="optionsRadios" data-bind="checked: Selected" style="" /></td>
+												<td style="vertical-align:middle;" data-bind="text: LocationName"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div class="row" style="margin-top:15px;">
+									<div class="col-xs-12">
+										<button class="btn btn-xs btn-primary" style="float:right;" data-bind="click: showSelectVendor, disable: manualInvoiceSelectedOrganization() == null"><span>Next   </span><span class="glyphicon glyphicon-arrow-right"></span></button>
+									</div>
+								</div>
+							</div>
+
+							<div id="" class="" style="width:100%;" data-bind="visible: createManualInvoiceStep() == 'select-vendor'">
+								<div class="row">
+									<div class="col-xs-6">
+										<p style="font-weight:bolder;">SELECT VENDOR</p>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4 col-xs-offset-8">
+										<input style="" type="text" class="form-control input-sm" id="" placeholder="Search for ..." data-bind="textinput: manualInvoiceVendorSearch" />
+									</div>
+								</div>
+								<div class="row" style="margin:0; display:block; overflow-x:hidden;">
+									<table class="cm-table table table-condensed " style="margin:0;font-size:9px;table-layout:fixed;">
+										<thead>
+											<tr>
+												<th class="col-w-b30-1"></th>
+												<th>COMPANY</th>
+												<th class="col-w-b30-12">ADDRESS</th>
+												<th class="col-w-b30-6">DEFAULT GL ACCOUNT</th>
+												<th class="col-w-b30-2" style="text-align:center;">REQUIRE PO</th>
+												<th style="width:17px;padding:0;"></th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+								<div class="row" style="height:260px; overflow-y:scroll; margin-left:0; margin-right:0;">
+									<table id="tblVendorSearchBody" class="cm-table table table-condensed table-hover" style="table-layout:fixed;">
+										<tbody data-bind="foreach: filteredManualInvoiceVendors">
+											<tr onmouseover="" onmouseout="" style="height:22px;" data-bind="">
+												<td class="col-w-b30-1" style="padding:0 !important;vertical-align:middle;"><input type="checkbox" class="vend-checkbox" data-bind="checked: Selected" /></td>
+												<td style="vertical-align:middle;" data-bind="text: Company"></td>
+												<td class="col-w-b30-12" style="vertical-align:middle; /*overflow: hidden; text-overflow: ellipsis; white-space: nowrap;*/" data-bind="text: Address"></td>
+												<td class="col-w-b30-6" style="vertical-align:middle; text-align: left; cursor:pointer;" data-bind="text: GLAccDescription"></td>
+												<td class="col-w-b30-2" style="vertical-align:middle; text-align: center; cursor:pointer;" data-bind=""><span class="glyphicon" data-bind="css: {'glyphicon-ok': RequiredPO == '1'}, attr: { title: Tooltip }"></span></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div class="row" style="margin-top:15px;">
+									<div class="col-xs-12">
+										<button class="btn btn-xs btn-primary" style="float:left;" data-bind="visible: !fnc.app.singleLocation(), click: showSelectLocation"><span class="glyphicon glyphicon-arrow-left"></span><span>   Back</span></button>
+										<button class="btn btn-xs btn-primary" style="float:right;" data-bind="click: createAndShowManualInvoice, disable: manualInvoiceSelectedVendor() == null"><span>Create Invoice   </span><span class="glyphicon glyphicon-arrow-right"></span></button>
+									</div>
+								</div>
+							</div>
+							<!-- Status Bar -->
+							<div class="row bg-info" style="margin-top:10px;margin-left:0;margin-right:0;">
+								<div class="col-xs-6">
+									<span>Location: </span>
+									<!-- ko if: fnc.poListApp.manualInvoiceSelectedOrganization() != null -->
+									<span data-bind="text: fnc.poListApp.manualInvoiceSelectedOrganization().LocationName"></span>
+									<!-- /ko -->
+								</div>
+								<div class="col-xs-6">
+									<span>Vendor: </span>
+									<!-- ko if: fnc.poListApp.manualInvoiceSelectedVendor() != null -->
+									<span data-bind="text: fnc.poListApp.manualInvoiceSelectedVendor().Company"></span>
+									<!-- /ko -->
+								</div>
+							</div>
+							<!-- /Status Bar -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /CREATE MANUAL INVOICE -->
+		<!-- Confirm Delete PO/Invoice -->
+		<div class="modal draggable fade" id="modConfirmDelPoInv" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="myModalLabel">CONFIRM DELETE</h4>
+					</div>
+					<div class="modal-body">
+						<!-- ko if: selectedForDeleteItem() != null -->
+						<div data-bind="with: selectedForDeleteItem">
+							<p data-bind="visible: InvoiceId == '0'">Please confirm deleting <span data-bind="text: PONumber"></span> from <span data-bind="text: decodeText(Company)"></span></p>
+							<p data-bind="visible: InvoiceId != '0'">Please confirm deleting <span data-bind="text: InvoiceNumber"></span> from <span data-bind="text: decodeText(Company)"></span></p>
+						</div>
+						<!--<pre data-bind="text: ko.toJSON(selectedForDeleteItem(), null, 2)"></pre>-->
+						<!-- /ko -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bind="click: cancelDelInvPO">Cancel</button>
+						<button type="button" class="btn btn-default" data-bind="click: deleteInvPO">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Confirm Delete PO/Invoice -->
+		<!-- Confirm FullBill Export -->
+		<div class="modal draggable fade" id="modConfirmFullBillExport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header" style="padding-bottom:5px;padding-top:5px;">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h6 class="modal-title" id="myModalLabel">QUICKBOOKS (DESKTOP) EXPORT</h6>
+					</div>
+					<div class="modal-body" style="padding-bottom:0px;padding-top:0px;">
+						<div class="radio">
+							<label>
+								<input type="radio" name="optionsRadios" id="optionsRadios1" value="1" data-bind="checked: exportQBFullBill">
+								Full Bill
+							</label>
+						</div>
+						<div class="radio">
+							<label>
+								<input type="radio" name="optionsRadios" id="optionsRadios2" value="0" data-bind="checked: exportQBFullBill">
+								Transactions Only
+							</label>
+						</div>
+						<!--<pre style="display:inline;" data-bind="text: ko.toJSON(fnc.poListApp.exportQBFullBill(), null, 2)"></pre>-->
+					</div>
+					<div class="modal-footer" style="padding-bottom:5px;padding-top:5px;">
+						<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-xs btn-primary" data-bind="click: submitExport">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Confirm FullBill Export -->
+		<!-- QBO Export Progress -->
+		<div class="modal draggable fade" id="modQboExportProgress" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog">
+				<div class="modal-content" style="width:730px;">
+					<div class="modal-header" style="">
+						<!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+						<h6 class="modal-title" id="myModalLabel">QUICKBOOKS EXPORT</h6>
+					</div>
+					<div class="modal-body" style="height:auto;">
+						<table class="cm-table table table-condensed" style="margin-bottom:0;">
+							<thead style="display:block;">
+								<tr>
+									<th style="width:160px;">COMPANY</th>
+									<th style="width:300px;">LOCATION</th>
+									<th style="width:130px;">INV.NO</th>
+									<th style="width:80px">INV.DATE</th>
+									<th style="width:23px;"></th>
+									<th class="col-w-scroll-17"></th>
+								</tr>
+							</thead>
+							<tbody id="exportListBody" style="display:block;height:200px; overflow-y:scroll; border-bottom:solid 2px lightgray;border-left:solid 2px lightgray;border-right:solid 2px lightgray;">
+								<!-- ko foreach: fnc.poListApp.selectedForQboExportInvoices -->
+								<tr data-bind="style: {'background-color': ExportStatus() == 'inprogress' ? 'yellow' : 'transparent', 'color': ExportStatus() == 'error' ? 'red' : 'black'}">
+									<td style="width:160px;" data-bind="text: Company"></td>
+									<td style="width:300px;" data-bind="text: Location"></td>
+									<td style="width:130px;" data-bind="text: InvoiceNumber"></td>
+									<td style="width:80px;" data-bind="text: format2Date(DeliveryDate)"></td>
+									<td style="width:23px;">
+										<span class="glyphicon glyphicon-hourglass" style="color:brown;" data-bind="visible: ExportStatus() == 'inprogress'"></span>
+										<span class="glyphicon glyphicon-ok" style="color:green;" data-bind="visible: ExportStatus() == 'success'"></span>
+										<span class="glyphicon glyphicon-remove-sign" style="color:red;cursor:pointer;" data-bind="visible: ExportStatus() == 'error'"></span>
+									</td>
+								</tr>
+								<!-- /ko -->
+								<tr><td colspan="5" style="width:10000px;"></td></tr>
+							</tbody>
+						</table>
+						<!--<pre style="" data-bind="text: ko.toJSON(fnc.poListApp.selectedForQboExportInvoices(), null, 2)"></pre>-->
+					</div>
+					<div class="modal-footer" style="text-align:left;">
+						<div class="row">
+							<div class="col-xs-10">
+								<div class="" style="width:100%;display:block;margin:0;" data-bind="if: exportProgress() == 'ended'">
+									<!-- ko  if: exportWithError() -->
+									<span style="color:red;" class="glyphicon glyphicon-remove-sign"></span>&nbsp;<span style="font-size:1.2em;font-weight:bold;color:red;">Completed with error(s).</span>
+									<!-- /ko -->
+									<!-- ko  if: !exportWithError() -->
+									<span style="color:green;" class="glyphicon glyphicon-ok"></span>&nbsp;<span style="font-size:1.2em;font-weight:bold;">Completed.</span>
+									<!-- /ko -->
+								</div>
+								<div class="" style="width:100%;display:block;margin:0;font-size:1.0em;color:red;" data-bind="if: exportWithError() && exportProgress() == 'ended'">
+									<span>Unable to export to QuickBooks online. Please ensure that all Vendors and GL Accounts are mapped and Invoice Number is not used.</span>
+								</div>
+							</div>
+							<div class="col-xs-2">
+								<!-- ko if: fnc.poListApp.exportProgress() != 'ended' -->
+								<button type="button" class="btn btn-sm btn-default" style="float:right;" data-bind="click: cancelQboExport">Cancel</button>
+								<!-- /ko -->
+								<!-- ko if: fnc.poListApp.exportProgress() == 'ended' -->
+								<button type="button" class="btn btn-sm btn-default" style="float:right;" data-dismiss="modal">OK</button>
+								<!-- /ko -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /QBO Export Progress -->
+
+		<!--download options-->
+		<div class="modal fade" id="modDownloadOptions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" style="width:415px;">
+				<div class="modal-content">
+					<div class="modal-header" style="padding-bottom:5px;padding-top:5px;">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<span class="modal-title" style="font-size:16px;" id="myModalLabel"> What would you like to include for each invoice?</span>
+					</div>
+					<div class="modal-body" style="padding-bottom:0px;padding-top:0px;">
+						<div data-bind="with:downloadIncludeOptions">
+							<!--<label style="width:100%;">
+								<input type="checkbox" data-bind="checked:invoiceSummary.selected" />
+								<span data-bind="text:invoiceSummary.name"></span>
+							</label>-->
+							<label style="width:100%;">
+								<input type="checkbox" data-bind="checked:invoiceRecord.selected" />
+								<span data-bind="text:invoiceRecord.name"></span>
+							</label>
+							<label style="width:100%;">
+								<input type="checkbox" data-bind="checked:eInvoice.selected" />
+								<span data-bind="text:eInvoice.name"></span>
+							</label>
+							<label style="width:100%;">
+								<input type="checkbox" data-bind="checked:invoiceDocuments.selected" />
+								<span data-bind="text:invoiceDocuments.name"></span>
+							</label>
+							<label style="width:100%;">							
+								<input type="checkbox" data-bind="checked:proofOfDeliveries.selected" />
+								<span data-bind="text:proofOfDeliveries.name"></span>
+							</label>
+							<label style="width:100%;">
+								<input type="checkbox" data-bind="checked:supportingImages.selected" />
+								<span data-bind="text:supportingImages.name"></span>
+							</label>
+							<label style="width:100%;">
+								<input type="checkbox" data-bind="checked:supportingDocuments.selected" />
+								<span data-bind="text:supportingDocuments.name"></span>
+							</label>
+						</div>
+					</div>
+					<div class="modal-footer" style="padding-bottom:5px;padding-top:5px;">
+						<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-xs btn-primary" data-bind="click: downloadInvoiceList"> Download</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--/download options-->
+
+		<!--<pre style="margin:0;padding:0;display:inline;" data-bind="text: ko.toJSON(fnc.app.filterRangeBaseOn(), null, 2)"></pre>-->
+		<!--<pre style="margin:0;padding:0;display:inline;" data-bind="text: ko.toJSON(fnc.app.notSelectedLocationsHidden(), null, 2)"></pre>-->
+
+		
+	</div>
+
+</body>
+</html>

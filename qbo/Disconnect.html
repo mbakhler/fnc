@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>QBO Disconnect</title>
+
+	<link href="../css/bootstrap.min.css" rel="stylesheet" />
+	<script src="../lib/jquery-2.1.3.min.js"></script>
+	<script src="../lib/bootstrap.min.js"></script>
+	<script src="../lib/knockout-3.2.0.js"></script>
+
+	<script>
+	var appid = '88A16020-BE57-4EE4-9FB7-5B028E4A2D1C';
+	var ajaxURL = "/ChefMod.Financials.UI.Services/HostPage.aspx/ExecAppMethod";
+	var callBackURL = window.location.href;
+	var xid = getQueryStringValue('xid');
+	var qbSessionData;
+	var errMessage = ko.observable('');
+
+	function getQueryStringValue(key) {
+		return unescape(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + escape(key).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"));
+	};
+
+	function urlqs(key) {
+		key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+		var match = location.search.match(new RegExp("[?&]" + key + "=([^&]+)(&|$)"));
+		return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+	};
+
+	function ajaxPost(action, params, callback) {
+		var json = {
+			oid: 0,
+			uc: 0,
+			iuc: 0,
+			SessionId: '',
+			AppId: appid,
+			params: params
+		};
+		var d = { appid: appid, method: action, json: JSON.stringify(json) };
+		//console.log(Date.now() + "||" + action + "||" + JSON.stringify(json.params));
+		$.ajax({
+			type: "POST",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			url: ajaxURL,
+			data: JSON.stringify(d),
+			success: function (response) {
+				//console.log("success");
+				if (response.d == '') {
+					callback(response);
+					return;
+				}
+				if (jQuery.parseJSON(response.d).hasOwnProperty('errorNumber') && jQuery.parseJSON(response.d).errorNumber == 100) {
+					//console.log(xhr);
+					console.log('Authorization failed');
+					errMessage('Authorization failed. Please try again later.');
+					$('#modMessage').modal('show');
+					// close modal window
+					$("#modMessage").on("hidden.bs.modal", function () {
+						errMessage('');
+					});
+					return;
+				}
+				callback(response);
+			},
+
+			error: function (xhr, ajaxOptions, thrownError) {
+				console.log(xhr);
+				errMessage('Unexpected error occurred. Please try again later or contact ChefMod support.');
+				$('#modMessage').modal('show');
+				// close modal window
+				$("#modMessage").on("hidden.bs.modal", function () {
+					errMessage('');
+				});
+				callback({ d: "{result:'error'}" });
+			}
+		});
+	};
+
+	function disconnect(orgId, realmId, callback) {
+		//Disconnect(o.Params.OrganizationId, o.Params.RealmId, o.uc)
+		var params = {};
+		params.OrganizationId = orgId;
+		params.RealmId = realmId;
+
+		ajaxPost("ChefMod.Financials.UI.Controllers.QBOHelper.QboDisconnect", params, function (response) {
+			if (response.d == '') {
+				if (callback) callback();
+				return;
+			}
+			//error
+			var r = eval('(' + response.d + ')');
+			if (r.result == 'error') {
+				return;
+			}
+		});
+
+	}
+
+	</script>
+</head>
+
+<body>
+	<!-- ERROR MESSAGE -->
+	<div class="modal fade" id="modMessage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h5 class="modal-title" id="myModalLabel">ERROR MESSAGE</h5>
+				</div>
+				<div class="modal-body">
+					<!--<h4>Authorization failed. Please try it again.</h4>-->
+					<h5 data-bind="text: errMessage()"></h5>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /ERROR MESSAGE -->
+
+	<script>
+	$(document).ready(function () {
+		//debugger
+		ko.applyBindings(errMessage, modMessage)
+
+		if (urlqs("disconnect")) {
+			var realmId = urlqs("realmId");
+			var orgId = 0;
+			disconnect(orgId, realmId, function () {
+				console.log('disconnected');
+				//window.close();
+				window.location.href = "Reconnect.html";
+			});
+		} else {
+			window.close();
+		}
+	});
+	</script>
+
+</body>
+
+</html>

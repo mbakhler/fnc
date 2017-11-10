@@ -1,0 +1,101 @@
+﻿<!doctype html>
+<html>
+<head>
+	<title>ChefMod</title>
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="cache-control" content="no-store">
+	<meta http-equiv="Expires" content="-1">
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://www.chefmod.com/includes/style.css" rel="stylesheet" type="text/css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://www.chefmod.com/includes/init.js"></script>
+</head>
+
+<body>
+
+	<div id="main">
+		<div id="header" style="position: relative!important;height:90px;">
+			<a href=""><div id="chefmod" style="top:10px;"></div></a>
+		</div>
+
+		<div id="container" style="margin-top:0;">
+			<div id="slider-about-us" style="height:40px;">
+				<div class=""></div>
+			</div>
+
+			<div id="about-row1" >
+				<div class="h4">Reconnect</div>
+				<p style="font-size:0.85em;">
+					It seems that you’ve disconnected ChefMod from your QuickBooks company. Unfortunately, ChefMod can no longer feed your accounting process with vital information, and you will have to enter it all manually in QuickBooks. Perhaps you have done it in error. Don’t worry, it happens to the best of us. You can reconnect at any time following these simple steps below.
+				</p>
+				<ol>
+					<li style="font-size:0.85em;margin-bottom:5px;">Login to <a target="_blank" href="https://www.chefmod.com/login.html" style="color:#006aad;text-decoration:underline;">ChefMod</a></li>
+					<li style="font-size:0.85em;margin-bottom:5px;">Click on “Financials” tab.</li>
+					<li style="font-size:0.85em;margin-bottom:5px;">Click on Setup button.</li>
+					<li style="font-size:0.85em;margin-bottom:5px;">On the left, under “Connect Systems” section, click on “QuickBooks Online” link.</li>
+					<li style="font-size:0.85em;margin-top:-10px;">Select a location you want to reconnect, click on <img height="30" width="87" style="position:relative;top:10px;" src="../img/qb/C2QB_white_btn_med_default.png" /> button and follow QuickBooks instructions.</li>
+				</ol>
+				<!--<p style="font-size:0.85em;">Select a location you want to reconnect, click on <img height="30" width="87" src="../img/qb/C2QB_white_btn_med_default.png" /> button and follow QuickBooks instructions.</p>-->
+			</div>
+
+			<div id="footer_login">
+				<a href="https://www.chefmod.com"><div class="iso">ChefMod</div></a>
+				<div class="column1">CHEFMOD, LLC<br>85 5TH AVE, 14TH FLOOR<br>NEW YORK, NY 10003</div>
+				<div class="column2">PHONE (212) 531-6286<br>FAX (866) 422-0536</div>
+				<div class="column3">
+					<a href="mailto:info@chefmod.com">INFO@CHEFMOD.COM</a><br>
+					<a href="mailto:feedback@chefmod.com">FEEDBACK@CHEFMOD.COM</a>
+				</div>
+				<div id="social-nav-footer_login">
+					<a href="#"><div class="google icon-footer">Google+</div></a>
+					<a href="#"><div class="instagram icon-footer">Instagram</div></a>
+					<a href="#"><div class="facebook icon-footer">Facebook</div></a>
+					<a href="#"><div class="twitter icon-footer">Twitter</div></a>
+					<a href="#"><div class="linkedin icon-footer">Linkedin</div></a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		$(document).ready(function () {
+			var totalWidth = window.innerWidth;
+			var totalHeight = $(document).height();
+			var mainHeight = $('#main').height();
+			if (totalHeight > mainHeight) {
+				$('#main').height(totalHeight);
+			}
+			if (totalWidth > 699) {
+				var totalHeight = window.innerHeight;
+				var headerHeight = $('#header').height();
+				var footerHeight = $('#footer_login').height();
+				var loginHeight = totalHeight - (headerHeight + footerHeight + 30);
+				var marginLogin = (loginHeight - 190) / 2;
+				$('.container').css('top', marginLogin);
+			}
+			setSocialNav($("div#footer_login>div#social-nav-footer_login>a"));
+		});
+		$(window).resize(function () {
+			var totalHeight = $(document).height();
+			var mainHeight = $('#main').height();
+			if (totalHeight > mainHeight) {
+				$('#main').height(totalHeight);
+			}
+			var totalWidth = window.innerWidth;
+			if (totalWidth > 699) {
+				var totalHeight = window.innerHeight;
+				var headerHeight = $('#header').height();
+				var footerHeight = $('#footer_login').height();
+				var loginHeight = totalHeight - (headerHeight + footerHeight + 30);
+				var marginLogin = (loginHeight - 190) / 2;
+				$('.container').css('top', marginLogin);
+			} else {
+				$('.container').css('top', 0);
+			}
+		});
+	</script>
+</body>
+</html>

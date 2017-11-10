@@ -1,0 +1,712 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title></title>
+	<script src="js/calendar.js"></script>
+</head>
+<body>
+	<div class="container-fluid" id="cldrApp" role="main" style="" data-bind="with: fnc.calendarApp">
+
+		<div class="row">
+
+			<!-- Location Section -->
+			<div class="col-xs-2" style="padding-right:0;">
+				<div class="panel panel-default" style="margin-bottom:0; border: 1px solid #337ab7; padding: 5px; border-radius: 5px;">
+					<div class="panel panel-default" style="margin-bottom:0;height:576px;">
+						<div class="panel-heading" style="padding:0;color:brown;">
+							<div class="row" style="padding-bottom: 5px; padding-top:5px;">
+								<div class="col-xs-7" style="padding-right:0;">
+									<!-- ko if: !fnc.app.singleLocation()  -->
+									<div style="display:table-cell; width:25px;height:17px;float:left;">
+										<span class="glyphicon glyphicon-filter" aria-hidden="true" title="Clear filter" style="margin-left:10px; cursor:pointer;" data-bind="visible: fnc.app.clearLocationFilterVisible, click: clearLocationFilter"></span>&nbsp;
+									</div>
+									<span style="/*margin-left:5px;*/font-weight:bolder;">Location</span>
+									<div style="display:inline-block;padding-left:3px;">
+										<span id="selectedLocationsIcon" class="glyphicon glyphicon-unchecked" aria-hidden="true" title="Toggle selected" style="/*margin-left:5px;*/ cursor:pointer;" data-bind="visible: fnc.app.filterSelectedLocations().length, click: toggleSelectedLocations"></span>&nbsp;
+									</div>
+									<!-- /ko -->
+									<!-- ko if: fnc.app.singleLocation() -->
+									<span style="margin-left:25px;font-weight:bolder;">Location</span>
+									<!-- /ko -->
+								</div>
+								<div class="col-xs-5" style="padding-left:0px; padding-right:20px;">
+									<input type="text" placeholder="   Search..." style="width:100%" data-bind="textinput: fnc.app.searchLocationsFilter, visible: !fnc.app.singleLocation()" />
+								</div>
+							</div>
+						</div>
+						<ul class="list-group" id="calendarLocation" style="max-height:546px;overflow-y:auto;" data-bind="foreach: fnc.app.filteredLocations">
+							<li class="list-group-item" style="padding:0;" data-bind="visible: fnc.app.notSelectedLocationsHidden() ? Selected() : true">
+								<label style="margin:0;font-weight: normal;">
+									<!-- ko if: !fnc.app.singleLocation() -->
+									<input type="checkbox" style="margin-left:10px;" data-bind="checked: Selected" />
+									<span style="margin-left:5px;font-size:0.9em !important;" data-bind="text: LocationName"></span>
+									<!-- /ko -->
+									<!-- ko if: fnc.app.singleLocation()  -->
+									<span style="margin-left:30px;font-size:0.9em !important;" data-bind="text: LocationName"></span>
+									<!-- /ko -->
+								</label>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- /Location Section -->
+			
+			<!-- Calendar -->
+			<div id="calendar" class="col-xs-8" style="">
+				<div class="panel panel-default" style="border: 1px solid #337ab7; padding-bottom: 5px;padding-left: 5px;padding-right: 5px; border-radius: 5px; margin-bottom:0;height:588px;">
+					<div class="row" style="margin:0;">
+						<div class="col-xs-4" style="padding-left:0;padding-right:0;">
+							<div class="btn glyphicon glyphicon-triangle-left" style="padding-left:0;padding-right:6px;" data-bind="click: previousMonth"></div>
+							<div class="btn glyphicon glyphicon-triangle-right" style="padding-left:6px;padding-right:0;" data-bind="click: nextMonth"></div>
+							<div class="cm-button-like-label" style="padding:6px;" data-bind="text: calendarTitle"></div>
+							<div id="cmCalendarDropdown" class="dropdown" style="display:inline-block;">
+								<button id="dLabel" class="cm-calendar-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-calendar"></span></button>
+								<div id="" class="dropdown-menu cm-dropdown-monthpicker" aria-labelledby="dLabel">
+									<!--<div class="calendar-demo" style="width:600px; height:450px;"></div>-->
+									
+									<div id="threeYearsMonthCalendar">
+										<div class="panel panel-default" style="margin:0px 5px;">
+											<div class="panel-heading" style="width:340px;text-align:center;padding:0;">
+												<div class="btn-toolbar" role="toolbar" style="display:inline-block;">
+													<div class="btn-group" role="group" style="margin-top:5px;">
+														<button type="button" class="btn btn-xs btn-default" data-bind="click: cmCalendarPreviousYearClick"><span class="glyphicon glyphicon-chevron-left"></span></button>
+														
+														<!-- ko foreach: cmCalendarYears -->
+														<!-- ko if: $data.Visible() -->
+														<button type="button" class="btn btn-xs btn-default" data-bind="css: {active: Selected()}, click: YearClick"><span class="" data-bind="text: Year"></span></button>
+														<!-- /ko -->
+														<!-- /ko -->
+														
+														<button type="button" class="btn btn-xs btn-default" data-bind="click: cmCalendarNextYearClick"><span class="glyphicon glyphicon-chevron-right"></span></button>
+													</div>
+												</div>
+											</div>
+											<div class="panel-body" style="padding:5px; font-size:12px;">
+												<div class="row">
+													<div class="col-xs-4" style="padding-right:0;">
+														<table class="table table-condensed" style="margin-bottom:0;">
+															<tr><td colspan="3" style="padding:0; text-align:center;" data-bind="text: fnc.calendarApp.selectedCmCalendarYear() - 1"></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[0]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Jan</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[1]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Feb</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[2]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Mar</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[3]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Apr</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[4]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">May</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[5]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Jun</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[6]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Jul</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[7]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Aug</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[8]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Sep</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[9]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Oct</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[10]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Nov</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[11]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() - 1}">Dec</button></td></tr>
+														</table>
+													</div>
+													<div class="col-xs-4" style="padding-right:7px;padding-left:7px;">
+														<table class="table table-condensed" style="margin-bottom:0;">
+															<tr><td colspan="3" style="padding:0; text-align:center;" data-bind="text: fnc.calendarApp.selectedCmCalendarYear()"></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[0]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Jan</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[1]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Feb</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[2]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Mar</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[3]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Apr</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[4]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">May</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[5]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Jun</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[6]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Jul</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[7]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Aug</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[8]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Sep</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[9]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Oct</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[10]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Nov</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[11]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="css: {active: Selected()}, click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear()}">Dec</button></td></tr>
+														</table>
+													</div>
+													<div class="col-xs-4" style="padding-left:0;">
+														<table class="table table-condensed" style="margin-bottom:0;">
+															<tr><td colspan="3" style="padding:0; text-align:center;" data-bind="text: fnc.calendarApp.selectedCmCalendarYear() + 1"></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[0]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Jan</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[1]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Feb</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[2]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Mar</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[3]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Apr</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[4]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">May</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[5]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Jun</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[6]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Jul</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[7]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Aug</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[8]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Sep</button></td></tr>
+															<tr><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[9]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Oct</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[10]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Nov</button></td><td style="padding:0;" data-bind="with: fnc.calendarApp.cmCalendarMonths()[11]"><button type="button" class="btn btn-xs btn-default cm-btn-calendar" style="width:35px;" data-bind="click: MonthClick, attr: {'data-cm-year': fnc.calendarApp.selectedCmCalendarYear() + 1}">Dec</button></td></tr>
+														</table>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<button type="button" class="" style="" data-bind="click: goToToday">Today</button>
+						</div>
+						
+						<div class="col-xs-4" style="padding-left:0;padding-right:0;">
+							<div data-bind="if: !isClassesEnable()">
+								<h4 style="">
+									<span data-bind="text:totalLabel3()"></span>&nbsp;
+									<!-- ko if: currentMonthCost() != '' -->
+									<span style="color:#337ab7;" data-bind="text: currentMonthCost()"></span>
+									<!-- /ko -->
+									<!-- ko if: currentMonthCost() == '' -->
+									<span style="color:#337ab7;">N/A</span>
+									<!-- /ko -->
+								</h4>
+							</div>
+							<div data-bind="if: isClassesEnable()">
+								<div class="row">
+									<div class="col-xs-12" style="font-size:14px;font-weight:bold;line-height:20px;text-align:center;">
+										<span data-bind="text:totalLabel3()"></span>&nbsp;
+										<!-- ko if: currentMonthCost() != '' -->
+										<span style="color:#337ab7;" data-bind="text: currentMonthCost()"></span>
+										<!-- /ko -->
+										<!-- ko if: currentMonthCost() == '' -->
+										<span style="color:#337ab7;">N/A</span>
+										<!-- /ko -->
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12" style="text-align:center;">
+										<select style="font-size:11px;min-width:160px;" data-bind="options: selectedOrgClassList, optionsText: 'ClassName', optionsCaption: 'All Classes', value: selectedClass"></select>
+									</div>	
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-4" style="padding-left:0;padding-right:0;">
+							<div class="btn-group btn-group-xs" role="group" data-toggle="buttons" style="width:100%;line-height:34px;height:34px;padding-top:5px;">
+								<label class="btn btn-info cm-data-type-input active" for="dataTypeFood" style="width:33%;line-height:20px;font-size:1em;" data-type="food" data-bind="click: changeDataType">
+									<input type="checkbox" name="dataType" id="dataTypeFood" autocomplete="off"><span class="glyphicon glyphicon-apple"></span>&nbsp;Food
+								</label>
+								<label class="btn btn-info cm-data-type-input active"  for="dataTypeBeverage" style="width:34%;line-height:20px;font-size:1em;" data-type="beverage" data-bind="click: changeDataType">
+									<input type="checkbox" name="dataType" id="dataTypeBeverage" autocomplete="off"><span class="glyphicon glyphicon-glass"></span>&nbsp;Beverages
+								</label>
+								<label class="btn btn-info cm-data-type-input"  for="dataTypeOther" style="width:33%;line-height:20px;font-size:1em;" data-type="other" data-bind="click: changeDataType">
+									<input type="checkbox" name="dataType" id="dataTypeOther" autocomplete="off"><span class="glyphicon"></span>&nbsp;Other
+								</label>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col-xs-12">
+							<table class="table table-bordered" style="margin-bottom:0;">
+								<tr style="background-color:lightblue;">
+									<!-- ko foreach: calendarHeader -->
+									<th class="" style="min-width:80px !important;max-width:120px !important;" data-bind="text: $data">Sun</th>
+									<!-- /ko -->
+									<th>Total</th>
+								</tr>
+								<tbody data-bind="foreach: calendarWeeks">
+									<tr data-bind="foreach: days">
+										<!-- ko if: $index() < 7 -->
+										<td style="padding-bottom:0px !important;padding-left:3px;padding-right:3px; padding-top:0px !important;height:85px !important;box-sizing:border-box  !important;" data-bind="style: {'background-color': thisMonth ? 'white' : '#f5f5f5'}, css: {'cm-today': day() == fnc.calendarApp.today.format('yyyy-mm-dd')}">
+											<table class="cm-table" style="width:100%;background-repeat:no-repeat;background-size:70px 70px;background-position:center;background-position-y:10px;" data-bind="style: {'background-image': 'url(\'img/weather/'+ fxCode() +'.png\')'}">
+												<tr style="">
+													<td data-bind="">
+														<span data-bind="text: date"></span>
+													</td>
+													<td style="padding:2px;" data-bind="visible: fxCode() != 3200">
+														<span class="glyphicon" style="width: 14px;height: 14px;float:right;margin-left: 5px;color:#5bc0de;cursor:pointer;" data-toggle="popover" data-placement="top" data-trigger="manual" data-html="true;" title="" data-content="" data-bind="click: fnc.calendarApp.showForecast, attr: {title: fxDate()}">W</span>
+													</td>
+												</tr>
+												
+												<tr style="font-size:11px;color:brown;">
+													<td style="padding:2px;" data-bind="">
+														<span class="glyphicon glyphicon-flag" style="width: 14px;height: 14px;float:left;color:orange;cursor:pointer;" data-date-range="0" data-view-filter="not-accepted" data-bind="click: fnc.calendarApp.drilldownToInvoices, visible: Flagged()"></span>&nbsp;
+													</td>
+													<td style="text-align:right;padding-right:5px;margin-top:4px;">&nbsp;<a style="font-weight:bold;cursor:pointer;color:brown !important;" data-date-range="1" data-view-filter="all" data-bind="text: formatCurrency(expenses()), click: fnc.calendarApp.drilldownToInvoices, css: {'cm-disabled-link': !fnc.app.prvInvoicesViewEnable()}"></a></td>
+												</tr>
+												
+												<tr style="font-size:11px;color:darkgreen;">
+													<td style="padding:2px;" data-bind="">
+														<span title="Projected Sales" style="width: 14px;height: 14px;line-height:14px;float:left;font-weight:bold;font-size:1.2em;color:#9900cc;cursor:pointer;" data-bind="visible: SalesCode() == 1">&#63;</span>&nbsp;
+														<span title="Actual and Projected Sales" style="width: 14px;height: 14px;line-height:14px;float:left;font-weight:bold;font-size:1.4em;color:#9900cc;cursor:pointer;" data-bind="visible: SalesCode() == 2">&#8776;</span>&nbsp;
+													</td>
+													<td style="text-align:right;padding-right:5px;">&nbsp;<a style="font-weight:bold;cursor:pointer;color:darkgreen !important;" data-bind="text: formatCurrency(sales()), click: showSalesEntryScreen"></a></td>
+												</tr>
+
+												<tr style="font-size:13px;color:#337ab7;"><td colspan="2" style="text-align:right;padding-right:5px;">&nbsp;<span style="font-weight:bold;color:#337ab7;" data-bind="text: cost()"></span></td></tr>
+
+												<!-- PLACEHOLDER -->
+												<!--<tr><td colspan="2" style="">&nbsp;</td></tr>-->
+												<!-- /PLACEHOLDER -->
+											</table>
+										</td>
+										<!-- /ko -->
+										<!-- ko if: $index() == 7 -->
+										<td style="padding-bottom:0px !important;background-color:lightgray;padding-left:2px; padding-top:0px !important;height:85px !important;box-sizing:border-box  !important;">
+											<table class="cm-table" style="width:100%;">
+												<tr style=""><td colspan="2" style="height:18px;padding-top:0px !important;">&nbsp;</td></tr>
+												<tr style="font-size:11px;"><td style="">Invoices:<span class="glyphicon glyphicon-flag" style="width: 14px;height: 14px;margin-left:4px;color:orange;cursor:pointer;display:none;" data-date-range="0" data-view-filter="not-accepted" data-bind="click: fnc.calendarApp.drilldownToWeeklyInvoices, visible: WeeklyInvoicesFlag()"></span></td><td style="color:brown;font-weight:bold;text-align:right;"><span style="cursor:pointer;" data-date-range="1" data-view-filter="all" data-bind="text: formatCurrency(expenses()), click: fnc.calendarApp.drilldownToWeeklyInvoices"></span></td></tr>
+												<tr style="font-size:11px;">
+													<td style="width:50px;">
+														Sales:
+														<span title="Projected Sales" style="line-height:12px;font-weight:bold;font-size:1.2em;color:#9900cc;cursor:pointer;" data-bind="visible: WeeklySalesCode() == 1">&#63;</span>&nbsp;
+														<span title="Actual and Projected Sales" style="line-height:12px;font-weight:bold;font-size:1.4em;color:#9900cc;cursor:pointer;" data-bind="visible: WeeklySalesCode() == 2">&#8776;</span>&nbsp;
+													</td>
+													<td style="color:darkgreen;font-weight:bold;text-align:right;" data-bind="text: formatCurrency(sales())"></td>
+												</tr>
+												<tr style=""><td class="text-overflow-ellipsis" style="width:84px;font-size:11px;display:block;" data-bind="text: fnc.calendarApp.totalLabel3()">Cost:</td><td style="color:#337ab7;font-weight:bold;text-align:right;font-size:13px;" data-bind="text: cost()"></td></tr>
+												<!-- PLACEHOLDER -->
+												<!--<tr><td colspan="2" style="">&nbsp;</td></tr>-->
+												<!-- /PLACEHOLDER -->
+											</table>
+										</td>
+										<!-- /ko -->
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Calendar -->
+			
+			<!-- Calendar Charts -->
+			<div id="calendar_charts" class="col-xs-2" style="padding-left:0;">
+				<div class="panel panel-default" style="margin-bottom:0; border: 1px solid #337ab7; padding: 5px; border-radius: 5px;">
+					<div class="chart-wrapper">
+						<div class="chart-title">
+							<div>Reconciliation Stats (%)</div>
+						</div>
+						<div id="chart_div1" class="chart-stage" style="min-height:140px;">
+							<!--<img data-src="holder.js/100%x140/white">-->
+							<img src="img/loading.gif" class="center-spin-image" />
+						</div>
+					</div>
+
+					<div class="chart-wrapper">
+						<div class="chart-title">
+							<div>YTD Cost vs. Sales</div>
+						</div>
+						<div id="chart_div2" class="chart-stage" style="min-height:208px;">
+							<!--<img data-src="holder.js/100%x300/white">-->
+							<img src="img/loading.gif" class="center-spin-image" />
+						</div>
+					</div>
+
+					<div class="chart-wrapper" style="margin-bottom:0;font-size:9px;">
+						<div class="chart-title">
+							<div style="">MTD Summary</div>
+						</div>
+						<div id="chart_div3" class="chart-stage" style="min-height:106px;padding:0;">
+							<!--<img data-src="holder.js/100%x300/white">-->
+							<img src="img/loading.gif" class="center-spin-image" data-bind="visible: loadingMTDChart()" />
+							<table class="cm-table table table-condensed" style="display:none;" data-bind="visible: !loadingMTDChart()">
+								<tbody style="border-top: 0px solid #ddd;">
+									<tr style="font-weight:bold;">
+										<td style="text-align:left;width:40%;">&nbsp;</td>
+										<td style="text-align:right;width:30%;">Cost</td>
+										<td style="text-align:right;">Sales</td>
+									</tr>
+								</tbody>
+
+								<tbody style="border-top: 1px solid #ddd;" data-bind="">
+									<tr style="border-bottom: 1px solid #ddd;">
+										<td style="text-align:left;width:40%;"><span data-bind="">FOOD</span></td>
+										<td style="text-align:right;"><span data-bind="text: formatCurrency(MTDFoodExpences())"></span></td>
+										<td style="text-align:right;width:30%;"><span data-bind="text: formatCurrency(MTDFoodSales())"></span></td>
+									</tr>
+									<tr style="border-bottom: 1px solid #ddd;">
+										<td style="text-align:left;width:40%;"><span data-bind="">BEVERAGES</span></td>
+										<td style="text-align:right;"><span data-bind="text: formatCurrency(MTDBeverageExpences())"></span></td>
+										<td style="text-align:right;width:30%;"><span data-bind="text: formatCurrency(MTDBeverageSales())"></span></td>
+									</tr>
+									<tr style="border-bottom: 1px solid #ddd;">
+										<td style="text-align:left;width:40%;"><span data-bind="">OTHER</span></td>
+										<td style="text-align:right;"><span data-bind="text: formatCurrency(MTDOtherExpences())"></span></td>
+										<td style="text-align:right;width:30%;"><span data-bind="text: formatCurrency(MTDOtherSales())"></span></td>
+									</tr>
+								</tbody>
+
+								<tbody style="border-top: 0px solid #ddd;">
+									<tr style="font-weight:bold;">
+										<td style="text-align:left;width:40%;"><span>Total:</span></td>
+										<td style="text-align:right;"><span data-bind="text: formatCurrency(MTDTotal())"></span></td>
+										<td style="text-align:right;width:30%;"><span data-bind="text: formatCurrency(MTDSalesTotal())"></span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Calendar Charts -->
+
+		</div>
+		
+				
+		<!-- MODAL -->
+		<div class="modal draggable fade" id="modProjectedSalesEntry" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" style="width:800px;">
+				<div class="modal-content" style="height:585px;">
+					<div class="modal-header" style="border-bottom:none;">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<!-- ko if: selectedSalesDay() && salesScreenMode() == 'show-sales-locations' -->
+						<h4 class="modal-title" id="myModalLabel">SALES for <span data-bind="text: format2Date(selectedSalesDay().day())"></span></h4>
+						<!-- /ko -->
+						<!-- ko if: selectedSalesDay() && salesScreenMode() == 'show-sales-item' -->
+						<div class="row">
+							<div class="col-xs-5">
+								<h6 class="modal-title" id="myModalLabel" style="font-weight:bold;"><span style="color:#9900cc;">&#63;&nbsp;&nbsp;&nbsp;</span>PROJECTED SALES for <span data-bind="text: format2Date(selectedSalesDay().day())"></span></h6>
+							</div>
+							<div class="col-xs-5" data-bind="if: isClassesEnable()">
+								<select class="input-medium input-nopadding" style="width:70%;" data-bind="options: projectedSalesClassList, optionsText: function(it) {return it.ClassName}, optionsValue: 'ClassKye', value: projectedSalesSelectedClass, optionsCaption: 'All'"></select>
+							</div>
+
+						</div>
+						<!-- /ko -->
+					</div>
+					<div class="modal-body" style="padding-top:2px;padding-bottom:0;">
+						<!-- Sales Locations -->
+						<div id="salesLocations" class="" style="width:100%;" data-bind="visible: salesScreenMode() == 'show-sales-locations'">
+							<div class="row">
+								<div class="col-xs-4">
+									<h6><input style="" type="text" class="form-control input-sm" id="" placeholder="Search for ..." data-bind="textinput: searchOrgsFilter, visible: !fnc.app.singleLocation()" />&nbsp;</h6>
+								</div>
+							</div>
+							<div class="row" id="salesTableHeader">
+								<div class="col-xs-8">
+									<div style="display:block"><h6 style="text-align:left;">Location</h6></div>
+								</div>
+								<div class="col-xs-2">
+									<div style="display:block"><h6 style="padding-right:8px;text-align:right;">Actual Sales</h6></div>
+								</div>
+								<div class="col-xs-2" style="padding-left:0;">
+									<div style="display:block"><h6 style="padding-right:20px;text-align:right;">Projected Sales</h6></div>
+								</div>
+							</div>
+							<div class="row" id="salesTableBody" style="height:400px; overflow-y:scroll; margin-left:0; margin-right:0;">
+								<table class="cm-table table table-condensed table-hover" style="table-layout:fixed;margin-bottom:0;">
+									<tbody data-bind="foreach: filteredOrganizations">
+										<tr onmouseover="" onmouseout="" style="height:22px;" data-bind="">
+											<!-- , attr: {title: ko.toJSON($data, null, 2)} -->
+											<td style="vertical-align:middle;" data-bind="text: OrgName"></td>
+											<td class="col-w-b30-4" style="text-align:right;">
+												<!-- ko if: fnc.calendarApp.enableActualSalesLink() -->
+												<span style="color: #f39105;margin-right:4px;" class="glyphicon glyphicon-alert" title="Not Accepted" data-bind="visible: ActualTotal != 0 && ActualAccepted == 0"></span>
+												<a href="#" class="disabled" data-bind="click: showActualSales, visible: ActualText() != 'N/A'"><span data-bind="text: ActualText()"></span></a>
+												<span data-bind="text: ActualText(), visible: ActualText() == 'N/A'"></span>
+												<!-- /ko -->
+												<!-- ko if: !fnc.calendarApp.enableActualSalesLink() -->
+												<span>N/A</span>
+												<!-- /ko -->											
+											</td>
+											<td class="col-w-b30-4" style="text-align:right;">
+												<!-- ko if: ProjectedText() != 'N/A' -->
+												<a href="#" data-bind="click: showProjectedSales"><span data-bind="text: ProjectedText()"></span></a>
+												<!-- /ko -->
+												<!-- ko if: ProjectedText() == 'N/A' -->
+												<span>N/A</span>
+												<!-- /ko -->
+												<!--<span data-bind="text: isFutureDate"></span>-->
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								<!--<pre style="display:block;" data-bind="text: ko.toJSON(filteredOrganizations(), null, 2)"></pre>-->
+							</div>
+						</div>
+						<!-- /Sales Locations -->
+
+						<!-- Sales Data -->
+						<div id="salesData" class="" style="width:100%;" data-bind="visible: salesScreenMode() == 'show-sales-item'">
+							<!-- Top row -->
+							<div class="row" style="height:55px;border-bottom:1px solid #e5e5e5;" data-bind="with: selectedProjectedSalesItem()">
+								<div class="col-xs-7">
+									<table>
+										<tr>
+											<td style="text-align:right;padding-right:10px;">Food(<span data-bind="text: fnbPercent(TotalFood(), TotalBev())"></span>)</td>
+											<td style="text-align:right;padding-right:10px;">Bev(<span data-bind="text: fnbPercent(TotalBev(), TotalFood())"></span>)</td>
+											<td style="text-align:right;padding-right:10px;">Total F&B</td>
+											<td style="text-align:right;padding-right:10px;">Other</td>
+											<td style="text-align:right;padding-right:10px;">Total</td>
+										</tr>
+										<tr>
+											<td style="padding-right:10px;"><input type="text" class="form-control" id="prjFood" placeholder="Food Total" style="text-align:right;width:80px;" data-bind="value: TotalFood.formatted, enable: isFutureDate && fnc.app.prvSalesManageProjectedEnable() && (fnc.calendarApp.isClassesEnable() ? fnc.calendarApp.projectedSalesSelectedClass() : true)" /></td>
+											<td style="padding-right:10px;"><input type="text" class="form-control" id="prjBev" placeholder="Beverages Total" style="text-align:right;width:80px;" data-bind="value: TotalBev.formatted, enable: isFutureDate && fnc.app.prvSalesManageProjectedEnable() && (fnc.calendarApp.isClassesEnable() ? fnc.calendarApp.projectedSalesSelectedClass() : true)" /></td>
+											<td style="padding-right:10px;"><div style="display:block;text-align:right;width:80px;" data-bind="text: formatCurrency(TotalFnB())"></div></td>
+											<td style="padding-right:10px;"><input type="text" class="form-control" id="prjOther" placeholder="Other Total" style="text-align:right;width:80px;" data-bind="value: TotalOther.formatted, enable: isFutureDate && fnc.app.prvSalesManageProjectedEnable() && (fnc.calendarApp.isClassesEnable() ? fnc.calendarApp.projectedSalesSelectedClass() : true)" /></td>
+											<td style="padding-right:10px;"><div style="display:block;text-align:right;width:80px;" data-bind="text: formatCurrency(GrandTotal())"></div></td>
+										</tr>
+									</table>
+								</div>
+							</div>
+							<!-- History -->
+							<h4 class="" style="text-align:center;">Historical Data</h4>
+							<div class="panel panel-default" style="padding:5px; margin-bottom:0; height:368px;overflow-y:scroll;overflow-x:hidden;">
+								<!-- ko if: selectedProjectedSalesHistory() != null -->
+								<div class="panel-body" style="padding:0;" data-bind="with: selectedProjectedSalesHistory">
+									
+									<!-- Min/Max/Avg -->
+									<div class="panel panel-default" style="margin-bottom:5px;">
+										<div class="panel-heading" style="padding:5px;">Min/Max/Avg</div>
+										<div class="panel-body" style="padding:0;">
+											<table class="cm-table table table-condensed table-hover" style="margin-bottom:0;">
+												<thead>
+													<tr>
+														<th>Comparing <span data-bind="text: Day"></span> since <span data-bind="text: format2Date(LastYearDateFrom)"></span></th>
+														<th class="col-w-b30-3" style="text-align:right;">Food</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Bev</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Other</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr style="">
+														<td>Min</td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(MinFood)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(MinFood, MinBev)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(MinBev)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(MinBev, MinFood)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(MinOther)"></td>
+													</tr>
+													<tr>
+														<td>Max</td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(MaxFood)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(MaxFood, MaxBev)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(MaxBev)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(MaxBev, MaxFood)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(MaxOther)"></td>
+													</tr>
+													<tr>
+														<td>Avg</td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(AvgFood)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(AvgFood, AvgBev)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(AvgBev)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(AvgBev, AvgFood)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(AvgOther)"></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<!-- Day -->
+									<div class="panel panel-default" style="margin-bottom:5px;">
+										<div class="panel-heading" style="padding:5px;">Day</div>
+										<div class="panel-body" style="padding:0;">
+											<table class="cm-table table table-condensed table-hover" style="margin-bottom:0;">
+												<thead>
+													<tr>
+														<th></th>
+														<th class="col-w-b30-3">Date</th>
+														<th class="col-w-b30-3" style="text-align:right;">Food</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Bev</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Other</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr style="background-color:lightblue;">
+														<td>Last Week Same Day</td>
+														<td data-bind="text: format2Date(LastWeekDate)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastWeekSDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastWeekSDFoodTotal, LastWeekSDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastWeekSDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastWeekSDBevTotal, LastWeekSDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastWeekSDOtherTotal)"></td>
+													</tr>
+													<tr>
+														<td>Last Month Same Day</td>
+														<td data-bind="text: format2Date(LastMonthDate)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthSDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastMonthSDFoodTotal, LastMonthSDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthSDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastMonthSDBevTotal, LastMonthSDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthSDOtherTotal)"></td>
+													</tr>
+													<tr>
+														<td>Last Year Same Day</td>
+														<td data-bind="text: format2Date(LastYearDate)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearSDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastYearSDFoodTotal, LastYearSDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearSDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastYearSDBevTotal, LastYearSDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearSDOtherTotal)"></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<!-- Week -->
+									<div class="panel panel-default" style="margin-bottom:5px;">
+										<div class="panel-heading" style="padding:5px;">Week</div>
+										<div class="panel-body" style="padding:0;">
+											<table class="cm-table table table-condensed table-hover" style="margin-bottom:0;">
+												<thead>
+													<tr>
+														<th></th>
+														<th class="col-w-b30-3">From</th>
+														<th class="col-w-b30-3">To</th>
+														<th class="col-w-b30-3" style="text-align:right;">Food</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Bev</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Other</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr style="background-color:lightblue;">
+														<td>This Week WTD</td>
+														<td data-bind="text: format2Date(ThisWeekDateFrom)"></td>
+														<td data-bind="text: format2Date(ThisWeekDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisWeekWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(ThisWeekWTDFoodTotal, ThisWeekWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisWeekWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(ThisWeekWTDBevTotal, ThisWeekWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisWeekWTDOtherTotal)"></td>
+													</tr>
+													<tr>
+														<td>Last Week WTD</td>
+														<td data-bind="text: format2Date(LastWeekDateFrom)"></td>
+														<td data-bind="text: format2Date(LastWeekDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastWeekWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastWeekWTDFoodTotal, LastWeekWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastWeekWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastWeekWTDBevTotal, LastWeekWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastWeekWTDOtherTotal)"></td>
+													</tr>
+													<tr>
+														<td>Last Month Same Week WTD</td>
+														<td data-bind="text: format2Date(LastMonthWeekDateFrom)"></td>
+														<td data-bind="text: format2Date(LastMonthWeekDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastMonthWTDFoodTotal, LastMonthWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastMonthWTDBevTotal, LastMonthWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthWTDOtherTotal)"></td>
+													</tr>
+													<tr>
+														<td>Last Year Same Week WTD</td>
+														<td data-bind="text: format2Date(LastYearWeekDateFrom)"></td>
+														<td data-bind="text: format2Date(LastYearWeekDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastYearWTDFoodTotal, LastYearWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastYearWTDBevTotal, LastYearWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearWTDOtherTotal)"></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<!-- Month -->
+									<div class="panel panel-default" style="margin-bottom:5px;">
+										<div class="panel-heading" style="padding:5px;">Month</div>
+										<div class="panel-body" style="padding:0;">
+											<table class="cm-table table table-condensed table-hover" style="margin-bottom:0;">
+												<thead>
+													<tr>
+														<th></th>
+														<th class="col-w-b30-3">From</th>
+														<th class="col-w-b30-3">To</th>
+														<th class="col-w-b30-3" style="text-align:right;">Food</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Bev</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Other</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr style="background-color:lightblue;">
+														<td>This Month MTD</td>
+														<td data-bind="text: format2Date(ThisMonthDateFrom)"></td>
+														<td data-bind="text: format2Date(ThisMonthDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisWeekWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(ThisWeekWTDFoodTotal, ThisWeekWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisWeekWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(ThisWeekWTDBevTotal, ThisWeekWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisWeekWTDOtherTotal)"></td>
+													</tr>
+													<tr>
+														<td>Last Month MTD</td>
+														<td data-bind="text: format2Date(LastMonthDateFrom)"></td>
+														<td data-bind="text: format2Date(LastMonthDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastMonthWTDFoodTotal, LastMonthWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastMonthWTDBevTotal, LastMonthWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastMonthWTDOtherTotal)"></td>
+													</tr>
+													<tr>
+														<td>Last Year Same Month MTD</td>
+														<td data-bind="text: format2Date(LastYearMonthDateFrom)"></td>
+														<td data-bind="text: format2Date(LastYearMonthDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastYearWTDFoodTotal, LastYearWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearWTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastYearWTDBevTotal, LastYearWTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearWTDOtherTotal)"></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<!-- Year -->
+									<div class="panel panel-default" style="margin-bottom:5px;">
+										<div class="panel-heading" style="padding:5px;">Year</div>
+										<div class="panel-body" style="padding:0;">
+											<table class="cm-table table table-condensed table-hover" style="margin-bottom:0;">
+												<thead>
+													<tr>
+														<th></th>
+														<th class="col-w-b30-3">From</th>
+														<th class="col-w-b30-3">To</th>
+														<th class="col-w-b30-3" style="text-align:right;">Food</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Bev</th>
+														<th class="col-w-b15-3" style="text-align:right;">%</th>
+														<th class="col-w-b30-3" style="text-align:right;">Other</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr style="background-color:lightblue;">
+														<td>This Year YTD</td>
+														<td data-bind="text: format2Date(ThisYearDateFrom)"></td>
+														<td data-bind="text: format2Date(ThisYearDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisYearYTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(ThisYearYTDFoodTotal, ThisYearYTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisYearYTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(ThisYearYTDBevTotal, ThisYearYTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(ThisYearYTDOtherTotal)"></td>
+													</tr>
+													<tr>
+														<td>Last Year YTD</td>
+														<td data-bind="text: format2Date(LastYearDateFrom)"></td>
+														<td data-bind="text: format2Date(LastYearDateTo)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearYTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastYearYTDFoodTotal, LastYearYTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearYTDBevTotal)"></td>
+														<td style="text-align:right;" data-bind="text: fnbPercent(LastYearYTDBevTotal, LastYearYTDFoodTotal)"></td>
+														<td style="text-align:right;" data-bind="text: formatCurrency(LastYearYTDOtherTotal)"></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+								</div>
+								<!-- /ko -->
+							</div>
+							<!-- /History -->
+						</div>
+						<!-- /Sales Data -->
+
+					</div>
+					<!--  WEATHER -->
+					<div style="position:absolute;top:30px;right:30px;" data-bind="if: selectedProjectedSalesItem()">
+						<div class="" style="display:inline-block;width:90px;" data-bind="visible: selectedProjectedSalesItem().fxHigh() && salesScreenMode() == 'show-sales-item'">
+							<table>
+								<tbody style="font-size: 12px;">
+									<tr><td rowspan="2" style="text-align:right;width:50%;"><img height="38" widht="38" src="" data-bind="attr: {src: 'img/weather/'+selectedProjectedSalesItem().fxCode()+'.png'}" /></td><td style="text-align:left;" data-bind="text: formatTemperature(selectedProjectedSalesItem().fxHigh())"></td></tr>
+									<tr><td style="font-size: 10px;text-align:left;" data-bind="text: formatTemperature(selectedProjectedSalesItem().fxLow())"></td></tr>
+									<tr><td colspan="2" style="font-weight:bold;text-align:center;word-wrap:break-word;" data-bind="text: selectedProjectedSalesItem().fxText()"></td></tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<!-- /WEATHER -->
+					<div class="modal-footer" style="border-top:none;" data-bind="visible: salesScreenMode() == 'show-sales-item', if: selectedProjectedSalesItem()">
+						<button style="float:left;" type="button" class="btn btn-default" data-bind="click: selectedProjectedSalesItem().goBack">Back</button>
+						<button type="button" class="btn btn-primary" data-bind="click: selectedProjectedSalesItem().submitSales, enable: selectedProjectedSalesItem().isFutureDate && fnc.app.prvSalesManageProjectedEnable() && (fnc.calendarApp.isClassesEnable() ? fnc.calendarApp.projectedSalesSelectedClass() : true)">Save changes</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- /MODAL -->
+
+		<!--<pre data-bind="text: ko.toJSON(fnc, null, 2)"></pre>-->
+		<!--<pre style="display:inline-block;padding:0;" data-bind="text: ko.toJSON(selectedClass()?selectedClass().ClassKye:'all', null, 2)"></pre>-->
+		<!--<pre style="display:inline-block;padding:0;" data-bind="text: ko.toJSON(selectedOrgClassList().length, null, 2)"></pre>-->
+
+	</div>
+</body>
+</html>
