@@ -1,10 +1,23 @@
 ﻿/// <reference path="default.js" />
 var fnc;
 fnc = fnc || {};
-fnc.invoicesApp = new function () {
+fnc.invoicesApp = (function () {
 	//*********************
 	//defaults
 	//*********************
+
+	// Environment variables
+	var scrollBarWidth = 17;
+	var minWidthSection0 = 800;
+	var minWidthSection1 = 1000;
+	var minWidthSection2 = 1000;
+	var maxResizableWidth = 1450;	//1500
+	var minResizableWidth = 1288;
+	var deltaWidth = 136;
+
+	var appWidht = window.screen.availWidth - 115;
+
+	var reconcileTableWidth = ko.observable(appWidht - 100);
 
 	//*********************
 	//private
@@ -3415,5 +3428,6 @@ fnc.invoicesApp = new function () {
 		});
 	}
 
-	//return self;
-};
+	return self;
+
+})();

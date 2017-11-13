@@ -1,4 +1,7 @@
 ﻿/// <reference path="default.js" />
+
+/*jshint evil:true */
+
 var fnc;
 fnc = fnc || {};
 fnc.legacyListApp = new function () {
@@ -47,7 +50,7 @@ fnc.legacyListApp = new function () {
 				} else {
 					showInvoiceWithPO(d);
 				}
-			}		
+			}
 		};
 	}
 
@@ -85,7 +88,7 @@ fnc.legacyListApp = new function () {
 			$('[data-toggle="tooltip"]').tooltip();
 			$('[data-toggle="popover"]').popover();
 		});
-		
+
 	};
 
 	var showInvoiceWithoutPO = function (d) {
@@ -96,10 +99,10 @@ fnc.legacyListApp = new function () {
 		fnc.legacyListApp.noPORequiredInvoice.init(invId, company, location, function () {
 			$('#modShowInoiceWithoutPO').modal('show');
 		});
-		
+
 	};
 
-	
+
 
 	//*********************
 	// public 
@@ -108,13 +111,13 @@ fnc.legacyListApp = new function () {
 	var self = this;
 
 	self.listHeaders = [
-	{ title: 'COMPANY', sortPropertyName: 'Company', asc: ko.observable(true) },
-	{ title: 'LOCATION', sortPropertyName: 'Location', asc: ko.observable(true) },
-	{ title: 'PO #', sortPropertyName: 'PONumber', asc: ko.observable(true) },
-	{ title: 'INVOICE #', sortPropertyName: 'InvoiceNumber', asc: ko.observable(true) },
-	{ title: 'DATE', sortPropertyName: 'DeliveryDate', asc: ko.observable(false) },
-	{ title: 'PO TOTAL', sortPropertyName: 'POTotal', asc: ko.observable(true) },
-	{ title: 'ACCEPTED', sortPropertyName: 'AcceptedDT', asc: ko.observable(true) }
+		{ title: 'COMPANY', sortPropertyName: 'Company', asc: ko.observable(true) },
+		{ title: 'LOCATION', sortPropertyName: 'Location', asc: ko.observable(true) },
+		{ title: 'PO #', sortPropertyName: 'PONumber', asc: ko.observable(true) },
+		{ title: 'INVOICE #', sortPropertyName: 'InvoiceNumber', asc: ko.observable(true) },
+		{ title: 'DATE', sortPropertyName: 'DeliveryDate', asc: ko.observable(false) },
+		{ title: 'PO TOTAL', sortPropertyName: 'POTotal', asc: ko.observable(true) },
+		{ title: 'ACCEPTED', sortPropertyName: 'AcceptedDT', asc: ko.observable(true) }
 	];
 	self.activeSort = ko.observable(self.listHeaders[4]); //set the default sort
 
@@ -143,7 +146,7 @@ fnc.legacyListApp = new function () {
 		}
 	}, self);
 
-	
+
 	self.clearVendorsFilter = function (d, e) {
 		self.filterAvailableVendors().forEach(function (it) { it.Selected(false); });
 		self.filterSelectedVendors([]);
@@ -270,7 +273,7 @@ fnc.legacyListApp = new function () {
 		ajaxPostXML("ChefMod.Financials.UI.Controllers.Invoices.LoadLegacyPOList", params, function (response) {
 			loading(false);
 			if (response == '') {
-			//if (response.d == '') {
+				//if (response.d == '') {
 				windowResized();
 				return;
 			}
@@ -381,7 +384,7 @@ fnc.legacyListApp = new function () {
 			//self.XportedDT = it.XportedDT;
 
 			self.Total = it.Total;
- 
+
 		};
 
 
@@ -430,7 +433,7 @@ fnc.legacyListApp = new function () {
 				//set common values
 
 				self.allItems(arr);
-				
+
 				self.invoiceNumber(arr[0].InvoiceNum);
 				self.invoiceDate((new Date(arr[0].InvoiceDate)).format(strFormat));
 				self.tax(formatToFixed0(arr[0].Tax, 2));
@@ -967,30 +970,30 @@ fnc.legacyListApp = new function () {
 		self.allItems = ko.observableArray();
 
 		self.listHeaders = [
-	{ title: 'CODE', sortPropertyName: 'Code', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'ITEM', sortPropertyName: 'Item', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'BRAND', sortPropertyName: 'Brand', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'UNIT', sortPropertyName: 'Unit', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'QTY', sortPropertyName: 'Qty', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'UNITS', sortPropertyName: 'Units', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'PRICE', sortPropertyName: 'Price', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'TOTAL', sortPropertyName: 'Total', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'CODE', sortPropertyName: 'Code', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'ITEM', sortPropertyName: 'Item', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'BRAND', sortPropertyName: 'Brand', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'UNIT', sortPropertyName: 'Unit', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'QTY', sortPropertyName: 'Qty', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'UNITS', sortPropertyName: 'Units', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'PRICE', sortPropertyName: 'Price', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'TOTAL', sortPropertyName: 'Total', asc: ko.observable(true), show: ko.observable(true) },
 
 
-	{ title: 'QTY', sortPropertyName: 'eQty', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'UNITS', sortPropertyName: 'eUnits', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'PRICE', sortPropertyName: 'ePrice', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'QTY', sortPropertyName: 'eQty', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'UNITS', sortPropertyName: 'eUnits', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'PRICE', sortPropertyName: 'ePrice', asc: ko.observable(true), show: ko.observable(true) },
 
-	{ title: 'QTY', sortPropertyName: 'dQty', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'UNITS', sortPropertyName: 'dUnits', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'QTY', sortPropertyName: 'dQty', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'UNITS', sortPropertyName: 'dUnits', asc: ko.observable(true), show: ko.observable(true) },
 
-	{ title: 'STATUS', sortPropertyName: 'Status', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'UNITS', sortPropertyName: 'Units2', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'PAY PRICE', sortPropertyName: 'PayPrice', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'NET', sortPropertyName: 'Net', asc: ko.observable(true), show: ko.observable(true) },
-	{ title: 'GL', sortPropertyName: 'glCode', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'STATUS', sortPropertyName: 'Status', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'UNITS', sortPropertyName: 'Units2', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'PAY PRICE', sortPropertyName: 'PayPrice', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'NET', sortPropertyName: 'Net', asc: ko.observable(true), show: ko.observable(true) },
+			{ title: 'GL', sortPropertyName: 'glCode', asc: ko.observable(true), show: ko.observable(true) },
 
-	{ title: 'INV. ITEM', sortPropertyName: 'eCode', asc: ko.observable(true), show: ko.observable(true) }
+			{ title: 'INV. ITEM', sortPropertyName: 'eCode', asc: ko.observable(true), show: ko.observable(true) }
 		];
 
 		self.activeSort = ko.observable(self.listHeaders[1]); //set the default sort
@@ -1103,21 +1106,21 @@ fnc.legacyListApp = new function () {
 				var content =
 					"<table class='table table-condensed table-bordered' style='font-size: 10px;'>" +
 					"<thead style='font-weight: bold;'><tr>" +
-						"<td>GL ACCOUNT DISTRIBUTION</td>" +
-						"<td>GL DESCRIPTION</td>" +
-						"<td style='text-align:right;'>SUBTOTAL</td>" +
-						"<td style='text-align:right;'>TAX</td>" +
-						"<td style='text-align:right;'>FREIGHT</td>" +
-						//"<td style='text-align:right;'>DISCOUNT</td>" +
-						"<td style='text-align:right;'>TOTAL</td>" +
+					"<td>GL ACCOUNT DISTRIBUTION</td>" +
+					"<td>GL DESCRIPTION</td>" +
+					"<td style='text-align:right;'>SUBTOTAL</td>" +
+					"<td style='text-align:right;'>TAX</td>" +
+					"<td style='text-align:right;'>FREIGHT</td>" +
+					//"<td style='text-align:right;'>DISCOUNT</td>" +
+					"<td style='text-align:right;'>TOTAL</td>" +
 					"</tr></thead><tfoot style='font-weight: bold;'><tr>" +
-						"<td style='white-space:nowrap;'>Total:</td>" +
-						"<td style='white-space:nowrap;'></td>" +
-						"<td style='text-align:right;'>" + formatCurrency(self.sumSubTotal()) + "</td>" +
-						"<td style='text-align:right;'>" + formatCurrency(self.sumTax()) + "</td>" +
-						"<td style='text-align:right;'>" + formatCurrency(self.sumFreight()) + "</td>" +
-						//"<td style='text-align:right;'>" + formatCurrency(self.sumDiscount()) + "</td>" +
-						"<td style='text-align:right;'>" + formatCurrency(self.sumTotal()) + "</td>" +
+					"<td style='white-space:nowrap;'>Total:</td>" +
+					"<td style='white-space:nowrap;'></td>" +
+					"<td style='text-align:right;'>" + formatCurrency(self.sumSubTotal()) + "</td>" +
+					"<td style='text-align:right;'>" + formatCurrency(self.sumTax()) + "</td>" +
+					"<td style='text-align:right;'>" + formatCurrency(self.sumFreight()) + "</td>" +
+					//"<td style='text-align:right;'>" + formatCurrency(self.sumDiscount()) + "</td>" +
+					"<td style='text-align:right;'>" + formatCurrency(self.sumTotal()) + "</td>" +
 					"</tr></tfoot><tbody>";
 				for (var i = 0; i < self.glDistributionList().length; i++) {
 					var it = self.glDistributionList()[i];
@@ -1149,4 +1152,8 @@ fnc.legacyListApp = new function () {
 		};
 
 	});
-}
+
+	//return self;
+
+};
+

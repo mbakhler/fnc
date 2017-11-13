@@ -1,7 +1,7 @@
 ﻿/// <reference path="default.js" />
 var fnc;
 fnc = fnc || {};
-fnc.eInvoicesApp = new function () {
+fnc.eInvoicesApp = (function () {
 	//*********************
 	//defaults
 	//*********************
@@ -16,7 +16,7 @@ fnc.eInvoicesApp = new function () {
 	//*********************
 	var uniqueFailureTypeItem = function (it) {
 		var self = this;
-		
+
 		self.StatusCode = it.StatusCode;
 		self.FailMsg = (self.StatusCode == '-1' || self.StatusCode == '0') ? 'Valid' : it.FailMsg;
 		self.Selected = ko.observable(false);
@@ -74,7 +74,7 @@ fnc.eInvoicesApp = new function () {
 					self.OrgId = self.selectedOrgId();
 					var vendId = self.VendId;
 					var status = ko.observable();
-					validateEInvoice(invId, vendId, status, function(){
+					validateEInvoice(invId, vendId, status, function () {
 						//console.log(status());
 						loadInvoiceItems(invId, function () {
 							self.Location = fnc.eInvoicesApp.invoiceAllItems()[0].OrgName;
@@ -111,7 +111,7 @@ fnc.eInvoicesApp = new function () {
 			});
 		};
 
-		self.onDeleteInvoiceClick = function (d, e) {			
+		self.onDeleteInvoiceClick = function (d, e) {
 			fnc.eInvoicesApp.selectedForDeleteItem(d);
 			$("#modConfirmDelInvoice").modal("show");
 		};
@@ -143,9 +143,9 @@ fnc.eInvoicesApp = new function () {
 				//if (!(status() == 'True')) {
 				//	load_einvoices();
 				//} else {
-					loadInvoiceItems(invId, function () {
-						windowResized();
-					})
+				loadInvoiceItems(invId, function () {
+					windowResized();
+				})
 				//}
 			});
 		};
@@ -159,16 +159,16 @@ fnc.eInvoicesApp = new function () {
 			//		windowResized();
 			//	});
 			//} else {
-				//regular
-				var invId = fnc.eInvoicesApp.selectedItem().InvoiceId;
-				processEInvoice(invId, function () {
-					fnc.eInvoicesApp.selectedItem(null);
-					fnc.eInvoicesApp.listSearchFilter('');
-					loadFailedList(function () {
-						sortArray();
-						windowResized();
-					});
+			//regular
+			var invId = fnc.eInvoicesApp.selectedItem().InvoiceId;
+			processEInvoice(invId, function () {
+				fnc.eInvoicesApp.selectedItem(null);
+				fnc.eInvoicesApp.listSearchFilter('');
+				loadFailedList(function () {
+					sortArray();
+					windowResized();
 				});
+			});
 			//}
 		};
 
@@ -192,7 +192,7 @@ fnc.eInvoicesApp = new function () {
 					fnc.eInvoicesApp.addPONumberList.removeAll();
 				});
 
-				
+
 			});
 		};
 
@@ -299,7 +299,7 @@ fnc.eInvoicesApp = new function () {
 					$("#modPOItems").modal('show');
 				} else {
 					createCompareItemsList2(fnc.eInvoicesApp.invoiceAllItems(), fnc.eInvoicesApp.selectedPOAllItems(), function () {		//console.log()});
-					//createCompareItemsList(fnc.eInvoicesApp.invoiceAllItems(), fnc.eInvoicesApp.selectedPOAllItems(), function () {
+						//createCompareItemsList(fnc.eInvoicesApp.invoiceAllItems(), fnc.eInvoicesApp.selectedPOAllItems(), function () {
 						$("#modCompareInvoicePOItems").modal('show');
 
 						//$('#modCompareInvoicePOItems').on('shown.bs.modal', function (e) {
@@ -343,7 +343,7 @@ fnc.eInvoicesApp = new function () {
 		self.InvoiceExist = ko.observable(false);
 		self.POExist = ko.observable(false);
 	};
-	
+
 	var InvoicePOCompareItem = function (it) {
 		var self = this;
 		self.Brand = it.Brand;
@@ -545,7 +545,7 @@ fnc.eInvoicesApp = new function () {
 		var d = new Date();
 		var fd = new Date(new Date().setDate(d.getDate() - 30));		 //-430 for testing
 		var td = new Date();
-		
+
 		var params = {};
 		params.RangeBaseOn = 0; // Delivery Date
 		params.FromDate = fd.toISOString().substring(0, 10);		//fd.toISOString().substring(0, 10); fnc.app.filterDateFrom();
@@ -943,20 +943,20 @@ fnc.eInvoicesApp = new function () {
 	var self = this;
 
 	self.listHeaders = [
-	{ title: 'VENDOR', sortPropertyName: 'Vendor', asc: ko.observable(true) },
-	{ title: 'LOCATION', sortPropertyName: 'Location', asc: ko.observable(true) },
-	{ title: 'PO(s)', sortPropertyName: 'POList', asc: ko.observable(true) },
-	{ title: 'INVOICE #', sortPropertyName: 'InvoiceNumber', asc: ko.observable(true) },
-	{ title: 'DATE', sortPropertyName: 'InvoiceDate', asc: ko.observable(true) },
-	{ title: 'TOTAL', sortPropertyName: 'Total', asc: ko.observable(true) },
-	{ title: 'FAILURE MESSAGE', sortPropertyName: 'FailMsg', asc: ko.observable(true) }
+		{ title: 'VENDOR', sortPropertyName: 'Vendor', asc: ko.observable(true) },
+		{ title: 'LOCATION', sortPropertyName: 'Location', asc: ko.observable(true) },
+		{ title: 'PO(s)', sortPropertyName: 'POList', asc: ko.observable(true) },
+		{ title: 'INVOICE #', sortPropertyName: 'InvoiceNumber', asc: ko.observable(true) },
+		{ title: 'DATE', sortPropertyName: 'InvoiceDate', asc: ko.observable(true) },
+		{ title: 'TOTAL', sortPropertyName: 'Total', asc: ko.observable(true) },
+		{ title: 'FAILURE MESSAGE', sortPropertyName: 'FailMsg', asc: ko.observable(true) }
 	];
 	self.activeSort = ko.observable(self.listHeaders[0]); //set the default sort
 
 	self.init = function (callback) {
 		self.selectedItem(null);
 		self.listSearchFilter('');
-		loadFailedList(function(){
+		loadFailedList(function () {
 			sortArray();
 			self.showDeleted(false);
 			self.listSearchFilter('');
@@ -989,7 +989,7 @@ fnc.eInvoicesApp = new function () {
 		}
 		//console.log('r2 (del) = ' + r.length);
 
-		if (self.selectedFailureTypes().length > 0 ) {
+		if (self.selectedFailureTypes().length > 0) {
 			r = ko.utils.arrayFilter(r, function (item) {
 				return self.selectedFailureTypes().toString().indexOf(item.StatusCode) != -1;
 			})
@@ -1015,7 +1015,7 @@ fnc.eInvoicesApp = new function () {
 	self.filteredItems.subscribe(function () {
 		self.pageNumber(0);
 	}, self);
-	
+
 	self.uniqueFailureTypes = ko.observableArray();
 
 	self.sortUniqueFailureTypes = function () {
@@ -1185,7 +1185,7 @@ fnc.eInvoicesApp = new function () {
 			});
 		}
 	}, self);
-	
+
 	//invoice; po;
 	self.invoicePoViewName = ko.observable('po');
 	self.compareInvoicePoTitle = ko.observable(VIEW_INV_PO_TITLE_PO);
@@ -1217,7 +1217,7 @@ fnc.eInvoicesApp = new function () {
 			$("#modAddPO").modal('hide');
 			fnc.eInvoicesApp.addPONewItems.removeAll();
 			fnc.eInvoicesApp.addPONumberList.removeAll();
-			
+
 			validateEInvoice(invId, vendId, status, function () {
 				//console.log(status());
 				loadInvoiceItems(invId, function () {
@@ -1307,4 +1307,6 @@ fnc.eInvoicesApp = new function () {
 		}
 	}
 
-}
+	return self;
+
+}());

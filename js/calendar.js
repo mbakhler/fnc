@@ -1,7 +1,11 @@
 ﻿/// <reference path="default.js" />
+
+/*jshint evil:true */
+
 var fnc;
 fnc = fnc || {};
 fnc.calendarApp = new function () {
+	
 	//******************
 	// default 
 	//******************
@@ -15,7 +19,7 @@ fnc.calendarApp = new function () {
 		var self = this;
 		self.id = id;
 		self.days = days;
-	}
+	};
 
 	var DayItem = function (date, day, expenses, sales, thisMonth) {
 		var self = this;
@@ -36,7 +40,7 @@ fnc.calendarApp = new function () {
 			fnc.calendarApp.showSalesScreen(function () {
 				//				
 			});
-		}
+		};
 
 		self.fxCode = ko.observable(3200);
 		self.fxDate = ko.observable('');
@@ -51,7 +55,7 @@ fnc.calendarApp = new function () {
 		self.WeeklySalesCode = ko.observable(3);
 
 		self.SalesCode = ko.observable(3); // 0 - actual; 1 - projected; 2 - mixed; 3 - no sales;
-	}
+	};
 	
 	var InvoiceItem = function (it) {
 		var self = this;
@@ -65,7 +69,7 @@ fnc.calendarApp = new function () {
 		self.OtherPurchAmt = it.OtherPurchAmt;
 		self.POExists = it.POExists;
 		self.POTotal = it.POTotal;
-	}
+	};
 
 	var CostItem = function (it) {
 		//BeveragesSales:"0.0000"
@@ -84,7 +88,7 @@ fnc.calendarApp = new function () {
 		self.Flagged = it.Flagged;
 		self.Food = it.Food;
 		self.FoodSales = it.FoodSales;
-		
+
 		self.fxCode = typeof it.ForecastData.forecast != 'undefined' ? Number(it.ForecastData.forecast.code) : 3200;
 		self.fxDate = typeof it.ForecastData.forecast != 'undefined' ? it.ForecastData.forecast.date : '';
 		self.fxDay = typeof it.ForecastData.forecast != 'undefined' ? it.ForecastData.forecast.day.toUpperCase() : '';
@@ -107,7 +111,7 @@ fnc.calendarApp = new function () {
 
 		self.Total = Number(self.Beverages) + Number(self.Food) + Number(self.Other);
 		self.TotalSales = Number(self.BeveragesSales) + Number(self.FoodSales) + Number(self.OtherSales);
-	}
+	};
 
 	var CategoryClassItem = function (it) {
 		var self = this;
@@ -161,7 +165,7 @@ fnc.calendarApp = new function () {
 			var year = fnc.calendarApp.currentYear();
 			var month = fnc.calendarApp.currentMonth();
 			var orgsIds = fnc.app.filterSelectedLocations().join() != "" ? fnc.app.filterSelectedLocations().join() : fnc.app.allOrgString();
-			if (fnc.calendarApp.projectedSalesSelectedClass() == undefined){
+			if (fnc.calendarApp.projectedSalesSelectedClass() == undefined) {
 				if (self.SalesProjectedId == 0) {
 					//create
 					createProjectedSales(self.SalesDate, self.OrgId, self.TotalFood(), self.TotalBev(), self.TotalOther(), function (r) {
@@ -191,7 +195,7 @@ fnc.calendarApp = new function () {
 				}
 			} else {
 				//ProjectedSalesClassUpdate(o.Params.SalesDate, o.Params.OrgId, o.Params.ClassCode, o.Params.ClassName, o.Params.FoodTotal, o.Params.BevTotal, o.Params.OtherTotal, o.uc).ToString
-				var classCode = fnc.calendarApp.projectedSalesSelectedClass().split('||')[0]
+				var classCode = fnc.calendarApp.projectedSalesSelectedClass().split('||')[0];
 				var className = fnc.calendarApp.projectedSalesSelectedClass().split('||')[1];
 				updateClassProjectedSales(self.SalesDate, self.OrgId, classCode, className, self.TotalFood(), self.TotalBev(), self.TotalOther(), function () {
 					loadCostClassCalendar(month, year, classCode, className, orgsIds, function (r) {
@@ -206,17 +210,17 @@ fnc.calendarApp = new function () {
 						//		fnc.calendarApp.selectedClass(it);
 						//	}
 						//})
-						
+
 						windowResized();
-					})
-				})
+					});
+				});
 			}
-		}
+		};
 
 		self.goBack = function (d, e) {
 			fnc.calendarApp.salesScreenMode('show-sales-locations');
 			fnc.calendarApp.selectedProjectedSalesHistory(null);
-		}
+		};
 
 
 		self.fxCode = ko.observable(3200);
@@ -479,7 +483,7 @@ fnc.calendarApp = new function () {
 							//initDatePickerAllDates();
 							initDatePickerPastDates('#salesDateActualSales');
 						});
-					})
+					});
 				} else {
 					fnc.salesApp.drilldownToSales(orgId, orgName, salesDate, salesId, function () {
 						$("#sales-page").load("sales.html" + appV + " #slsApp", function () {
@@ -504,8 +508,8 @@ fnc.calendarApp = new function () {
 					});
 				}
 
-			})
-		}
+			});
+		};
 
 		self.showProjectedSales = function (d, e) {
 			var salesDate = fnc.calendarApp.selectedSalesDay().day();
@@ -522,10 +526,10 @@ fnc.calendarApp = new function () {
 							if (it.ClassName == fnc.calendarApp.selectedClass().ClassName) {
 								fnc.calendarApp.projectedSalesSelectedClass(it.ClassCode + '||' + it.ClassName);
 							}
-						})
+						});
 					}
 				}
-			})
+			});
 
 
 			if (fnc.calendarApp.selectedClass() != null) {
@@ -566,7 +570,7 @@ fnc.calendarApp = new function () {
 							projSales.fxText(arr()[0].Text);
 							//console.log(ko.toJSON(projSales, null, 2))
 						}
-					})
+					});
 
 					fnc.calendarApp.selectedProjectedSalesItem(projSales);
 					fnc.calendarApp.salesScreenMode('show-sales-item');
@@ -574,11 +578,11 @@ fnc.calendarApp = new function () {
 					//$('#modProjectedSalesEntry').one('hidden.bs.modal', function (e) {
 					//	resetSalesVariables();
 					//})
-				})
+				});
 
 				loadSalesProjectedClassHistory(salesDate, orgId, classCode, className, function (r) {
 					fnc.calendarApp.selectedProjectedSalesHistory(r);
-				})
+				});
 
 			} else {
 				loadProjectedSalesOneDay(salesDate, orgId, function (r) {
@@ -615,7 +619,7 @@ fnc.calendarApp = new function () {
 							projSales.fxText(arr()[0].Text);
 							//console.log(ko.toJSON(projSales, null, 2))
 						}
-					})
+					});
 
 					fnc.calendarApp.selectedProjectedSalesItem(projSales);
 					fnc.calendarApp.salesScreenMode('show-sales-item');
@@ -623,14 +627,14 @@ fnc.calendarApp = new function () {
 					//$('#modProjectedSalesEntry').one('hidden.bs.modal', function (e) {
 					//	resetSalesVariables();
 					//})
-				})
+				});
 
 				loadSalesHistory(salesDate, orgId, function (r) {
 					fnc.calendarApp.selectedProjectedSalesHistory(r);
 				});
 
 			}
-		}
+		};
 
 	};
 
@@ -666,8 +670,8 @@ fnc.calendarApp = new function () {
 				fnc.calendarApp.currentYear(y);
 				fnc.calendarApp.currentMonth(m);
 			}
-			
-		}
+
+		};
 	};
 
 	var cmCalendarYear = function (year) {
@@ -714,7 +718,7 @@ fnc.calendarApp = new function () {
 		var self = this;
 		self.ClassCode = it.ClassCode;
 		self.ClassName = it.ClassName;
-		self.ClassKye = it.ClassCode + '||' + it.ClassName
+		self.ClassKye = it.ClassCode + '||' + it.ClassName;
 	};
 
 	//functions
@@ -746,15 +750,15 @@ fnc.calendarApp = new function () {
 			var arr = [];
 
 			if (obj[0]) {
-				obj.forEach(function (it) { arr.push(new CostCenterItem(it)) })
+				obj.forEach(function (it) { arr.push(new CostCenterItem(it)); });
 			} else {
-				arr.push(new CostCenterItem(obj))
+				arr.push(new CostCenterItem(obj));
 			}
 
 			if (callback) return callback(arr);
-		})
+		});
 
-	}
+	};
 
 	//projection sales
 	var resetSalesVariables = function () {
@@ -822,9 +826,9 @@ fnc.calendarApp = new function () {
 			var arr = [];
 
 			if (obj[0]) {
-				obj.forEach(function (it) { arr.push(new SalesSummaryItem(it)) })
+				obj.forEach(function (it) { arr.push(new SalesSummaryItem(it)); });
 			} else {
-				arr.push(new SalesSummaryItem(obj))
+				arr.push(new SalesSummaryItem(obj));
 			}
 
 			if (callback) callback(arr);
@@ -885,7 +889,7 @@ fnc.calendarApp = new function () {
 			var obj = JSON.parse(response.d).result.row;
 			if (callback) callback(obj);
 		});
-	}
+	};
 
 	var updateProjectedSalesClass = function (salesDate, orgId, classCode, className, foodTotal, bevTotal, otherTotal, callback) {
 		//ProjectedSalesClassUpdate(o.Params.SalesDate, o.Params.OrgId, o.Params.ClassCode, o.Params.ClassName, o.Params.FoodTotal, o.Params.BevTotal, o.Params.OtherTotal, o.uc).ToString
@@ -912,7 +916,7 @@ fnc.calendarApp = new function () {
 				return;
 			}
 		});
-	}
+	};
 
 
 	var modifyProjectedSales = function (salesProjId, salesDate, orgId, foodTotal, bevTotal, otherTotal, callback) {
@@ -966,7 +970,7 @@ fnc.calendarApp = new function () {
 				return;
 			}
 		});
-	}
+	};
 
 
 	var removeProjectedSales = function (salesProjId, callback) {
@@ -1068,7 +1072,7 @@ fnc.calendarApp = new function () {
 		var mIndex = 1 - mLength;
 		var arrDays = [];
 		var arrWeeks = [];
-
+		var item;
 		for (var w = 0; w < 6; w++) {
 			var weekTotalPurchases = 0;
 			var weekTotalExpenses = 0;
@@ -1079,11 +1083,11 @@ fnc.calendarApp = new function () {
 				day = t.getDate().toString();
 				month2 = t.getMonth();
 				thisMonth = fnc.calendarApp.currentMonth() == month2;
-				var item = new DayItem(day, t.format("yyyy-mm-dd"), 0, 0, thisMonth);
+				item = new DayItem(day, t.format("yyyy-mm-dd"), 0, 0, thisMonth);
 				arrDays.push(item);
 				mIndex++;
 			}
-			var item = new DayItem(" ", "", weekTotalExpenses, weekTotalPurchases, false);
+			item = new DayItem(" ", "", weekTotalExpenses, weekTotalPurchases, false);
 			arrDays.push(item);
 			var week = new WeekItem(w, arrDays);
 			arrWeeks.push(week);
@@ -1092,12 +1096,12 @@ fnc.calendarApp = new function () {
 		fnc.calendarApp.calendarWeeks(arrWeeks);
 
 		if (callback) callback();
-	}
+	};
 
 	var makeCalendarFromArray = function (arr, month, callback) {
 		fnc.calendarApp.calendarHeader.removeAll();
 		var arrDays = [], arrWeeks = [];
-		var d = 0, w = 0;
+		var d = 0, w = 0, item;
 		for (var i = 0; i < arr.length; i++) {
 			var date, day, thisMonth;
 			var it = arr[i];
@@ -1106,15 +1110,15 @@ fnc.calendarApp = new function () {
 			date = Number(parts[2]);
 			thisMonth = ((month + 1) == Number(parts[1]));
 			if (d < 7) {
-				var item = new DayItem(date, day, 0, 0, thisMonth);
+				item = new DayItem(date, day, 0, 0, thisMonth);
 				arrDays.push(item);
 				if (w == 0) {
-					fnc.calendarApp.calendarHeader.push(getDayOfWeekName(day).substr(0,3));
+					fnc.calendarApp.calendarHeader.push(getDayOfWeekName(day).substr(0, 3));
 				}
 				d++;
 			}
 			if (d == 7) {
-				var item = new DayItem(" ", "", 0, 0, false);
+				item = new DayItem(" ", "", 0, 0, false);
 				arrDays.push(item);
 				var week = new WeekItem(w, arrDays);
 				arrWeeks.push(week);
@@ -1124,7 +1128,7 @@ fnc.calendarApp = new function () {
 			}
 		}
 		if (callback) callback(arrWeeks);
-	}
+	};
 
 	var showChart_ReconciliationStats = function (callback) {
 		$.ajax({
@@ -1141,8 +1145,8 @@ fnc.calendarApp = new function () {
 
 		function drawChart() {
 			var data = google.visualization.arrayToDataTable([
-			['Label', 'Value'],
-			['%', self.reconciledPercentage()]
+				['Label', 'Value'],
+				['%', self.reconciledPercentage()]
 			]);
 
 			var options = {
@@ -1161,7 +1165,7 @@ fnc.calendarApp = new function () {
 			if (callback) callback();
 		}
 
-	}
+	};
 
 	var showChart_YTDCost = function (callback) {
 		$.ajax({
@@ -1263,13 +1267,13 @@ fnc.calendarApp = new function () {
 			if (obj[0]) {
 				obj.forEach(function (it) {
 					arr.push(new CostItem(it));
-				})
+				});
 			} else {
 				arr.push(new CostItem(obj));
 			}
 
 			if (callback) callback(arr);
-		})
+		});
 	};
 	
 
@@ -1301,14 +1305,14 @@ fnc.calendarApp = new function () {
 			if (obj[0]) {
 				obj.forEach(function (it) {
 					arr.push(new CostItem(it));
-				})
+				});
 			} else {
 				arr.push(new CostItem(obj));
 			}
 
 			if (callback) callback(arr);
-		})
-	}
+		});
+	};
 
 	var loadInvoiceSumByDay = function (fromDate, toDate, orgsIds, callback) {
 		var params = {};
@@ -1337,15 +1341,15 @@ fnc.calendarApp = new function () {
 			if (obj[0]) {
 				obj.forEach(function (it) {
 					arr.push(new InvoiceItem(it));
-				})
+				});
 			} else {
 				arr.push(new InvoiceItem(obj));
 			}
 			self.allItems(arr);
 			if (callback) callback();
-		})
+		});
 
-	}
+	};
 
 	var loadReconciliationPerfStats = function (fromDate, toDate, orgsIds, callback) {
 		var params = {};
@@ -1373,9 +1377,9 @@ fnc.calendarApp = new function () {
 			self.noReconciledQtyForThisPeriod(Number(obj.NoReconciled));
 
 			if (callback) callback();
-		})
+		});
 
-	}
+	};
 
 	var loadReconciliationPerfStats2 = function (month, year, orgsIds, callback) {
 		var params = {};
@@ -1403,9 +1407,9 @@ fnc.calendarApp = new function () {
 			self.noReconciledQtyForThisPeriod(Number(obj.NoReconciled));
 
 			if (callback) callback();
-		})
+		});
 
-	}
+	};
 
 	var loadInvoiceSummaryMTDCategory = function (month, year, orgsIds, callback) {
 		var params = {};
@@ -1437,7 +1441,7 @@ fnc.calendarApp = new function () {
 				self.MTDOtherExpences(Number(obj[2].total));
 				obj.forEach(function (it) {
 					arr.push(new CategoryClassItem(it));
-				})
+				});
 			} else {
 				arr.push(new CategoryClassItem(obj));
 			}
@@ -1445,9 +1449,9 @@ fnc.calendarApp = new function () {
 			self.monthlyCategorySummaryItems(arr);
 
 			if (callback) callback();
-		})
+		});
 
-	}
+	};
 
 	var loadInvoiceSummaryYTDMonthly = function (year, orgsIds, callback) {
 		var params = {};
@@ -1476,20 +1480,20 @@ fnc.calendarApp = new function () {
 				obj.forEach(function (it) {
 					arr.push([it.Month, Number(Number(it.Total).toFixed(2))]);
 					if (Number(Number(it.Total).toFixed(2)) > 0) empty = false;
-				})
+				});
 			} else {
 				arr.push([obj.Month, obj.Total]);
 				if (Number(Number(obj.Total).toFixed(2)) > 0) empty = false;
 			}
 
 			//if (!empty) {
-				self.monthlySummaryItems(arr);
+			self.monthlySummaryItems(arr);
 			//}
 
 			if (callback) callback();
-		})
+		});
 
-	}
+	};
 
 	var loadYTDCostMonthly = function (year, orgsIds, callback) {
 		var params = {};
@@ -1518,14 +1522,14 @@ fnc.calendarApp = new function () {
 			if (obj[0]) {
 				obj.forEach(function (it) {
 					arr.push(new MonthlyCostItem(it));
-				})
+				});
 			} else {
 				arr.push(new MonthlyCostItem(obj));
 			}
 
 			self.monthlyCostItems(arr);
 			if (callback) callback();
-		})
+		});
 	};
 
 	var loadYTDCostClassMonthly = function (year, classCode, className, orgsIds, callback) {
@@ -1558,15 +1562,15 @@ fnc.calendarApp = new function () {
 			if (obj[0]) {
 				obj.forEach(function (it) {
 					arr.push(new MonthlyCostItem(it));
-				})
+				});
 			} else {
 				arr.push(new MonthlyCostItem(obj));
 			}
 
 			self.monthlyCostItems(arr);
 			if (callback) callback();
-		})
-	}
+		});
+	};
 
 	var updateMTDSummary = function () {
 		if (self.monthlyCostItems().length == 0) return;
@@ -1574,7 +1578,7 @@ fnc.calendarApp = new function () {
 		setTimeout(function () {
 			var i = self.currentMonth();
 			var it = self.monthlyCostItems()[i];
-			var cT1, cT2, cT3, sT1, sT2, sT3
+			var cT1, cT2, cT3, sT1, sT2, sT3;
 
 			//cost
 			cT1 = Number(Number(it.InvFood) + Number(it.POFood)).toFixed(2);
@@ -1594,7 +1598,7 @@ fnc.calendarApp = new function () {
 			self.MTDSalesTotal(Number(it.SalesTotal).toFixed(2));
 			self.loadingMTDChart(false);
 		}, 400);
-	}
+	};
 
 	var updateDayTotal = function () {
 		for (var i = 0; i < self.allItems().length; i++) {
@@ -1659,7 +1663,7 @@ fnc.calendarApp = new function () {
 				}
 			}
 		}
-	}
+	};
 
 	var updateWeekTotal = function () {
 		for (var w = 0; w < 6; w++) {
@@ -1677,14 +1681,14 @@ fnc.calendarApp = new function () {
 					} else {
 						if ((salesCode == 3 && self.calendarWeeks()[w].days[d].SalesCode() == 1) || (salesCode == 1 && self.calendarWeeks()[w].days[d].SalesCode() == 3)) {
 							salesCode = 1;
-						} else if ((salesCode == 3 && self.calendarWeeks()[w].days[d].SalesCode() == 0) || (salesCode ==0 && self.calendarWeeks()[w].days[d].SalesCode() == 3)) {
+						} else if ((salesCode == 3 && self.calendarWeeks()[w].days[d].SalesCode() == 0) || (salesCode == 0 && self.calendarWeeks()[w].days[d].SalesCode() == 3)) {
 							salesCode = 0;
 						}
 						else {
 							salesCode = 2;
-						};
+						}
 					}
-				};
+				}
 			}
 			self.calendarWeeks()[w].days[d].WeekStartDate(self.calendarWeeks()[w].days[0].day());
 			self.calendarWeeks()[w].days[d].WeekEndDate(self.calendarWeeks()[w].days[6].day());
@@ -1697,7 +1701,7 @@ fnc.calendarApp = new function () {
 			self.calendarWeeks()[w].days[d].sales(total2);
 			self.calendarWeeks()[w].days[d].cost(calculateCost(total, total2));
 		}
-	}
+	};
 
 	var updateMonthTotal = function () {
 		if (self.monthlyCostItems().length == 0) return;
@@ -1739,7 +1743,7 @@ fnc.calendarApp = new function () {
 				t2 = Number(it.SalesTotal);
 		}
 		self.currentMonthCost(calculateCost(t1, t2));
-	}
+	};
 
 	var updateTotalLabels = function () {
 		var type = self.dataSumType();
@@ -1825,7 +1829,7 @@ fnc.calendarApp = new function () {
 		if (years) years(arr);
 		if (callback) callback();
 		return;
-	}
+	};
 
 	var loadCmCalendarMonths = function (currentMonth, months, callback) {
 		var arr = [];
@@ -1858,7 +1862,7 @@ fnc.calendarApp = new function () {
 		if (years) years(arr);
 		if (callback) callback();
 		return;
-	}
+	};
 
 	var validateCmCalindarYears = function (currentYear, years, callback) {
 		for (var i = 0; i < years().length; i++) {
@@ -1868,17 +1872,17 @@ fnc.calendarApp = new function () {
 			} else {
 				it.Selected(false);
 			}
-				
+
 			if (it.Year > currentYear - 2 && it.Year < currentYear + 2) {
 				it.Visible(true);
 			} else {
 				it.Visible(false);
 			}
-				
+
 		}
 		if (callback) callback();
 		return;
-	}
+	};
 
 	validateCmCalindarMonths = function (currentMonth, months, callback) {
 		for (var i = 0; i < months().length; i++) {
@@ -1891,7 +1895,7 @@ fnc.calendarApp = new function () {
 		}
 		if (callback) callback();
 		return;
-	}
+	};
 
 	var validateClasses = function () {
 		var r = true;
@@ -1909,9 +1913,9 @@ fnc.calendarApp = new function () {
 				//	});				
 				//}
 				fnc.calendarApp.isClassesEnable(r);
-			})
+			});
 		}
-	}
+	};
 
 	//******************
 	// public 
@@ -1927,23 +1931,23 @@ fnc.calendarApp = new function () {
 			self.allItems(r);
 			validateClasses();
 			makeCalendarFromArray(self.allItems(), month, function (c) {
-				self.calendarWeeks(c)
+				self.calendarWeeks(c);
 				updateDayTotal();
 				updateWeekTotal();
 				//updateMonthTotal();
 				windowResized();
-				
+
 				loadReconciliationPerfStats2(month, year, orgsIds, function () {
 					showChart_ReconciliationStats();
 					windowResized();
-				})
+				});
 
 				loadYTDCostMonthly(year, orgsIds, function () {
 					updateMonthTotal();
 					updateYTDChartData(function () {
 						showChart_YTDCost(function () {
 							windowResized();
-						})
+						});
 					});
 					updateMTDSummary();
 				});
@@ -1952,14 +1956,14 @@ fnc.calendarApp = new function () {
 					validateCmCalindarYears(self.currentYear(), self.cmCalendarYears, function () {
 						$('.cm-dropdown-monthpicker').click(function (event) {
 							event.stopPropagation();
-						})
+						});
 						$('#cmCalendarDropdown').on('show.bs.dropdown', function () {
 							validateCmCalindarMonths(self.currentMonth(), self.cmCalendarMonths, function () {
 								self.selectedCmCalendarMonth(self.currentMonth());
 								self.selectedCmCalendarYear(self.currentYear());
 								validateCmCalindarYears(self.currentYear(), self.cmCalendarYears);
 							});
-						})
+						});
 					});
 				});
 
@@ -1968,10 +1972,10 @@ fnc.calendarApp = new function () {
 						//
 					});
 				});
-				
+
 			});
-		})
-	}
+		});
+	};
 	self.isClassesEnable = ko.observable(false);
 	self.isClassesEnable.subscribe(function () {
 		if (self.isClassesEnable()) {
@@ -2018,7 +2022,7 @@ fnc.calendarApp = new function () {
 					}
 				}
 				resetSalesVariables();
-			})
+			});
 
 			if (callback) callback();
 		});
@@ -2045,7 +2049,7 @@ fnc.calendarApp = new function () {
 			self.allItems(r);
 			validateClasses();
 			makeCalendarFromArray(self.allItems(), month, function (c) {
-				self.calendarWeeks(c)
+				self.calendarWeeks(c);
 				updateDayTotal();
 				updateWeekTotal();
 				updateMonthTotal();
@@ -2054,19 +2058,19 @@ fnc.calendarApp = new function () {
 				loadReconciliationPerfStats2(month, year, orgsIds, function () {
 					showChart_ReconciliationStats();
 					windowResized();
-				})
+				});
 
 				loadYTDCostMonthly(year, orgsIds, function () {
 					updateYTDChartData(function () {
 						showChart_YTDCost(function () {
 							windowResized();
-						})
+						});
 					});
 					updateMTDSummary();
 				});
 
 			});
-		})
+		});
 
 	}, self);
 
@@ -2136,7 +2140,7 @@ fnc.calendarApp = new function () {
 					fnc.calendarApp.selectedProjectedSalesHistory(r);
 				});
 
-			})
+			});
 		} else {
 			//one class
 			classCode = cls.split('||')[0];
@@ -2168,9 +2172,9 @@ fnc.calendarApp = new function () {
 
 				loadSalesProjectedClassHistory(salesDate, orgId, classCode, className, function (r) {
 					fnc.calendarApp.selectedProjectedSalesHistory(r);
-				})
+				});
 
-			})
+			});
 		}
 		//console.log(classCode);
 	}, self);
@@ -2179,21 +2183,21 @@ fnc.calendarApp = new function () {
 	self.isFoodSelected.subscribe(function () {
 		//console.log('isFoodSelected=' + self.isFoodSelected());
 		//console.log(getDataSumType());
-		self.dataSumType(getDataSumType())
+		self.dataSumType(getDataSumType());
 	}, self);
 
 	self.isBevSelected = ko.observable(true);
 	self.isBevSelected.subscribe(function () {
 		//console.log('isBevSelected=' + self.isBevSelected());
 		//console.log(getDataSumType());
-		self.dataSumType(getDataSumType())
+		self.dataSumType(getDataSumType());
 	}, self);
 
 	self.isOtherSelected = ko.observable(false);
 	self.isOtherSelected.subscribe(function () {
 		//console.log('isOtherSelected=' + self.isOtherSelected());
 		//console.log(getDataSumType());
-		self.dataSumType(getDataSumType())
+		self.dataSumType(getDataSumType());
 	}, self);
 
 	function getDataSumType() {
@@ -2215,7 +2219,7 @@ fnc.calendarApp = new function () {
 
 	self.changeDataType = function (d, e) {
 		var item = e.currentTarget;
-		var dType = item.getAttribute('data-type')
+		var dType = item.getAttribute('data-type');
 
 		switch (dType) {
 			case 'beverage':
@@ -2253,11 +2257,10 @@ fnc.calendarApp = new function () {
 				break;
 			default:
 				return;
-				break;
 		}
 
-		
-	}
+
+	};
 
 	self.totalLabel1 = ko.observable('Invoices:');
 	self.totalLabel2 = ko.observable('Sales:');
@@ -2289,7 +2292,7 @@ fnc.calendarApp = new function () {
 		var r = "";
 		if (self.calendarWeeks().length > 0) {
 			var ln = self.calendarWeeks().length;
-			var lastDate = self.calendarWeeks()[ln - 1].days[6].date
+			var lastDate = self.calendarWeeks()[ln - 1].days[6].date;
 			var thisMonth = self.calendarWeeks()[ln - 1].days[6].thisMonth;
 			if (thisMonth) {
 				r = new Date(self.currentYear(), self.currentMonth(), Number(lastDate)).format("yyyy-mm-dd");
@@ -2392,16 +2395,16 @@ fnc.calendarApp = new function () {
 			r = Date.parse(self.selectedSalesDay().day()) < Date.parse(fnc.calendarApp.today.format('yyyy-mm-dd'));
 		}
 		return r;
-	})
+	});
 
 	self.enableProjectedSalesLink = ko.computed(function () {
 		var r = false;
 		if (self.selectedSalesDay()) {
 			//r = Date.parse(ko.toJSON(self.selectedSalesDay().SalesDate, null, 2)) >= Date.parse(ko.toJSON(self.today.format('yyyy-mm-dd'), null, 2));
-			Date.parse(self.selectedSalesDay().day()) >= Date.parse(fnc.calendarApp.today.format('yyyy-mm-dd'));
+			r = Date.parse(self.selectedSalesDay().day()) >= Date.parse(fnc.calendarApp.today.format('yyyy-mm-dd'));
 		}
 		return r;
-	})
+	});
 
 	//cm-calendar-monthpicker					
 	self.selectedCmCalendarMonth = ko.observable();
@@ -2417,7 +2420,7 @@ fnc.calendarApp = new function () {
 	self.goToToday = function () {
 		self.currentYear(self.today.getFullYear());
 		self.currentMonth(self.today.getMonth());
-	}
+	};
 
 	self.nextMonth = function () {
 		//fnc.calendarApp.calendarHeader.removeAll();
@@ -2433,7 +2436,7 @@ fnc.calendarApp = new function () {
 			fnc.calendarApp.currentYear(y);
 		}
 		fnc.calendarApp.currentMonth(m);
-	}
+	};
 
 	self.previousMonth = function () {
 		//fnc.calendarApp.calendarHeader.removeAll();
@@ -2448,7 +2451,7 @@ fnc.calendarApp = new function () {
 			fnc.calendarApp.currentYear(y);
 		}
 		fnc.calendarApp.currentMonth(m);
-	}
+	};
 
 	self.drilldownToInvoices = function (d, e) {
 		var dateRange = e.currentTarget.getAttribute('data-date-range');
@@ -2568,9 +2571,9 @@ fnc.calendarApp = new function () {
 		updateYTDChartData(function () {
 			showChart_YTDCost(function () {
 				windowResized();
-			})
+			});
 		});
-	}
+	};
 
 	self.reloadCalendarForSelectedClass = function () {
 		var month = self.currentMonth();
@@ -2590,13 +2593,13 @@ fnc.calendarApp = new function () {
 				updateYTDChartData(function () {
 					showChart_YTDCost(function () {
 						windowResized();
-					})
+					});
 				});
 				updateMTDSummary();
-			})
+			});
 			windowResized();
 		});
-	}
+	};
 
 	self.cmCalendarPreviousYearClick = function (d, e) {
 		var y = fnc.calendarApp.selectedCmCalendarYear();
@@ -2604,7 +2607,7 @@ fnc.calendarApp = new function () {
 		if (y <= CM_CALENDAR_MIN_YEAR) return;
 		validateCmCalindarYears(y, self.cmCalendarYears, function () {
 			fnc.calendarApp.selectedCmCalendarYear(y);
-		})
+		});
 
 		
 	};
@@ -2615,7 +2618,7 @@ fnc.calendarApp = new function () {
 		if (y > self.today.getFullYear()) return;
 		validateCmCalindarYears(y, self.cmCalendarYears, function () {
 			fnc.calendarApp.selectedCmCalendarYear(y);
-		})
+		});
 
 	};
 
@@ -2651,10 +2654,11 @@ fnc.calendarApp = new function () {
 				if (it.Selected()) {
 					r = it;
 				}
-			})
+			});
 		}	
 		return r;
 	}, self);
 
+	//return self;
 
 };

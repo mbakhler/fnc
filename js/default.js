@@ -100,9 +100,7 @@
 	fnc.salesFormUnlockInterval = 10000;
 	fnc.salesFormUnlockTimer;
 
-	var w_href = window.location.href;
 	fnc.appid = '88A16020-BE57-4EE4-9FB7-5B028E4A2D1C';
-	var chartPrefix = 'COA';
 
 	//prod
 	//var servicesHost = "https://www.chefmod.com";
@@ -116,19 +114,8 @@
 	var servicesHost = "http://testweb.chefmod.com/tst";
 	var ajaxURL = "http://testweb.chefmod.com/tst/ChefMod.Financials.UI.Services/HostPage.aspx/ExecAppMethod";
 
-	// Environment variables
-	var scrollBarWidth = 17;
-	var minWidthSection0 = 800;
-	var minWidthSection1 = 1000;
-	var minWidthSection2 = 1000;
-	var maxResizableWidth = 1450;	//1500
-	var minResizableWidth = 1288;
-	var deltaWidth = 136;
-
-	var screenWidth = window.screen.width;
-	var screenHeight = window.screen.height;
-	var screenAvailWidth = window.screen.availWidth;
 	var screenAvailHeight = window.screen.availHeight < 850 ? 850 : window.screen.availHeight;		// + 70;
+
 	var poListTableHeight = screenAvailHeight - 554;	//524;	//494;
 	var poListLocationHeight = screenAvailHeight - 630; //575;	//610;
 	var poListVendorHeight = screenAvailHeight - 666;
@@ -151,18 +138,12 @@
 	var eInvoicesListTableHeight = screenAvailHeight - 495;	//465;
 	var eInvoiceItemsTableHeight = screenAvailHeight - 565;
 
-	var appWidht = screenAvailWidth - 115;
 	var appHeight = 700;	//screenAvailHeight - 250;
 	var invoicesPageHeight = screenAvailHeight - 300;
 	var tabNavHeight = null;
 	var tabPaneHeight = null;
 
-	var reconcileTableWidth = ko.observable(appWidht - 100);
-	var reconcileTableCaptionHeight = null;
-	var reconcileTableHeaderHeight = null;
-	var reconcileTableBodyHeight = screenAvailHeight - 500;		//527;
-	var reconcileTableColumnItemWidth = null;
-	var reconcileTableColumnGLWidth = 0;
+
 
 	var salesListTableHeight = screenAvailHeight - 411;
 	var salesListLocationHeight = screenAvailHeight - 527;

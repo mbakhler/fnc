@@ -1,6 +1,6 @@
 ﻿var fnc;
 fnc = fnc || {};
-fnc.invoicesAppNoPo = new function () {
+fnc.invoicesAppNoPo = (function () {
 	//private objects
 
 	var CostCenterItem = function (it) {
@@ -1726,5 +1726,6 @@ fnc.invoicesAppNoPo = new function () {
 
 	}
 
-	//return self;
-};
+	return self;
+
+}());

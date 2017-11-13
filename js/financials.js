@@ -1,9 +1,10 @@
-﻿/* fnc VIEW MODEL
+﻿/*jshint evil:true */
+
+/* fnc VIEW MODEL
 * ================================== */
 var fnc;
 fnc = fnc || {};
-fnc.app = new function () {
-
+fnc.app = (function () {
 	//privileges codes
 	var prvInvoicesViewId = '7_26_198';
 	var prvInvoicesCreateManualId = '7_26_196';
@@ -108,7 +109,7 @@ fnc.app = new function () {
 			self.filterDateRange(txt);
 			self.fakeChangeFlag(false);
 		}
-	}
+	};
 
 	function ajaxGetUserData(action, params, callback) {
 		var json = {
@@ -133,7 +134,7 @@ fnc.app = new function () {
 			}
 		});
 		//parent.continueSession();
-	};
+	}
 
 	function getUserData(callback) {
 		//.Id, .AppId, .IP, .Domain, .SessionSource
@@ -223,8 +224,8 @@ fnc.app = new function () {
 
 				//legacy
 				if (p.ID == prvLegacyVouchersViewId) {
-					fnc.app.prvLegacyVouchersViewEnable(true)
-				};
+					fnc.app.prvLegacyVouchersViewEnable(true);
+				}
 
 				//eInvoices
 				if (p.ID == prvEInvoicesViewId) {
@@ -320,32 +321,32 @@ fnc.app = new function () {
 
 			var locations = JSON.parse(r.ImpersonatedUser.OrganizationList).result.row;
 			var parentOrgId = r.Session.OrganizationId;
-
+			var i, o, it;
 			if (locations[0]) {
-				for (var i = 0; i < locations.length; i++) {
-					var it = locations[i];
-					var o = new fnc.locationItem({ locationId: it.OrgId, locationName: it.OrgName });
+				for (i = 0; i < locations.length; i++) {
+					it = locations[i];
+					o = new fnc.locationItem({ locationId: it.OrgId, locationName: it.OrgName });
 					//if (it.IsDefault == '1') o.Selected(true);
 					if (it.OrgId == parentOrgId) o.Selected(true);
 					fnc.app.filterAvailableLocations.push(o);
 				}
 				fnc.app.singleLocation(false);
 			} else {
-				var it = locations;
-				var o = new fnc.locationItem({ locationId: it.OrgId, locationName: it.OrgName });
+				it = locations;
+				o = new fnc.locationItem({ locationId: it.OrgId, locationName: it.OrgName });
 				o.Selected(true);
 				fnc.app.filterAvailableLocations.push(o);
 			}
 
 			var arr = [];
-			for (var i = 0; i < fnc.app.filterAvailableLocations().length; i++) {
+			for (i = 0; i < fnc.app.filterAvailableLocations().length; i++) {
 				arr.push(fnc.app.filterAvailableLocations()[i].LocationId);
 			}
 			fnc.app.allOrgString(arr.join(','));
 
 			if (callback) callback();
 		});
-	};
+	}
 
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -381,22 +382,23 @@ fnc.app = new function () {
 			if (options.displayDownloadLink) {
 				this.displayDownloadLink(true);
 			}
+			var i;
 			if (numStages) {
 				stages = [];
 				totalWeight = 0;
-				for (var i = 0; i < numStages; i++) {
+				for (i = 0; i < numStages; i++) {
 					var weight = options && options.stageWeights && options.stageWeights[i + 1] ? options.stageWeights[i + 1] : 1;
 					totalWeight += weight;
 					stages.push(new Stage(weight));
 				}
 			}
 			else {
-				for (var i = 0; i < stages.length; i++) {
+				for (i = 0; i < stages.length; i++) {
 					stages[i].numDone = 0;
 				}
 			}
 			currentStageNum = 0;
-		}
+		};
 
 		this.setStage = function (stageNum, description) {
 			currentStageNum = stageNum - 1;
@@ -411,24 +413,24 @@ fnc.app = new function () {
 				backdrop: 'static',
 				keyboard: false
 			});
-		}
+		};
 		this.hide = function () {
 			$('#' + id).modal('hide');
-		}
+		};
 		this.isShown = function () {
 			return $('#' + id).data('bs.modal').isShown;
-		}
+		};
 		function Stage(weight) {
 			this.total = 1;
 			this.numDone = 0;
-			this.weight = weight ? weight : 1
+			this.weight = weight ? weight : 1;
 			this.description = ko.observable("");
-		};
-	};
+		}
+	}
 
 	function getQueryStringValue(key) {
 		return unescape(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + escape(key).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"));
-	};
+	}
 
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	//public
@@ -720,7 +722,9 @@ fnc.app = new function () {
 
 	self.EInvoice = ko.observable(null);
 
-	//return self;
+	return self;
 
-}
+}());
+
+
 
